@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Solutions Partner Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --surface: #ffffff;
+      --surface2: #f9fafb;
+      --border: #e5e7eb;
+      --text: #111827;
+      --muted: #6b7280;
+      --accent: #7c3aed;
+      --accent-dim: rgba(124,58,237,0.07);
+      --t1: #7c3aed;
+      --t1-dim: rgba(124,58,237,0.08);
+      --t2: #2563eb;
+      --t2-dim: rgba(37,99,235,0.08);
+      --t3: #d97706;
+      --t3-dim: rgba(217,119,6,0.08);
+      --green: #059669;
+      --green-dim: rgba(5,150,105,0.08);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif; font-size: 14px; min-height: 100vh; }
+
+    /* ── Layout ── */
+    .page { max-width: 1300px; margin: 0 auto; padding: 48px 32px 80px; }
+
+    /* ── Header ── */
+    .header { margin-bottom: 44px; padding-bottom: 32px; border-bottom: 1px solid var(--border); }
+    .header-eyebrow { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); margin-bottom: 10px; }
+    .header h1 { font-size: 30px; font-weight: 800; letter-spacing: -0.6px; line-height: 1.15; color: var(--text); }
+    .header h1 em { font-style: normal; color: var(--accent); }
+    .header-sub { color: var(--muted); margin-top: 8px; font-size: 13px; }
+    .header-badge { display: inline-flex; align-items: center; gap: 7px; margin-top: 14px; font-size: 12px; color: var(--muted); }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+
+    /* ── Toolbar ── */
+    .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 32px; flex-wrap: wrap; }
+
+    /* ── Tier tabs ── */
+    .tabs { display: flex; gap: 2px; background: var(--surface2); padding: 3px; border-radius: 9px; border: 1px solid var(--border); }
+    .tab { padding: 6px 18px; border-radius: 7px; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--muted); border: none; background: none; transition: all 0.15s; font-family: inherit; }
+    .tab.active { background: #fff; color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+    .tab[data-tier="Tier 1"].active { color: var(--t1); }
+    .tab[data-tier="All"].active { color: var(--accent); }
+
+    /* ── Month multi-select dropdown ── */
+    .toolbar-right { display: flex; align-items: center; gap: 10px; }
+    .filter-label { font-size: 12px; color: var(--muted); font-weight: 500; white-space: nowrap; }
+    .dropdown-wrap { position: relative; }
+    .dropdown-btn {
+      display: flex; align-items: center; gap: 8px;
+      background: #fff; border: 1px solid var(--border); border-radius: 8px;
+      padding: 7px 12px; font-size: 13px; color: var(--text); cursor: pointer;
+      font-family: inherit; transition: border-color 0.15s; white-space: nowrap;
+    }
+    .dropdown-btn:hover, .dropdown-btn.open { border-color: var(--accent); }
+    .dropdown-btn .chev { transition: transform 0.15s; }
+    .dropdown-btn.open .chev { transform: rotate(180deg); }
+    .dropdown-menu {
+      display: none; position: absolute; top: calc(100% + 6px); right: 0;
+      background: #fff; border: 1px solid var(--border); border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.10); min-width: 190px; z-index: 200; padding: 6px;
+    }
+    .dropdown-menu.open { display: block; }
+    .dropdown-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 10px; border-radius: 6px; cursor: pointer;
+      font-size: 13px; color: var(--text); transition: background 0.1s;
+      user-select: none;
+    }
+    .dropdown-item:hover { background: var(--surface2); }
+    .dropdown-item input[type="checkbox"] { accent-color: var(--accent); width: 15px; height: 15px; cursor: pointer; flex-shrink: 0; }
+    .dropdown-sep { height: 1px; background: var(--border); margin: 4px 0; }
+
+    /* ── Section labels ── */
+    .section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin-bottom: 16px; }
+
+    /* ── KPI cards ── */
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; margin-bottom: 36px; }
+    .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px 22px; transition: box-shadow 0.15s, border-color 0.15s; }
+    .kpi-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.06); border-color: #d1d5db; }
+    .kpi-label { font-size: 12px; color: var(--muted); margin-bottom: 10px; font-weight: 500; }
+    .kpi-value { font-size: 36px; font-weight: 800; letter-spacing: -1.5px; line-height: 1; }
+    .kpi-sub { font-size: 11px; color: var(--muted); margin-top: 8px; line-height: 1.4; }
+    .kpi-card.t1 .kpi-value { color: var(--t1); }
+    .kpi-card.t2 .kpi-value { color: var(--t2); }
+    .kpi-card.t3 .kpi-value { color: var(--t3); }
+    .kpi-card.green .kpi-value { color: var(--green); }
+    .kpi-card.accent .kpi-value { color: var(--accent); }
+
+    /* ── Charts ── */
+    .charts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; margin-bottom: 36px; }
+    .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
+    .chart-card h3 { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+    .chart-card p { font-size: 12px; color: var(--muted); margin-bottom: 20px; }
+    .chart-wrap { position: relative; height: 200px; }
+
+    /* ── Partner table ── */
+    .table-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+    .table-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; border-bottom: 1px solid var(--border); gap: 12px; flex-wrap: wrap; }
+    .table-header h3 { font-size: 14px; font-weight: 700; }
+    .table-search { background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 7px 12px; font-size: 13px; color: var(--text); outline: none; width: 220px; font-family: inherit; }
+    .table-search::placeholder { color: var(--muted); }
+    .table-search:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+    table { width: 100%; border-collapse: collapse; }
+    thead th { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); padding: 10px 24px; text-align: left; background: var(--surface2); border-bottom: 1px solid var(--border); cursor: pointer; user-select: none; white-space: nowrap; }
+    thead th:hover { color: var(--text); }
+    thead th .sort-icon { display: inline-block; margin-left: 4px; opacity: 0.4; }
+    thead th.sorted .sort-icon { opacity: 1; color: var(--accent); }
+    tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #fafaff; }
+    tbody td { padding: 12px 24px; font-size: 13px; }
+    .pill { display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .pill.t1 { background: var(--t1-dim); color: var(--t1); }
+    .pill.t2 { background: var(--t2-dim); color: var(--t2); }
+    .pill.t3 { background: var(--t3-dim); color: var(--t3); }
+    .metric-val { font-weight: 600; }
+    .metric-val.zero { color: #d1d5db; font-weight: 400; }
+    .metric-val.good { color: var(--green); }
+    .partner-name { font-weight: 500; color: var(--text); }
+    .partner-email { font-size: 11px; color: var(--muted); margin-top: 1px; }
+    .no-rows { text-align: center; padding: 48px; color: var(--muted); }
+    .pagination { display: flex; align-items: center; justify-content: space-between; padding: 14px 24px; border-top: 1px solid var(--border); font-size: 12px; color: var(--muted); background: var(--surface2); }
+    .pag-btns { display: flex; gap: 6px; }
+    .pag-btn { background: #fff; border: 1px solid var(--border); border-radius: 7px; color: var(--text); padding: 5px 14px; font-size: 12px; cursor: pointer; font-family: inherit; transition: all 0.12s; }
+    .pag-btn:disabled { opacity: 0.35; cursor: default; }
+    .pag-btn:not(:disabled):hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── Misc ── */
+    .divider { border: none; border-top: 1px solid var(--border); margin: 36px 0; }
+    .bar-wrap { display: flex; align-items: center; gap: 8px; }
+    .bar { height: 4px; border-radius: 2px; min-width: 2px; }
+
+    @media (max-width: 640px) {
+      .page { padding: 24px 16px 60px; }
+      .charts-grid { grid-template-columns: 1fr; }
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .toolbar { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-eyebrow">Solutions Partner Program</div>
+    <h1>Partner <em>Performance</em> Dashboard</h1>
+    <p class="header-sub">Tier 1 &nbsp;·&nbsp; Partners added since January 2026</p>
+    <div class="header-badge"><span class="dot"></span> Live · PartnerStack</div>
+  </div>
+
+  <!-- Toolbar: tier tabs + month filter -->
+  <div class="toolbar">
+    <div class="tabs">
+      <button class="tab active" data-tier="All" onclick="setTier('All')">All Partners</button>
+      <button class="tab" data-tier="Tier 1" onclick="setTier('Tier 1')">Tier 1</button>
+    </div>
+    <div class="toolbar-right">
+      <span class="filter-label">Period</span>
+      <div class="dropdown-wrap" id="month-wrap">
+        <button class="dropdown-btn" id="month-btn" onclick="toggleMonthDropdown()">
+          <span id="month-label">All months</span>
+          <svg class="chev" width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M2 4.5l4 4 4-4" stroke="#6b7280" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <div class="dropdown-menu" id="month-menu">
+          <label class="dropdown-item">
+            <input type="checkbox" id="chk-all" onchange="toggleAllMonths(this)" checked>
+            <span>All months</span>
+          </label>
+          <div class="dropdown-sep"></div>
+          <label class="dropdown-item">
+            <input type="checkbox" class="month-chk" value="2026-01" onchange="toggleMonth(this)" checked>
+            <span>Jan 2026</span>
+          </label>
+          <label class="dropdown-item">
+            <input type="checkbox" class="month-chk" value="2026-02" onchange="toggleMonth(this)" checked>
+            <span>Feb 2026</span>
+          </label>
+          <label class="dropdown-item">
+            <input type="checkbox" class="month-chk" value="2026-03" onchange="toggleMonth(this)" checked>
+            <span>Mar 2026</span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="section-title" id="kpi-section-title">Overview · All months</div>
+  <div class="kpi-grid" id="kpi-grid"></div>
+
+  <hr class="divider" />
+
+  <!-- Charts -->
+  <div class="section-title">Month-over-Month Trends</div>
+  <div class="charts-grid">
+    <div class="chart-card">
+      <h3>New Partners Joined</h3>
+      <p>Partners added to each tier per month</p>
+      <div class="chart-wrap"><canvas id="chart-joined"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Partners with ≥1 Trial</h3>
+      <p>Partners who generated at least one customer sign-up</p>
+      <div class="chart-wrap"><canvas id="chart-trials"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Partners who Activated</h3>
+      <p>Partners who sold at least one new paying customer</p>
+      <div class="chart-wrap"><canvas id="chart-activations"></canvas></div>
+    </div>
+  </div>
+
+  <hr class="divider" />
+
+  <!-- Partner Table -->
+  <div class="table-card">
+    <div class="table-header">
+      <h3>Partner Detail <span id="table-count" style="color:var(--muted);font-weight:400;font-size:13px;"></span></h3>
+      <input class="table-search" id="table-search" placeholder="Search by name or email…" oninput="filterTable()" />
+    </div>
+    <div style="overflow-x:auto;">
+      <table>
+        <thead>
+          <tr>
+            <th onclick="sortTable('tier')" id="th-tier">Tier <span class="sort-icon">↕</span></th>
+            <th onclick="sortTable('name')" id="th-name">Partner <span class="sort-icon">↕</span></th>
+            <th onclick="sortTable('month')" id="th-month">Joined <span class="sort-icon">↕</span></th>
+            <th onclick="sortTable('trials')" id="th-trials">Trials <span class="sort-icon">↕</span></th>
+            <th onclick="sortTable('activations')" id="th-activations">Activations <span class="sort-icon">↕</span></th>
+            <th>Trial Breakdown</th>
+          </tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+    <div class="pagination">
+      <span id="pag-info"></span>
+      <div class="pag-btns">
+        <button class="pag-btn" id="pag-prev" onclick="changePage(-1)">← Prev</button>
+        <button class="pag-btn" id="pag-next" onclick="changePage(1)">Next →</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── Data ──────────────────────────────────────────────────────────────────────
+const RAW = {"summary":{"Tier 1":{"total_joined":85,"with_trials":11,"with_activations":7,"total_trials":31,"total_activations":10},"Tier 2":{"total_joined":0,"with_trials":0,"with_activations":0,"total_trials":0,"total_activations":0},"Tier 3":{"total_joined":0,"with_trials":0,"with_activations":0,"total_trials":0,"total_activations":0}},"monthly":{"2026-01":{"Tier 1":{"joined":26,"with_trials":5,"with_activations":5,"total_trials":25.0,"total_activations":8.0}},"2026-02":{"Tier 1":{"joined":39,"with_trials":4,"with_activations":2,"total_trials":4.0,"total_activations":2.0}},"2026-03":{"Tier 1":{"joined":20,"with_trials":2,"with_activations":0,"total_trials":2.0,"total_activations":0.0}}},"partners":{"Tier 1":[{"name":"RevPro","email":"matt@revpro.io","tier":"Tier 1","joined_date":"2026-03-18","month":"2026-03","trials":0.0,"activations":0.0,"revenue_cents":0.0,"commission_cents":0.0},{"name":"ian@juicetactics.com","email":"ian@juicetactics.com","tier":"Tier 1","joined_date":"2026-03-17","month":"2026-03","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"Shana Steigerwalt","email":"shana@moderndrivenmedia.com","tier":"Tier 1","joined_date":"2026-03-16","month":"2026-03","trials":0.0,"activations":0.0,"revenue_cents":0.0,"commission_cents":0.0},{"name":"Calyra Technologies FZ-LLC","email":"chirag@zenoll.com","tier":"Tier 1","joined_date":"2026-03-15","month":"2026-03","trials":0.0,"activations":0.0,"revenue_cents":0.0,"commission_cents":0.0},{"name":"Dynamic Agency OS","email":"chris@dynamicagencyos.com","tier":"Tier 1","joined_date":"2026-03-13","month":"2026-03","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"Max Traylor","email":"max@maxtraylor.com","tier":"Tier 1","joined_date":"2026-03-13","month":"2026-03","trials":0.0,"activations":0.0,"revenue_cents":0.0,"commission_cents":0.0},{"name":"Online Exits LLC","email":"wiktor@callfunnel.com","tier":"Tier 1","joined_date":"2026-03-13","month":"2026-03","trials":1,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"CRM Craft","email":"maxim.wright@crm-craft.com","tier":"Tier 1","joined_date":"2026-03-13","month":"2026-03","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"Inflowork","email":"mdigrazia@inflowork.com","tier":"Tier 1","joined_date":"2026-03-12","month":"2026-03","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"A-Sync Management","email":"eric@sync-elect.com","tier":"Tier 1","joined_date":"2026-03-10","month":"2026-03","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"Automation Consulting Services","email":"development@automationconsultingservices.org","tier":"Tier 1","joined_date":"2026-03-10","month":"2026-03","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"Robbie Jack","email":"robbie@growthmarketer.com","tier":"Tier 1","joined_date":"2026-03-09","month":"2026-03","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"Rouse & Holder LLC","email":"admin@rouseholder.com","tier":"Tier 1","joined_date":"2026-03-06","month":"2026-03","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"Renaissance Closer","email":"mananiselijah@gmail.com","tier":"Tier 1","joined_date":"2026-03-04","month":"2026-03","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"EPM MEDIA LLC","email":"elijah@renaissancecloser.com","tier":"Tier 1","joined_date":"2026-03-03","month":"2026-03","trials":0.0,"activations":0.0,"revenue_cents":0.0,"commission_cents":0.0},{"name":"Suns Out LLC","email":"affiliate@sunsout.agency","tier":"Tier 1","joined_date":"2026-03-03","month":"2026-03","trials":0.0,"activations":0.0,"revenue_cents":0.0,"commission_cents":0.0},{"name":"media junction\u00ae","email":"trish@mediajunction.com","tier":"Tier 1","joined_date":"2026-03-03","month":"2026-03","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"Movers and Makers GmbH","email":"yaira@moversmakers.eu","tier":"Tier 1","joined_date":"2026-03-03","month":"2026-03","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"Moritz Goetz Ventures LLC","email":"moritz.goetz94@gmail.com","tier":"Tier 1","joined_date":"2026-03-03","month":"2026-03","trials":1,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"Monarch Web Solutions, Corp","email":"fhindmon@monarchillinois.com","tier":"Tier 1","joined_date":"2026-03-02","month":"2026-03","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"Ikner Cromwell","email":"persistencemarketreasearch.com@gmail.com","tier":"Tier 1","joined_date":"2026-02-28","month":"2026-02","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"FiftyTechSolutions.com","email":"kofi@fiftytechsolutions.com","tier":"Tier 1","joined_date":"2026-02-26","month":"2026-02","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"Better Growth","email":"partner@bettergrowth.io","tier":"Tier 1","joined_date":"2026-02-25","month":"2026-02","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"Coalition Technologies","email":"partnerships@coalitiontechnologies.com","tier":"Tier 1","joined_date":"2026-02-24","month":"2026-02","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"StackWise","email":"kris@stack-wise.com","tier":"Tier 1","joined_date":"2026-02-24","month":"2026-02","trials":1,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"Nebula AI","email":"jpark1996007@gmail.com","tier":"Tier 1","joined_date":"2026-02-24","month":"2026-02","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"RepVision","email":"jake@repvision.app","tier":"Tier 1","joined_date":"2026-02-23","month":"2026-02","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"Joe Chancellor d/b/a Rebel Video","email":"joe@rebelvideo.pro","tier":"Tier 1","joined_date":"2026-02-23","month":"2026-02","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"Hayda Ventures LLC","email":"jameshayes118@gmail.com","tier":"Tier 1","joined_date":"2026-02-20","month":"2026-02","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"MTRevOps","email":"jturbett@mtrevops.com","tier":"Tier 1","joined_date":"2026-02-20","month":"2026-02","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"John Gaertner","email":"johngaertner@bizesteem.com","tier":"Tier 1","joined_date":"2026-02-20","month":"2026-02","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"Olivier JOUSSELIN","email":"olivier@oj-sales.com","tier":"Tier 1","joined_date":"2026-02-20","month":"2026-02","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"LINKVANCE LLC","email":"admin@linkvancellc.com","tier":"Tier 1","joined_date":"2026-02-20","month":"2026-02","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"Funnel Stack","email":"funnelstackco@gmail.com","tier":"Tier 1","joined_date":"2026-02-19","month":"2026-02","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"GTM Engineering","email":"jorge.macias.gf@gmail.com","tier":"Tier 1","joined_date":"2026-02-16","month":"2026-02","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"N7X","email":"niklas.hummel@n7x.de","tier":"Tier 1","joined_date":"2026-02-11","month":"2026-02","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"BEONLINE Digital Sales GmbH","email":"gary.silver@beonline.de","tier":"Tier 1","joined_date":"2026-02-11","month":"2026-02","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"FindFahim","email":"fahimahmedsamid@gmail.com","tier":"Tier 1","joined_date":"2026-02-10","month":"2026-02","trials":0.0,"activations":0.0,"revenue_cents":0.0,"commission_cents":0.0},{"name":"100 Codes Technologies","email":"info@100codes.com","tier":"Tier 1","joined_date":"2026-02-10","month":"2026-02","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"HighLevel Buddy","email":"hopechristianlavina@gmail.com","tier":"Tier 1","joined_date":"2026-02-09","month":"2026-02","trials":0.0,"activations":0.0,"revenue_cents":0.0,"commission_cents":0.0},{"name":"Dawid Jozwiak","email":"jozwiakdawid@gmail.com","tier":"Tier 1","joined_date":"2026-02-09","month":"2026-02","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"S.H. Growth Marketing LLC","email":"contact@shmktg.com","tier":"Tier 1","joined_date":"2026-02-07","month":"2026-02","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"The Circle Studio LLC","email":"support@circlstdio.io","tier":"Tier 1","joined_date":"2026-02-07","month":"2026-02","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"ClayVengers","email":"s@clayvengers.com","tier":"Tier 1","joined_date":"2026-02-06","month":"2026-02","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"Business Raisers","email":"jayander@businessraisers.com","tier":"Tier 1","joined_date":"2026-02-06","month":"2026-02","trials":0.0,"activations":0.0,"revenue_cents":0.0,"commission_cents":0.0},{"name":"Purple Bee Consulting","email":"leia@purplebeeconsulting.com","tier":"Tier 1","joined_date":"2026-02-06","month":"2026-02","trials":1,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"Arab Eduscale","email":"abdullah.osama2005@gmail.com","tier":"Tier 1","joined_date":"2026-02-06","month":"2026-02","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"Socialformance UG (haftungsbeschr\u00e4nkt)","email":"management@socialformance.de","tier":"Tier 1","joined_date":"2026-02-06","month":"2026-02","trials":1,"activations":1,"revenue_cents":35149,"commission_cents":10544},{"name":"supply digitalera llc","email":"sdigitalera@gmail.com","tier":"Tier 1","joined_date":"2026-02-06","month":"2026-02","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"NXT YOU GmbH","email":"arthur.grabowski@nxtyou.de","tier":"Tier 1","joined_date":"2026-02-06","month":"2026-02","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"Biz Assist US LLC","email":"charlisa@bizassistllc.com","tier":"Tier 1","joined_date":"2026-02-06","month":"2026-02","trials":0.0,"activations":0.0,"revenue_cents":0.0,"commission_cents":0.0},{"name":"Impekable","email":"pek@impekable.com","tier":"Tier 1","joined_date":"2026-02-06","month":"2026-02","trials":0.0,"activations":0.0,"revenue_cents":0.0,"commission_cents":0.0},{"name":"Diraj Goel","email":"tessa@getfreshventures.com","tier":"Tier 1","joined_date":"2026-02-05","month":"2026-02","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"GetFresh Ventures","email":"diraj@getfreshventures.com","tier":"Tier 1","joined_date":"2026-02-05","month":"2026-02","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"Paul Sullivan","email":"paul@biasdigital.com","tier":"Tier 1","joined_date":"2026-02-05","month":"2026-02","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"Low Code Genie","email":"garyzukowski@gmail.com","tier":"Tier 1","joined_date":"2026-02-05","month":"2026-02","trials":1,"activations":1,"revenue_cents":24404,"commission_cents":7321},{"name":"The AI Sea","email":"igor@theaisea.com","tier":"Tier 1","joined_date":"2026-02-03","month":"2026-02","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"SaaS Blogger Elite","email":"info@saasbloggerelite.com","tier":"Tier 1","joined_date":"2026-02-03","month":"2026-02","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"Stamina","email":"nika@staminasales.net","tier":"Tier 1","joined_date":"2026-02-02","month":"2026-02","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"Audience Intelligence","email":"customersuccess@audienceintelligence.asia","tier":"Tier 1","joined_date":"2026-01-31","month":"2026-01","trials":0.0,"activations":0.0,"revenue_cents":0.0,"commission_cents":0.0},{"name":"Esperanza Arellano","email":"esperanza@sustainevolve.ai","tier":"Tier 1","joined_date":"2026-01-30","month":"2026-01","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"CRMside","email":"victor@crmside.com","tier":"Tier 1","joined_date":"2026-01-30","month":"2026-01","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"F-tail","email":"mb@f-tail.com","tier":"Tier 1","joined_date":"2026-01-30","month":"2026-01","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"newcreation Media GmbH","email":"info@newcreation.de","tier":"Tier 1","joined_date":"2026-01-30","month":"2026-01","trials":1,"activations":1,"revenue_cents":4522,"commission_cents":1356},{"name":"Konduit Operations Inc.","email":"katie@konduitoperations.com","tier":"Tier 1","joined_date":"2026-01-30","month":"2026-01","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"Profit With Us","email":"branden@profitwithus.org","tier":"Tier 1","joined_date":"2026-01-30","month":"2026-01","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"RevUp Enterprise Ltd","email":"peer@revuplimited.com","tier":"Tier 1","joined_date":"2026-01-26","month":"2026-01","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"James White","email":"freakinreviewss@gmail.com","tier":"Tier 1","joined_date":"2026-01-26","month":"2026-01","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"Andy Phipps","email":"agphipps1@gmail.com","tier":"Tier 1","joined_date":"2026-01-23","month":"2026-01","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"Yotomations LLC","email":"admin@yotomations.com","tier":"Tier 1","joined_date":"2026-01-23","month":"2026-01","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"Elix Digital Ventures","email":"boyrivent.elie@gmail.com","tier":"Tier 1","joined_date":"2026-01-22","month":"2026-01","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"Dheeraj Saxena","email":"hello@datawhistl.com","tier":"Tier 1","joined_date":"2026-01-22","month":"2026-01","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"Rheis Consulting","email":"rheis@rheis.com.br","tier":"Tier 1","joined_date":"2026-01-21","month":"2026-01","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"CRDLE","email":"valerie@crdle.com","tier":"Tier 1","joined_date":"2026-01-15","month":"2026-01","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"Andrey Cheptsov","email":"andreycheptsov.dstack@gmail.com","tier":"Tier 1","joined_date":"2026-01-14","month":"2026-01","trials":9,"activations":1,"revenue_cents":181084,"commission_cents":54325},{"name":"YB.MS","email":"yassinbaum.mailscale@gmail.com","tier":"Tier 1","joined_date":"2026-01-14","month":"2026-01","trials":11,"activations":4,"revenue_cents":311521,"commission_cents":93458},{"name":"Honesto Sales","email":"sales@ilyalevelev.com","tier":"Tier 1","joined_date":"2026-01-14","month":"2026-01","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"ApexTech","email":"itereshchuk@apextech.co","tier":"Tier 1","joined_date":"2026-01-14","month":"2026-01","trials":0.0,"activations":0.0,"revenue_cents":0.0,"commission_cents":0.0},{"name":"Bizomatic Solutions Pvt Ltd","email":"aliakbarhhamid@gmail.com","tier":"Tier 1","joined_date":"2026-01-06","month":"2026-01","trials":3,"activations":1,"revenue_cents":99357,"commission_cents":29807},{"name":"Alekas Solutions Pvt Ltd","email":"sales@alekaas.com","tier":"Tier 1","joined_date":"2026-01-06","month":"2026-01","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"DA Labs","email":"ricardo@da-labs.co","tier":"Tier 1","joined_date":"2026-01-06","month":"2026-01","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"HUNARI GmbH","email":"partner@hunari.de","tier":"Tier 1","joined_date":"2026-01-06","month":"2026-01","trials":0.0,"activations":0.0,"revenue_cents":0.0,"commission_cents":0.0},{"name":"Triple 5 Consulting","email":"jace@triple5consulting.com","tier":"Tier 1","joined_date":"2026-01-06","month":"2026-01","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"CodelystCRM Platforms Private Limited","email":"s.natarajan@codelystcrm.com","tier":"Tier 1","joined_date":"2026-01-06","month":"2026-01","trials":0,"activations":0,"revenue_cents":0,"commission_cents":0},{"name":"Inflo Partners","email":"shariq@inflopartners.com","tier":"Tier 1","joined_date":"2026-01-06","month":"2026-01","trials":1,"activations":1,"revenue_cents":21600,"commission_cents":6480}],"Tier 2":[],"Tier 3":[]}};
+
+// ── Constants ──────────────────────────────────────────────────────────────────
+const MONTHS = ['2026-01','2026-02','2026-03'];
+const MONTH_LABELS_MAP = {'2026-01':'Jan 2026','2026-02':'Feb 2026','2026-03':'Mar 2026'};
+const TIER_COLORS = {
+  'Tier 1': { bar: '#7c3aed', fill: 'rgba(124,58,237,0.15)' },
+  'Tier 2': { bar: '#2563eb', fill: 'rgba(37,99,235,0.15)' },
+  'Tier 3': { bar: '#d97706', fill: 'rgba(217,119,6,0.15)' },
+};
+const TIER_CLS = { 'Tier 1':'t1','Tier 2':'t2','Tier 3':'t3' };
+
+// ── State ──────────────────────────────────────────────────────────────────────
+let currentTier = 'All';
+let selectedMonths = new Set(MONTHS);
+let currentSort = { col: 'trials', dir: 'desc' };
+let searchQuery = '';
+let currentPage = 1;
+const PAGE_SIZE = 20;
+let charts = {};
+
+// ── Month dropdown ─────────────────────────────────────────────────────────────
+function toggleMonthDropdown() {
+  const menu = document.getElementById('month-menu');
+  const btn  = document.getElementById('month-btn');
+  const open = menu.classList.toggle('open');
+  btn.classList.toggle('open', open);
+}
+
+document.addEventListener('click', e => {
+  if (!document.getElementById('month-wrap').contains(e.target)) {
+    document.getElementById('month-menu').classList.remove('open');
+    document.getElementById('month-btn').classList.remove('open');
+  }
+});
+
+function toggleAllMonths(el) {
+  document.querySelectorAll('.month-chk').forEach(cb => {
+    cb.checked = el.checked;
+    if (el.checked) selectedMonths.add(cb.value);
+    else selectedMonths.delete(cb.value);
+  });
+  updateMonthLabel();
+  refresh();
+}
+
+function toggleMonth(el) {
+  if (el.checked) selectedMonths.add(el.value);
+  else selectedMonths.delete(el.value);
+  const allChk = document.getElementById('chk-all');
+  allChk.checked = selectedMonths.size === MONTHS.length;
+  allChk.indeterminate = selectedMonths.size > 0 && selectedMonths.size < MONTHS.length;
+  updateMonthLabel();
+  refresh();
+}
+
+function updateMonthLabel() {
+  const el = document.getElementById('month-label');
+  if (selectedMonths.size === 0) el.textContent = 'No months';
+  else if (selectedMonths.size === MONTHS.length) el.textContent = 'All months';
+  else el.textContent = [...selectedMonths].sort().map(m => MONTH_LABELS_MAP[m]).join(', ');
+
+  // Also update section title
+  const title = document.getElementById('kpi-section-title');
+  if (selectedMonths.size === MONTHS.length) title.textContent = 'Overview · All months';
+  else if (selectedMonths.size === 0) title.textContent = 'Overview · No months selected';
+  else title.textContent = 'Overview · ' + [...selectedMonths].sort().map(m => MONTH_LABELS_MAP[m]).join(', ');
+}
+
+// ── Tier filter ────────────────────────────────────────────────────────────────
+function setTier(tier) {
+  currentTier = tier;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tier === tier));
+  refresh();
+}
+
+function refresh() {
+  currentPage = 1;
+  renderKPIs();
+  renderCharts();
+  renderTable();
+}
+
+// ── Derived data helpers ───────────────────────────────────────────────────────
+function getActivePartners(forTier) {
+  let rows = [...(RAW.partners['Tier 1'] || [])];
+  if (selectedMonths.size < MONTHS.length) rows = rows.filter(p => selectedMonths.has(p.month));
+  return rows;
+}
+
+function calcStats(partners) {
+  return {
+    total_joined:      partners.length,
+    with_trials:       partners.filter(p => p.trials > 0).length,
+    with_activations:  partners.filter(p => p.activations > 0).length,
+    total_trials:      partners.reduce((s, p) => s + (p.trials || 0), 0),
+    total_activations: partners.reduce((s, p) => s + (p.activations || 0), 0),
+  };
+}
+
+function getVisibleMonths() {
+  return MONTHS.filter(m => selectedMonths.has(m));
+}
+
+// ── KPI cards ─────────────────────────────────────────────────────────────────
+function renderKPIs() {
+  const grid = document.getElementById('kpi-grid');
+
+  if (currentTier === 'All') {
+    const s = calcStats(getActivePartners('Tier 1'));
+    const trialRate = s.total_joined > 0 ? ((s.with_trials / s.total_joined) * 100).toFixed(0) : 0;
+    const actRate   = s.with_trials > 0  ? ((s.with_activations / s.with_trials) * 100).toFixed(0) : 0;
+    grid.innerHTML = `
+      <div class="kpi-card t1">
+        <div class="kpi-label">Partners Joined</div>
+        <div class="kpi-value">${s.total_joined}</div>
+        <div class="kpi-sub">In selected period</div>
+      </div>
+      <div class="kpi-card green">
+        <div class="kpi-label">Generated ≥1 Trial</div>
+        <div class="kpi-value">${s.with_trials}</div>
+        <div class="kpi-sub">${trialRate}% of joined · ${s.total_trials} total</div>
+      </div>
+      <div class="kpi-card green">
+        <div class="kpi-label">Activated</div>
+        <div class="kpi-value">${s.with_activations}</div>
+        <div class="kpi-sub">${actRate}% trial→paid · ${s.total_activations} customers</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Trial → Activation Rate</div>
+        <div class="kpi-value" style="color:#059669">${actRate}%</div>
+        <div class="kpi-sub">Of partners who had trials</div>
+      </div>
+    `;
+  } else {
+    const s = calcStats(getActivePartners());
+    const cls = TIER_CLS[currentTier];
+    const trialRate = s.total_joined > 0 ? ((s.with_trials / s.total_joined) * 100).toFixed(0) : 0;
+    const actRate   = s.with_trials > 0  ? ((s.with_activations / s.with_trials) * 100).toFixed(0) : 0;
+    grid.innerHTML = `
+      <div class="kpi-card ${cls}">
+        <div class="kpi-label">Partners Joined</div>
+        <div class="kpi-value">${s.total_joined}</div>
+        <div class="kpi-sub">In selected period</div>
+      </div>
+      <div class="kpi-card ${cls}">
+        <div class="kpi-label">Generated ≥1 Trial</div>
+        <div class="kpi-value">${s.with_trials}</div>
+        <div class="kpi-sub">${trialRate}% of joined · ${s.total_trials} total</div>
+      </div>
+      <div class="kpi-card ${cls}">
+        <div class="kpi-label">Activated</div>
+        <div class="kpi-value">${s.with_activations}</div>
+        <div class="kpi-sub">${actRate}% trial→paid · ${s.total_activations} customers</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Trial → Activation Rate</div>
+        <div class="kpi-value" style="color:#059669">${actRate}%</div>
+        <div class="kpi-sub">Of partners who had trials</div>
+      </div>
+    `;
+  }
+}
+
+// ── Charts ────────────────────────────────────────────────────────────────────
+function makeChartData(metric) {
+  const visMonths = getVisibleMonths();
+  return [{
+    label: 'Tier 1',
+    data: visMonths.map(m => (RAW.monthly[m] && RAW.monthly[m]['Tier 1'] ? RAW.monthly[m]['Tier 1'][metric] : 0)),
+    backgroundColor: TIER_COLORS['Tier 1'].fill,
+    borderColor: TIER_COLORS['Tier 1'].bar,
+    borderWidth: 2,
+    borderRadius: 6,
+    borderSkipped: false,
+  }];
+}
+
+function buildChart(id, metric) {
+  const visMonths = getVisibleMonths();
+  const labels = visMonths.map(m => MONTH_LABELS_MAP[m]);
+  const ctx = document.getElementById(id).getContext('2d');
+  if (charts[id]) charts[id].destroy();
+  charts[id] = new Chart(ctx, {
+    type: 'bar',
+    data: { labels, datasets: makeChartData(metric) },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.raw}` } }
+      },
+      scales: {
+        x: {
+          grid: { color: '#f3f4f6' },
+          ticks: { color: '#6b7280', font: { size: 11 } },
+          border: { color: '#e5e7eb' }
+        },
+        y: {
+          grid: { color: '#f3f4f6' },
+          ticks: { color: '#6b7280', font: { size: 11 }, stepSize: 1 },
+          border: { color: '#e5e7eb' },
+          beginAtZero: true
+        }
+      }
+    }
+  });
+}
+
+function renderCharts() {
+  buildChart('chart-joined',      'joined');
+  buildChart('chart-trials',      'with_trials');
+  buildChart('chart-activations', 'with_activations');
+}
+
+// ── Table ─────────────────────────────────────────────────────────────────────
+function getFilteredPartners() {
+  let rows = getActivePartners();
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    rows = rows.filter(p =>
+      p.name.toLowerCase().includes(q) || p.email.toLowerCase().includes(q)
+    );
+  }
+  return rows;
+}
+
+function sortRows(rows) {
+  const { col, dir } = currentSort;
+  return [...rows].sort((a, b) => {
+    let av = a[col], bv = b[col];
+    if (typeof av === 'string') { av = av.toLowerCase(); bv = bv.toLowerCase(); }
+    return dir === 'asc' ? (av > bv ? 1 : -1) : (av < bv ? 1 : -1);
+  });
+}
+
+function sortTable(col) {
+  if (currentSort.col === col) currentSort.dir = currentSort.dir === 'asc' ? 'desc' : 'asc';
+  else { currentSort.col = col; currentSort.dir = 'desc'; }
+  renderTable();
+}
+
+function filterTable() {
+  searchQuery = document.getElementById('table-search').value;
+  currentPage = 1;
+  renderTable();
+}
+
+function changePage(delta) {
+  const total = Math.ceil(getFilteredPartners().length / PAGE_SIZE);
+  currentPage = Math.max(1, Math.min(currentPage + delta, total));
+  renderTable();
+}
+
+function renderTable() {
+  const all = sortRows(getFilteredPartners());
+  const total = all.length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  currentPage = Math.min(currentPage, totalPages);
+  const slice = all.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+  const maxTrials = Math.max(1, ...all.map(p => p.trials || 0));
+
+  ['tier','name','month','trials','activations'].forEach(col => {
+    const th = document.getElementById('th-' + col);
+    if (!th) return;
+    th.classList.toggle('sorted', currentSort.col === col);
+    th.querySelector('.sort-icon').textContent =
+      currentSort.col === col ? (currentSort.dir === 'asc' ? '↑' : '↓') : '↕';
+  });
+
+  document.getElementById('table-count').textContent =
+    `(${total} partner${total !== 1 ? 's' : ''})`;
+
+  const tbody = document.getElementById('table-body');
+  if (!slice.length) {
+    tbody.innerHTML = `<tr><td colspan="6" class="no-rows">No partners found</td></tr>`;
+  } else {
+    tbody.innerHTML = slice.map(p => {
+      const barW = Math.round(((p.trials || 0) / maxTrials) * 80);
+      const tierColor = TIER_COLORS[p.tier].bar;
+      return `<tr>
+        <td><span class="pill ${TIER_CLS[p.tier]}">${p.tier}</span></td>
+        <td>
+          <div class="partner-name">${p.name}</div>
+          <div class="partner-email">${p.email}</div>
+        </td>
+        <td style="color:var(--muted);white-space:nowrap">${MONTH_LABELS_MAP[p.month] || p.month}</td>
+        <td><span class="metric-val ${p.trials > 0 ? 'good' : 'zero'}">${p.trials || 0}</span></td>
+        <td><span class="metric-val ${p.activations > 0 ? 'good' : 'zero'}">${p.activations || 0}</span></td>
+        <td>
+          <div class="bar-wrap">
+            <div class="bar" style="width:${barW}px;background:${tierColor};opacity:0.7"></div>
+            <span style="font-size:11px;color:var(--muted)">
+              ${p.trials > 0 ? (p.trials + ' sign-up' + (p.trials !== 1 ? 's' : '')) : '—'}
+            </span>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  document.getElementById('pag-info').textContent =
+    `Page ${currentPage} of ${totalPages} · ${total} partner${total !== 1 ? 's' : ''}`;
+  document.getElementById('pag-prev').disabled = currentPage <= 1;
+  document.getElementById('pag-next').disabled = currentPage >= totalPages;
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+renderKPIs();
+renderCharts();
+renderTable();
+</script>
+</body>
+</html>
