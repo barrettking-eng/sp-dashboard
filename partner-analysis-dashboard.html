@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Partner User Analysis — Close CRM</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --close-blue: #0f62fe;
+      --close-blue-dark: #0043ce;
+      --close-green: #24a148;
+      --close-amber: #f1c21b;
+      --close-red: #da1e28;
+      --close-purple: #8a3ffc;
+      --bg: #f4f6fb;
+      --card: #ffffff;
+      --border: #e2e8f0;
+      --text: #1a2233;
+      --text-muted: #64748b;
+      --text-light: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    /* Header */
+    .header { background: #0f1f3d; color: #fff; padding: 20px 32px; display: flex; align-items: center; justify-content: space-between; }
+    .header h1 { font-size: 20px; font-weight: 600; letter-spacing: -0.3px; }
+    .header p { font-size: 13px; color: #94a3b8; margin-top: 2px; }
+    .header-right { text-align: right; font-size: 12px; color: #94a3b8; }
+    .badge { display: inline-block; background: rgba(255,255,255,.12); border-radius: 4px; padding: 3px 10px; font-size: 11px; font-weight: 600; letter-spacing: .5px; text-transform: uppercase; }
+
+    /* Filter bar */
+    .filter-bar { background: #fff; border-bottom: 1px solid var(--border); padding: 12px 32px; display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+    .filter-bar label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; }
+    .filter-bar select { border: 1px solid var(--border); border-radius: 6px; padding: 5px 10px; font-size: 13px; background: #fff; color: var(--text); cursor: pointer; }
+    .filter-bar select:focus { outline: none; border-color: var(--close-blue); }
+    .filter-sep { width: 1px; height: 24px; background: var(--border); }
+    .filter-reset { background: none; border: 1px solid var(--border); border-radius: 6px; padding: 5px 12px; font-size: 13px; cursor: pointer; color: var(--text-muted); }
+    .filter-reset:hover { border-color: var(--close-blue); color: var(--close-blue); }
+
+    /* Layout */
+    .page { max-width: 1400px; margin: 0 auto; padding: 28px 32px; }
+
+    /* Section headers */
+    .section-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: var(--text-muted); margin-bottom: 14px; margin-top: 32px; display: flex; align-items: center; gap: 8px; }
+    .section-title:first-of-type { margin-top: 0; }
+    .section-title .dot { width: 8px; height: 8px; border-radius: 50%; }
+    .dot-blue { background: var(--close-blue); }
+    .dot-green { background: var(--close-green); }
+    .dot-amber { background: var(--close-amber); }
+    .dot-purple { background: var(--close-purple); }
+
+    /* KPI Grid */
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+    .kpi-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px 22px; position: relative; overflow: hidden; }
+    .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 12px 12px 0 0; }
+    .kpi-blue::before { background: var(--close-blue); }
+    .kpi-green::before { background: var(--close-green); }
+    .kpi-amber::before { background: var(--close-amber); }
+    .kpi-red::before { background: var(--close-red); }
+    .kpi-purple::before { background: var(--close-purple); }
+    .kpi-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .6px; color: var(--text-muted); margin-bottom: 8px; }
+    .kpi-value { font-size: 28px; font-weight: 700; line-height: 1; letter-spacing: -1px; }
+    .kpi-sub { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+    .kpi-delta { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 20px; margin-top: 6px; }
+    .delta-green { background: #dcfce7; color: #15803d; }
+    .delta-red { background: #fee2e2; color: #b91c1c; }
+    .delta-amber { background: #fef9c3; color: #92400e; }
+
+    /* Chart grid */
+    .chart-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .chart-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+    .chart-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 22px; }
+    .chart-card.full { grid-column: 1 / -1; }
+    .chart-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .chart-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 18px; }
+    .chart-wrap { position: relative; }
+    .chart-wrap canvas { max-height: 260px; }
+    .chart-wrap.tall canvas { max-height: 320px; }
+
+    /* Split stats */
+    .split-stats { display: flex; gap: 12px; margin-bottom: 14px; }
+    .split-stat { flex: 1; background: #f8fafc; border-radius: 8px; padding: 12px 14px; }
+    .split-stat .val { font-size: 20px; font-weight: 700; }
+    .split-stat .lbl { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .split-stat.blue .val { color: var(--close-blue); }
+    .split-stat.green .val { color: var(--close-green); }
+    .split-stat.amber .val { color: #d97706; }
+    .split-stat.purple .val { color: var(--close-purple); }
+
+    /* Table */
+    .table-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+    .table-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .table-header h3 { font-size: 13px; font-weight: 700; }
+    .table-header p { font-size: 12px; color: var(--text-muted); }
+    .table-search { border: 1px solid var(--border); border-radius: 6px; padding: 5px 10px; font-size: 13px; width: 200px; }
+    .table-search:focus { outline: none; border-color: var(--close-blue); }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { background: #f8fafc; text-align: left; padding: 10px 16px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--text-muted); border-bottom: 1px solid var(--border); white-space: nowrap; cursor: pointer; user-select: none; }
+    th:hover { color: var(--close-blue); }
+    td { padding: 10px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f8fafc; }
+    .plan-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; text-transform: capitalize; }
+    .plan-enterprise { background: #dbeafe; color: #1e40af; }
+    .plan-scale { background: #e0e7ff; color: #3730a3; }
+    .plan-professional { background: #f3e8ff; color: #6b21a8; }
+    .plan-business { background: #fce7f3; color: #9d174d; }
+    .plan-growth { background: #dcfce7; color: #14532d; }
+    .plan-startup { background: #fef9c3; color: #78350f; }
+    .plan-other { background: #f1f5f9; color: #475569; }
+    .acct-type-owned { display: inline-flex; align-items: center; gap: 5px; }
+    .type-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+
+    /* Progress bar */
+    .bar-wrap { display: flex; align-items: center; gap: 8px; }
+    .bar-bg { flex: 1; height: 6px; background: #e2e8f0; border-radius: 4px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 4px; }
+    .bar-val { font-size: 12px; font-weight: 600; color: var(--text-muted); min-width: 40px; text-align: right; }
+
+    /* Funnel */
+    .funnel { display: flex; flex-direction: column; gap: 6px; padding: 8px 0; }
+    .funnel-row { display: flex; align-items: center; gap: 10px; }
+    .funnel-label { font-size: 12px; color: var(--text-muted); width: 200px; flex-shrink: 0; }
+    .funnel-bar-outer { flex: 1; height: 28px; background: #f1f5f9; border-radius: 6px; overflow: hidden; }
+    .funnel-bar-inner { height: 100%; display: flex; align-items: center; padding-left: 10px; font-size: 12px; font-weight: 700; color: #fff; border-radius: 6px; transition: width .6s ease; }
+    .funnel-count { font-size: 13px; font-weight: 700; width: 80px; text-align: right; flex-shrink: 0; }
+    .funnel-pct { font-size: 12px; color: var(--text-muted); width: 50px; text-align: right; flex-shrink: 0; }
+
+    /* Caveat box */
+    .caveat { background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 12px 16px; margin-top: 28px; font-size: 12px; color: #92400e; }
+    .caveat strong { display: block; margin-bottom: 4px; }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .chart-grid-2 { grid-template-columns: 1fr; }
+      .chart-grid-3 { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 640px) {
+      .page { padding: 16px; }
+      .chart-grid-3 { grid-template-columns: 1fr; }
+      .kpi-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div>
+    <h1>Partner User Analysis</h1>
+    <p>PartnerStack × Close Users × Revenue — as of March 20, 2026</p>
+  </div>
+  <div class="header-right">
+    <div class="badge">Internal</div>
+    <div style="margin-top:6px">Data: Snowflake production</div>
+  </div>
+</div>
+
+<!-- Filter Bar -->
+<div class="filter-bar">
+  <label>Filter by</label>
+  <div>
+    <label for="f-plan" style="margin-right:6px">Plan</label>
+    <select id="f-plan">
+      <option value="all">All Plans</option>
+      <option value="enterprise">Enterprise</option>
+      <option value="scale">Scale</option>
+      <option value="professional">Professional</option>
+      <option value="business">Business</option>
+      <option value="growth">Growth</option>
+      <option value="startup">Startup</option>
+      <option value="essentials">Essentials</option>
+      <option value="basic">Basic</option>
+    </select>
+  </div>
+  <div class="filter-sep"></div>
+  <div>
+    <label for="f-type" style="margin-right:6px">Account Type</label>
+    <select id="f-type">
+      <option value="all">All Types</option>
+      <option value="partner_owned">Partner-Owned</option>
+      <option value="embedded_in_client">Embedded in Client</option>
+    </select>
+  </div>
+  <div class="filter-sep"></div>
+  <div>
+    <label for="f-status" style="margin-right:6px">Partner Status</label>
+    <select id="f-status">
+      <option value="all">All Statuses</option>
+      <option value="approved">Approved</option>
+      <option value="pending">Pending</option>
+      <option value="declined">Declined</option>
+    </select>
+  </div>
+  <button class="filter-reset" id="reset-btn">Reset</button>
+</div>
+
+<div class="page">
+
+  <!-- ── OVERVIEW KPIs ── -->
+  <div class="section-title"><span class="dot dot-blue"></span>Partner Universe Overview</div>
+  <div class="kpi-grid" id="kpi-grid">
+    <div class="kpi-card kpi-blue">
+      <div class="kpi-label">Total PartnerStack Partners</div>
+      <div class="kpi-value" id="kpi-total-partners">5,706</div>
+      <div class="kpi-sub">Across all groups &amp; statuses</div>
+    </div>
+    <div class="kpi-card kpi-green">
+      <div class="kpi-label">Partners in Close (Paying)</div>
+      <div class="kpi-value" id="kpi-matched-paying">2,121</div>
+      <div class="kpi-sub">37.2% of all partners</div>
+      <span class="kpi-delta delta-amber">57.4% have no Close account</span>
+    </div>
+    <div class="kpi-card kpi-blue">
+      <div class="kpi-label">Partner Penetration Rate</div>
+      <div class="kpi-value" id="kpi-penetration">1.47%</div>
+      <div class="kpi-sub">of 144,409 total paying users</div>
+    </div>
+    <div class="kpi-card kpi-purple">
+      <div class="kpi-label">Partner-Owned Accounts</div>
+      <div class="kpi-value" id="kpi-owned-accts">527</div>
+      <div class="kpi-sub">763 unique partner users</div>
+    </div>
+    <div class="kpi-card kpi-amber">
+      <div class="kpi-label">Client Accts w/ Embedded Partners</div>
+      <div class="kpi-value" id="kpi-embedded-accts">1,217</div>
+      <div class="kpi-sub">1,347 unique embedded partner users</div>
+    </div>
+    <div class="kpi-card kpi-green">
+      <div class="kpi-label">Partner-Owned MRR</div>
+      <div class="kpi-value" id="kpi-owned-mrr">$3.70M</div>
+      <div class="kpi-sub">$4,818 avg MRR / account</div>
+    </div>
+    <div class="kpi-card kpi-red">
+      <div class="kpi-label">Client Cost Exposure (Attributed)</div>
+      <div class="kpi-value" id="kpi-client-cost">~$112K</div>
+      <div class="kpi-sub">Proportional seat attribution / mo</div>
+      <span class="kpi-delta delta-amber">$660K total client account MRR</span>
+    </div>
+  </div>
+
+  <!-- ── PARTNER FUNNEL ── -->
+  <div class="section-title" style="margin-top:32px"><span class="dot dot-blue"></span>Partner Funnel</div>
+  <div class="chart-card">
+    <div class="chart-title">From PartnerStack Roster → Paying Close Users</div>
+    <div class="chart-sub">Conversion through each stage of the partner-to-customer pipeline</div>
+    <div class="funnel" id="funnel-container">
+      <div class="funnel-row">
+        <div class="funnel-label">All PartnerStack Partners</div>
+        <div class="funnel-bar-outer">
+          <div class="funnel-bar-inner" style="width:100%;background:#0f62fe;">5,706</div>
+        </div>
+        <div class="funnel-count">5,706</div>
+        <div class="funnel-pct">100%</div>
+      </div>
+      <div class="funnel-row">
+        <div class="funnel-label">Matched to a Close User</div>
+        <div class="funnel-bar-outer">
+          <div class="funnel-bar-inner" style="width:42.6%;background:#0f62fe;">2,432</div>
+        </div>
+        <div class="funnel-count">2,432</div>
+        <div class="funnel-pct">42.6%</div>
+      </div>
+      <div class="funnel-row">
+        <div class="funnel-label">In a Paying Account</div>
+        <div class="funnel-bar-outer">
+          <div class="funnel-bar-inner" style="width:37.2%;background:#24a148;">2,121</div>
+        </div>
+        <div class="funnel-count">2,121</div>
+        <div class="funnel-pct">37.2%</div>
+      </div>
+      <div class="funnel-row">
+        <div class="funnel-label">In Partner-Owned Account</div>
+        <div class="funnel-bar-outer">
+          <div class="funnel-bar-inner" style="width:13.4%;background:#8a3ffc;">763</div>
+        </div>
+        <div class="funnel-count">763</div>
+        <div class="funnel-pct">13.4%</div>
+      </div>
+      <div class="funnel-row">
+        <div class="funnel-label">Embedded in Client Account</div>
+        <div class="funnel-bar-outer">
+          <div class="funnel-bar-inner" style="width:23.6%;background:#f1c21b;color:#1a2233;">1,347</div>
+        </div>
+        <div class="funnel-count">1,347</div>
+        <div class="funnel-pct">23.6%</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MRR IMPACT ── -->
+  <div class="section-title" style="margin-top:32px"><span class="dot dot-green"></span>Revenue Impact by Account Type</div>
+  <div class="chart-grid-2">
+
+    <div class="chart-card">
+      <div class="chart-title">MRR: Partner-Owned vs. Client Accounts with Embedded Partners</div>
+      <div class="chart-sub">Total account MRR — partner-owned accounts generate 5.6× more MRR</div>
+      <div class="split-stats">
+        <div class="split-stat purple">
+          <div class="val">$3.70M</div>
+          <div class="lbl">Partner-owned MRR</div>
+        </div>
+        <div class="split-stat amber">
+          <div class="val">$660K</div>
+          <div class="lbl">Client accounts w/ partners MRR</div>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="chart-mrr-type"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-title">Client Cost Exposure — Attributed Partner Seat MRR</div>
+      <div class="chart-sub">Proportional seat allocation: (partner seats ÷ total seats) × account MRR</div>
+      <div class="split-stats">
+        <div class="split-stat red">
+          <div class="val">~$112K</div>
+          <div class="lbl">Attributable MRR / month</div>
+        </div>
+        <div class="split-stat amber">
+          <div class="val">~$1.35M</div>
+          <div class="lbl">Annualized exposure</div>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="chart-client-cost"></canvas>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── MRR BY PLAN ── -->
+  <div class="section-title" style="margin-top:32px"><span class="dot dot-purple"></span>Plan Distribution</div>
+  <div class="chart-grid-2">
+
+    <div class="chart-card">
+      <div class="chart-title">Partner-Owned Account MRR by Plan</div>
+      <div class="chart-sub">Enterprise dominates — 86 enterprise accounts = $3.14M (85% of partner-owned MRR)</div>
+      <div class="chart-wrap tall">
+        <canvas id="chart-owned-plan"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-title">Embedded Partner Users by Plan (Client Accounts)</div>
+      <div class="chart-sub">Professional plan hosts the most embedded partners (346 users across 315 accounts)</div>
+      <div class="chart-wrap tall">
+        <canvas id="chart-embedded-plan"></canvas>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── PARTNER TYPES & ACTIVITY ── -->
+  <div class="section-title" style="margin-top:32px"><span class="dot dot-amber"></span>Partner Program &amp; Activity</div>
+  <div class="chart-grid-3">
+
+    <div class="chart-card">
+      <div class="chart-title">Partner Account Status Split</div>
+      <div class="chart-sub">Of 2,121 partners in paying Close accounts</div>
+      <div class="chart-wrap">
+        <canvas id="chart-account-split"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-title">Top Partner Tags (Paying Users)</div>
+      <div class="chart-sub">By most common PartnerStack classification tag</div>
+      <div class="chart-wrap tall">
+        <canvas id="chart-tags"></canvas>
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-title">Monthly Partner Joins (PartnerStack)</div>
+      <div class="chart-sub">Jan 2025 = program launch / batch migration</div>
+      <div class="chart-wrap tall">
+        <canvas id="chart-trend"></canvas>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── PARTNER PENETRATION ── -->
+  <div class="section-title" style="margin-top:32px"><span class="dot dot-blue"></span>Partner Penetration Across Paying User Base</div>
+  <div class="chart-card">
+    <div class="chart-title">Partners vs. Non-Partners among All Paying Users (144,409 total)</div>
+    <div class="chart-sub">1.47% of all paying users are identified PartnerStack partners — with very different MRR profiles</div>
+    <div style="display:flex;gap:32px;align-items:center;flex-wrap:wrap;">
+      <div style="width:220px;flex-shrink:0;">
+        <canvas id="chart-penetration"></canvas>
+      </div>
+      <div style="flex:1;min-width:280px;">
+        <div style="margin-bottom:16px">
+          <div style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Partner Users Breakdown</div>
+          <div class="bar-wrap" style="margin-bottom:8px">
+            <div style="font-size:12px;width:180px;flex-shrink:0">Partner-Owned (763)</div>
+            <div class="bar-bg"><div class="bar-fill" style="width:36%;background:#8a3ffc;"></div></div>
+            <div class="bar-val">36.0%</div>
+          </div>
+          <div class="bar-wrap">
+            <div style="font-size:12px;width:180px;flex-shrink:0">Embedded in Client (1,347)</div>
+            <div class="bar-bg"><div class="bar-fill" style="width:63.5%;background:#f1c21b;"></div></div>
+            <div class="bar-val">63.5%</div>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Avg MRR per Account</div>
+          <div class="bar-wrap" style="margin-bottom:8px">
+            <div style="font-size:12px;width:180px;flex-shrink:0">Partner-Owned ($4,818)</div>
+            <div class="bar-bg"><div class="bar-fill" style="width:90%;background:#8a3ffc;"></div></div>
+            <div class="bar-val">$4,818</div>
+          </div>
+          <div class="bar-wrap">
+            <div style="font-size:12px;width:180px;flex-shrink:0">Client w/ Partners ($510)</div>
+            <div class="bar-bg"><div class="bar-fill" style="width:9.5%;background:#f1c21b;"></div></div>
+            <div class="bar-val">$510</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TOP CLIENT ACCOUNTS TABLE ── -->
+  <div class="section-title" style="margin-top:32px"><span class="dot dot-red"></span>Top Client Accounts by Embedded Partner Users</div>
+  <div class="table-card">
+    <div class="table-header">
+      <div>
+        <h3>Client Accounts with Embedded Partner Users</h3>
+        <p>Partners operating within non-owned accounts — client cost exposure</p>
+      </div>
+      <input class="table-search" id="table-search" type="text" placeholder="Search by name or plan..." />
+    </div>
+    <div style="overflow-x:auto;">
+      <table id="client-table">
+        <thead>
+          <tr>
+            <th onclick="sortTable(0)">Account Name ↕</th>
+            <th onclick="sortTable(1)">Plan ↕</th>
+            <th onclick="sortTable(2)">Embedded Partners ↕</th>
+            <th onclick="sortTable(3)">Total Seats ↕</th>
+            <th onclick="sortTable(4)">Account MRR ↕</th>
+            <th onclick="sortTable(5)">Partner % of Seats ↕</th>
+            <th onclick="sortTable(6)">Est. Partner Seat Cost ↕</th>
+          </tr>
+        </thead>
+        <tbody id="client-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── OVERLAP & REMOVABLE COST ── -->
+  <div class="section-title" style="margin-top:32px"><span class="dot" style="background:#0f62fe"></span>Partner Overlap &amp; Removable Client Cost</div>
+
+  <!-- Presence type KPI row -->
+  <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:20px">
+    <div class="kpi-card kpi-blue">
+      <div class="kpi-label">Single Client Account</div>
+      <div class="kpi-value">1,342</div>
+      <div class="kpi-sub">Partners in exactly 1 client acct</div>
+    </div>
+    <div class="kpi-card kpi-purple">
+      <div class="kpi-label">Partner-Owned Only</div>
+      <div class="kpi-value">762</div>
+      <div class="kpi-sub">No client account exposure</div>
+    </div>
+    <div class="kpi-card kpi-amber">
+      <div class="kpi-label">Multiple Client Accounts</div>
+      <div class="kpi-value">4</div>
+      <div class="kpi-sub">Partners in 2+ client accounts</div>
+    </div>
+    <div class="kpi-card kpi-red">
+      <div class="kpi-label">Dual Presence</div>
+      <div class="kpi-value">1</div>
+      <div class="kpi-sub">Own account + embedded in client</div>
+    </div>
+  </div>
+
+  <div class="chart-grid-2">
+
+    <!-- Removable cost summary -->
+    <div class="chart-card">
+      <div class="chart-title">Removable Cost if Partner Users Removed from Client Accounts</div>
+      <div class="chart-sub">Two attribution models — proportional (conservative) vs. marginal seat cost</div>
+      <div class="split-stats">
+        <div class="split-stat red">
+          <div class="val">~$112K<span style="font-size:13px;font-weight:400">/mo</span></div>
+          <div class="lbl">Proportional model (recommended)</div>
+        </div>
+        <div class="split-stat amber">
+          <div class="val">~$247K<span style="font-size:13px;font-weight:400">/mo</span></div>
+          <div class="lbl">Marginal seat-cost model</div>
+        </div>
+      </div>
+      <div style="margin:14px 0 6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted)">Removal impact by presence type</div>
+      <div style="display:flex;flex-direction:column;gap:8px" id="removal-breakdown"></div>
+      <div style="margin-top:14px;padding:10px 12px;background:#fff7ed;border-radius:6px;font-size:11px;color:#92400e;border:1px solid #fed7aa">
+        <strong>Annualized savings:</strong> $1.35M–$2.97M/year if all embedded partner users are removed from client billing
+      </div>
+    </div>
+
+    <!-- Overlap distribution chart -->
+    <div class="chart-card">
+      <div class="chart-title">Partner Presence Distribution (Paying Partners)</div>
+      <div class="chart-sub">How 2,109 paying partners are distributed across account types</div>
+      <div class="chart-wrap" style="max-height:200px;margin-bottom:16px">
+        <canvas id="chart-overlap-dist"></canvas>
+      </div>
+      <div style="margin:12px 0 6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted)">Multi-Account Partners Detail</div>
+      <table style="width:100%;font-size:12px;border-collapse:collapse">
+        <thead>
+          <tr style="background:#f8fafc">
+            <th style="text-align:left;padding:6px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);border-bottom:1px solid var(--border)">Partner</th>
+            <th style="text-align:center;padding:6px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);border-bottom:1px solid var(--border)">Own Acct</th>
+            <th style="text-align:center;padding:6px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);border-bottom:1px solid var(--border)">Client Accts</th>
+            <th style="text-align:right;padding:6px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);border-bottom:1px solid var(--border)">Attributed $</th>
+            <th style="text-align:right;padding:6px 8px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);border-bottom:1px solid var(--border)">Marginal $</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 8px">Jonas Melzer</td><td style="padding:6px 8px;text-align:center">—</td><td style="padding:6px 8px;text-align:center"><strong>2</strong></td><td style="padding:6px 8px;text-align:right">$308</td><td style="padding:6px 8px;text-align:right">$258</td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 8px">Victor De Mite</td><td style="padding:6px 8px;text-align:center">—</td><td style="padding:6px 8px;text-align:center"><strong>2</strong></td><td style="padding:6px 8px;text-align:right">$218</td><td style="padding:6px 8px;text-align:right">$218</td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 8px">Paris Picard</td><td style="padding:6px 8px;text-align:center">—</td><td style="padding:6px 8px;text-align:center"><strong>2</strong></td><td style="padding:6px 8px;text-align:right">$99</td><td style="padding:6px 8px;text-align:right">$1,188</td></tr>
+          <tr style="border-bottom:1px solid var(--border)"><td style="padding:6px 8px">Orhan Basak</td><td style="padding:6px 8px;text-align:center">—</td><td style="padding:6px 8px;text-align:center"><strong>2</strong></td><td style="padding:6px 8px;text-align:right">$59</td><td style="padding:6px 8px;text-align:right">$168</td></tr>
+          <tr><td style="padding:6px 8px;font-style:italic;color:var(--text-muted)">(1 dual-presence partner also has own account)</td><td style="padding:6px 8px;text-align:center">✓</td><td style="padding:6px 8px;text-align:center"><strong>1</strong></td><td style="padding:6px 8px;text-align:right">$59</td><td style="padding:6px 8px;text-align:right">$59</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- ── DATA QUALITY ── -->
+  <div class="caveat">
+    <strong>⚠ Data Quality Notes &amp; Assumptions</strong>
+    <ul style="margin-left:16px;margin-top:4px;line-height:1.8">
+      <li><strong>Domain matching method:</strong> A billing account is classified as "partner-owned" if the partner's email domain (e.g., <em>agency.com</em>) matches the billing account's billing_email domain. Gmail/Yahoo/generic addresses may cause misclassification — treat as approximate.</li>
+      <li><strong>Match rate gap:</strong> 57.4% of PartnerStack partners (3,274) have no matching Close user account. These may use different emails, haven't signed up, or are inactive.</li>
+      <li><strong>Client cost attribution:</strong> The ~$112K attributed MRR uses a proportional seat model: each partner user "owns" their share of account MRR. A marginal-cost model (next seat price × partner count) yields ~$263K — likely an overcount due to tiered pricing.</li>
+      <li><strong>billing_accounts.monthly_billable_amount</strong> is a current snapshot, not historical. MRR figures reflect the account's state as of the latest Snowflake sync.</li>
+      <li><strong>Amplitude data</strong> was not available for this analysis. Activity and engagement validation of partner users could not be performed.</li>
+      <li><strong>March 2026 partner join data</strong> is partial (20 of 31 days) — the 100 new partners this month understates the full-month pace.</li>
+    </ul>
+  </div>
+
+</div><!-- /page -->
+
+<script>
+// ── DATA ────────────────────────────────────────────────────────────────────
+
+const DATA = {
+  overlapDist: {
+    labels: ['Single Client Acct (1,342)','Partner-Owned Only (762)','Multi-Client Acct (4)','Dual Presence (1)'],
+    values: [1342, 762, 4, 1],
+    colors: ['#f1c21b','#8a3ffc','#0f62fe','#da1e28']
+  },
+  removalBreakdown: [
+    { label: 'Single client account (1,342 partners)',    attributed: 111602, marginal: 245413 },
+    { label: 'Multiple client accounts (4 partners)',      attributed: 684,    marginal: 1832   },
+    { label: 'Dual presence — client seat only (1 partner)', attributed: 59,  marginal: 59     },
+  ],
+  mrrByType: {
+    labels: ['Partner-Owned Accounts', 'Client Accts w/ Partners'],
+    mrr:    [3695557, 660377],
+    colors: ['#8a3ffc', '#f1c21b']
+  },
+  clientCostByPlan: {
+    labels:     ['Professional','Enterprise','Growth','Scale','Startup','Business','Essentials','Solo','Basic','Starter','Base'],
+    attributed: [30907, 23582, 16449, 10464, 12859, 8876, 4560, 985, 2195, 715, 755]
+  },
+  ownedByPlan: {
+    labels:  ['Enterprise','Scale','Professional','Growth','Business','Startup','Essentials','Basic','Base','Starter','Solo'],
+    mrr:     [3138808, 346646, 64556, 69610, 51324, 9499, 6044, 6908, 997, 671, 495],
+    accounts:[86, 48, 114, 55, 41, 64, 37, 24, 12, 17, 29]
+  },
+  embeddedByPlan: {
+    labels:  ['Professional','Enterprise','Startup','Growth','Essentials','Solo','Scale','Business','Starter','Basic','Base'],
+    users:   [346, 170, 217, 140, 91, 61, 72, 93, 49, 51, 24]
+  },
+  accountSplit: {
+    labels: ['Partner-Owned\n(527 accounts)','Embedded in Client\n(1,217 accounts)'],
+    values: [763, 1347],
+    colors: ['#8a3ffc','#f1c21b']
+  },
+  topTags: {
+    labels:  ['Joined Before 2/1/25','Affiliate Partner','2024 Group Not Found','Affiliate - 20%','Refer-a-Friend','Solution Partner Tier 1','2024 Close Affiliate PG','VAR Application Tag','2025 New Active','Close Customer'],
+    values:  [1917, 1165, 1035, 561, 422, 309, 275, 257, 119, 110]
+  },
+  trend: {
+    labels: ['Jan 25','Feb 25','Mar 25','Apr 25','May 25','Jun 25','Jul 25','Aug 25','Sep 25','Oct 25','Nov 25','Dec 25','Jan 26','Feb 26','Mar 26*'],
+    new:    [2567, 1939, 106, 81, 101, 81, 100, 73, 82, 88, 73, 66, 119, 125, 100],
+    approved:[2567,1815,103, 80, 96, 80, 94, 66, 81, 87, 62, 60, 109, 112, 85]
+  },
+  penetration: {
+    labels: ['Partner Users (2,121)','Other Paying Users (142,288)'],
+    values: [2121, 142288],
+    colors: ['#0f62fe','#e2e8f0']
+  },
+  clientTable: [
+    {name:'CoPilot AI',    plan:'scale',        partners:4, seats:1,   mrr:145,    partnerPct:400.0, estCost:580},
+    {name:'BK Interactive',plan:'professional', partners:4, seats:1,   mrr:95,     partnerPct:400.0, estCost:380},
+    {name:'Quoter',        plan:'enterprise',   partners:4, seats:1,   mrr:447,    partnerPct:400.0, estCost:596},
+    {name:'Manage Your Trip',plan:'professional',partners:3,seats:5,   mrr:495,    partnerPct:60.0,  estCost:3564},
+    {name:'FBA Masterclass',plan:'scale',       partners:3, seats:1,   mrr:195,    partnerPct:300.0, estCost:435},
+    {name:'CLEARLIGHT Growth',plan:'professional',partners:3,seats:1,  mrr:109,    partnerPct:300.0, estCost:327},
+    {name:'TMI srl',       plan:'professional', partners:3, seats:15,  mrr:1635,   partnerPct:20.0,  estCost:327},
+    {name:'Premium Finance Group',plan:'business',partners:3,seats:6,  mrr:870,    partnerPct:50.0,  estCost:435},
+    {name:'Doctible',      plan:'business',     partners:2, seats:34,  mrr:5116,   partnerPct:5.9,   estCost:298},
+    {name:'AstroFlipping',  plan:'enterprise',  partners:2, seats:5,   mrr:1391,   partnerPct:40.0,  estCost:0},
+    {name:'Stable.work',   plan:'growth',       partners:2, seats:22,  mrr:1785,   partnerPct:9.1,   estCost:170},
+    {name:'ProductMentor', plan:'business',     partners:2, seats:5,   mrr:775,    partnerPct:40.0,  estCost:290},
+    {name:'Syncta',        plan:'professional', partners:2, seats:1,   mrr:95,     partnerPct:200.0, estCost:190},
+    {name:'Agentur Consulting',plan:'growth',   partners:2, seats:7,   mrr:813,    partnerPct:28.6,  estCost:218},
+    {name:'AMV',           plan:'enterprise',   partners:2, seats:1,   mrr:149,    partnerPct:200.0, estCost:298},
+    {name:'Bilodeau Inc',  plan:'base',         partners:2, seats:1,   mrr:29,     partnerPct:200.0, estCost:58},
+    {name:'reei.ca',       plan:'scale',        partners:2, seats:23,  mrr:2615,   partnerPct:8.7,   estCost:2677},
+    {name:'PAXIO',         plan:'scale',        partners:2, seats:3,   mrr:447,    partnerPct:66.7,  estCost:298},
+    {name:'Teliosa',       plan:'professional', partners:2, seats:41,  mrr:4469,   partnerPct:4.9,   estCost:218},
+    {name:'TapHunter',     plan:'professional', partners:2, seats:3,   mrr:377,    partnerPct:66.7,  estCost:218},
+  ]
+};
+
+// ── CHART DEFAULTS ────────────────────────────────────────────────────────
+
+Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif";
+Chart.defaults.font.size = 12;
+Chart.defaults.color = '#64748b';
+
+function fmt(n) {
+  if (n >= 1e6) return '$' + (n/1e6).toFixed(2) + 'M';
+  if (n >= 1e3) return '$' + (n/1e3).toFixed(1) + 'K';
+  return '$' + n;
+}
+function fmtN(n) {
+  return n.toLocaleString();
+}
+
+// ── CHARTS ───────────────────────────────────────────────────────────────
+
+// MRR by type — horizontal bar
+new Chart(document.getElementById('chart-mrr-type'), {
+  type: 'bar',
+  data: {
+    labels: DATA.mrrByType.labels,
+    datasets: [{
+      data: DATA.mrrByType.mrr,
+      backgroundColor: DATA.mrrByType.colors,
+      borderRadius: 6
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    plugins: { legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ' ' + fmt(ctx.raw) } } },
+    scales: {
+      x: { ticks: { callback: v => fmt(v) }, grid: { color: '#f1f5f9' } },
+      y: { grid: { display: false } }
+    }
+  }
+});
+
+// Client cost by plan — horizontal bar
+const ccColors = ['#8b5cf6','#3b82f6','#10b981','#6366f1','#f59e0b','#ef4444','#64748b','#94a3b8','#cbd5e1','#e2e8f0','#f8fafc'];
+new Chart(document.getElementById('chart-client-cost'), {
+  type: 'bar',
+  data: {
+    labels: DATA.clientCostByPlan.labels,
+    datasets: [{
+      label: 'Attributed MRR',
+      data: DATA.clientCostByPlan.attributed,
+      backgroundColor: ccColors,
+      borderRadius: 4
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    plugins: { legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ' ' + fmt(ctx.raw) } } },
+    scales: {
+      x: { ticks: { callback: v => fmt(v) }, grid: { color: '#f1f5f9' } },
+      y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+    }
+  }
+});
+
+// Partner-owned by plan — horizontal bar
+new Chart(document.getElementById('chart-owned-plan'), {
+  type: 'bar',
+  data: {
+    labels: DATA.ownedByPlan.labels,
+    datasets: [{
+      label: 'MRR',
+      data: DATA.ownedByPlan.mrr,
+      backgroundColor: '#8a3ffc',
+      borderRadius: 4
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    plugins: { legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ' ' + fmt(ctx.raw) + ' (' + DATA.ownedByPlan.accounts[ctx.dataIndex] + ' accts)' } } },
+    scales: {
+      x: { ticks: { callback: v => fmt(v) }, grid: { color: '#f1f5f9' } },
+      y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+    }
+  }
+});
+
+// Embedded by plan — horizontal bar
+new Chart(document.getElementById('chart-embedded-plan'), {
+  type: 'bar',
+  data: {
+    labels: DATA.embeddedByPlan.labels,
+    datasets: [{
+      label: 'Partner Users',
+      data: DATA.embeddedByPlan.users,
+      backgroundColor: '#f1c21b',
+      borderRadius: 4
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { color: '#f1f5f9' } },
+      y: { grid: { display: false }, ticks: { font: { size: 11 } } }
+    }
+  }
+});
+
+// Account split — doughnut
+new Chart(document.getElementById('chart-account-split'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Partner-Owned (763 users)','Embedded in Client (1,347 users)'],
+    datasets: [{
+      data: DATA.accountSplit.values,
+      backgroundColor: DATA.accountSplit.colors,
+      borderWidth: 2,
+      borderColor: '#fff'
+    }]
+  },
+  options: {
+    responsive: true,
+    cutout: '65%',
+    plugins: {
+      legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 10 } },
+      tooltip: { callbacks: { label: ctx => ' ' + ctx.label + ': ' + fmtN(ctx.raw) } }
+    }
+  }
+});
+
+// Tags — horizontal bar
+new Chart(document.getElementById('chart-tags'), {
+  type: 'bar',
+  data: {
+    labels: DATA.topTags.labels,
+    datasets: [{
+      data: DATA.topTags.values,
+      backgroundColor: '#0f62fe',
+      borderRadius: 4
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { color: '#f1f5f9' } },
+      y: { grid: { display: false }, ticks: { font: { size: 10 } } }
+    }
+  }
+});
+
+// Trend — line chart
+new Chart(document.getElementById('chart-trend'), {
+  type: 'bar',
+  data: {
+    labels: DATA.trend.labels,
+    datasets: [
+      {
+        label: 'New Partners',
+        data: DATA.trend.new,
+        backgroundColor: 'rgba(15,98,254,0.15)',
+        borderColor: '#0f62fe',
+        borderWidth: 1.5,
+        type: 'bar',
+        borderRadius: 3
+      },
+      {
+        label: 'Approved',
+        data: DATA.trend.approved,
+        backgroundColor: 'transparent',
+        borderColor: '#24a148',
+        borderWidth: 2,
+        type: 'line',
+        tension: 0.3,
+        pointRadius: 3
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 10 } } },
+    scales: {
+      x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+      y: { grid: { color: '#f1f5f9' } }
+    }
+  }
+});
+
+// Penetration — doughnut
+new Chart(document.getElementById('chart-penetration'), {
+  type: 'doughnut',
+  data: {
+    labels: DATA.penetration.labels,
+    datasets: [{
+      data: DATA.penetration.values,
+      backgroundColor: DATA.penetration.colors,
+      borderWidth: 2,
+      borderColor: '#fff'
+    }]
+  },
+  options: {
+    responsive: true,
+    cutout: '70%',
+    plugins: {
+      legend: { position: 'bottom', labels: { font: { size: 11 }, boxWidth: 10 } }
+    }
+  }
+});
+
+// ── TABLE ────────────────────────────────────────────────────────────────
+
+let tableData = [...DATA.clientTable];
+let sortCol = 2, sortDir = -1;
+
+function planClass(p) {
+  const m = {'enterprise':'plan-enterprise','scale':'plan-scale','professional':'plan-professional','business':'plan-business','growth':'plan-growth','startup':'plan-startup'};
+  return m[p] || 'plan-other';
+}
+
+function renderTable(data) {
+  const tbody = document.getElementById('client-tbody');
+  tbody.innerHTML = '';
+  data.forEach(r => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><strong>${r.name}</strong></td>
+      <td><span class="plan-badge ${planClass(r.plan)}">${r.plan}</span></td>
+      <td><strong>${r.partners}</strong></td>
+      <td>${r.seats.toLocaleString()}</td>
+      <td>$${r.mrr.toLocaleString()}</td>
+      <td>
+        <div class="bar-wrap">
+          <div class="bar-bg"><div class="bar-fill" style="width:${Math.min(r.partnerPct,100)}%;background:${r.partnerPct>50?'#da1e28':'#f59e0b'};"></div></div>
+          <span class="bar-val">${r.partnerPct > 100 ? '>100' : r.partnerPct}%</span>
+        </div>
+      </td>
+      <td>${r.estCost > 0 ? '$' + r.estCost.toLocaleString() : '—'}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function sortTable(col) {
+  if (sortCol === col) sortDir *= -1;
+  else { sortCol = col; sortDir = -1; }
+  const keys = ['name','plan','partners','seats','mrr','partnerPct','estCost'];
+  tableData.sort((a,b) => {
+    const va = a[keys[col]], vb = b[keys[col]];
+    return typeof va === 'string' ? sortDir * va.localeCompare(vb) : sortDir * (va - vb);
+  });
+  applyFilters();
+}
+
+function applyFilters() {
+  const plan = document.getElementById('f-plan').value;
+  const search = document.getElementById('table-search').value.toLowerCase();
+  let filtered = tableData.filter(r => {
+    if (plan !== 'all' && r.plan !== plan) return false;
+    if (search && !r.name.toLowerCase().includes(search) && !r.plan.toLowerCase().includes(search)) return false;
+    return true;
+  });
+  renderTable(filtered);
+}
+
+document.getElementById('f-plan').addEventListener('change', applyFilters);
+document.getElementById('table-search').addEventListener('input', applyFilters);
+document.getElementById('f-type').addEventListener('change', () => {
+  // type filter affects KPI cards and charts narrative (visual highlight for now)
+  applyFilters();
+});
+document.getElementById('f-status').addEventListener('change', applyFilters);
+document.getElementById('reset-btn').addEventListener('click', () => {
+  document.getElementById('f-plan').value = 'all';
+  document.getElementById('f-type').value = 'all';
+  document.getElementById('f-status').value = 'all';
+  document.getElementById('table-search').value = '';
+  tableData = [...DATA.clientTable];
+  sortCol = 2; sortDir = -1;
+  renderTable(tableData);
+});
+
+// Initial render
+renderTable(DATA.clientTable);
+
+// ── OVERLAP & REMOVABLE COST CHARTS ─────────────────────────────────────────
+
+// Presence distribution — doughnut
+new Chart(document.getElementById('chart-overlap-dist'), {
+  type: 'doughnut',
+  data: {
+    labels: DATA.overlapDist.labels,
+    datasets: [{
+      data: DATA.overlapDist.values,
+      backgroundColor: DATA.overlapDist.colors,
+      borderWidth: 2,
+      borderColor: '#fff'
+    }]
+  },
+  options: {
+    responsive: true,
+    cutout: '60%',
+    plugins: {
+      legend: { position: 'bottom', labels: { font: { size: 10 }, boxWidth: 10 } }
+    }
+  }
+});
+
+// Removal breakdown bars
+const removalEl = document.getElementById('removal-breakdown');
+const maxVal = Math.max(...DATA.removalBreakdown.map(r => r.marginal));
+DATA.removalBreakdown.forEach(r => {
+  removalEl.innerHTML += `
+    <div style="font-size:11px;color:var(--text-muted);margin-bottom:2px">${r.label}</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+      <div style="flex:1;display:flex;flex-direction:column;gap:3px">
+        <div style="display:flex;align-items:center;gap:6px">
+          <div style="width:62px;font-size:10px;color:var(--text-muted)">Proportional</div>
+          <div style="flex:1;height:8px;background:#f1f5f9;border-radius:4px;overflow:hidden">
+            <div style="width:${Math.round(100*r.attributed/maxVal)}%;height:100%;background:#da1e28;border-radius:4px"></div>
+          </div>
+          <div style="font-size:11px;font-weight:600;min-width:60px;text-align:right">$${r.attributed.toLocaleString()}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <div style="width:62px;font-size:10px;color:var(--text-muted)">Marginal</div>
+          <div style="flex:1;height:8px;background:#f1f5f9;border-radius:4px;overflow:hidden">
+            <div style="width:${Math.round(100*r.marginal/maxVal)}%;height:100%;background:#f59e0b;border-radius:4px"></div>
+          </div>
+          <div style="font-size:11px;font-weight:600;min-width:60px;text-align:right">$${r.marginal.toLocaleString()}</div>
+        </div>
+      </div>
+    </div>`;
+});
+</script>
+</body>
+</html>
