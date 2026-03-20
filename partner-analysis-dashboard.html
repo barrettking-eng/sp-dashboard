@@ -290,6 +290,46 @@
     </div>
   </div>
 
+  <!-- ── BILLABLE SEGMENTATION ── -->
+  <div class="section-title" style="margin-top:32px"><span class="dot" style="background:#24a148"></span>Billable vs Non-Billable Partner Users</div>
+  <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px">
+    <div class="kpi-card kpi-green">
+      <div class="kpi-label">Billable Partner Users</div>
+      <div class="kpi-value">1,111</div>
+      <div class="kpi-sub">616 embedded · 495 partner-owned</div>
+      <span class="kpi-delta delta-green" style="background:#d1fae5;color:#065f46">85.5% of matched paying partners</span>
+    </div>
+    <div class="kpi-card kpi-red">
+      <div class="kpi-label">Non-Billable Partner Users</div>
+      <div class="kpi-value">69</div>
+      <div class="kpi-sub">45 embedded · 24 partner-owned</div>
+      <span class="kpi-delta delta-amber">Active seats not counted for billing</span>
+    </div>
+    <div class="kpi-card" style="border-top:3px solid #94a3b8">
+      <div class="kpi-label">Unknown Billing Status</div>
+      <div class="kpi-value" style="color:#64748b">120</div>
+      <div class="kpi-sub">59 embedded · 61 partner-owned</div>
+      <span class="kpi-delta" style="background:#f1f5f9;color:#475569">No membership record found</span>
+    </div>
+  </div>
+
+  <div class="chart-grid-2">
+    <div class="chart-card">
+      <div class="chart-title">Billable Status by Account Type</div>
+      <div class="chart-sub">1,300 matched partners in paying accounts — broken down by billing status</div>
+      <div class="chart-wrap" style="max-height:220px">
+        <canvas id="chart-billable-by-type"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Billable Embedded Partners by Plan</div>
+      <div class="chart-sub">616 billable partner users embedded in client accounts, by Close plan</div>
+      <div class="chart-wrap" style="max-height:220px">
+        <canvas id="chart-billable-by-plan"></canvas>
+      </div>
+    </div>
+  </div>
+
   <!-- ── MRR IMPACT ── -->
   <div class="section-title" style="margin-top:32px"><span class="dot dot-green"></span>Revenue Impact by Account Type</div>
   <div class="chart-grid-2">
@@ -483,22 +523,22 @@
 
     <!-- Removable cost summary -->
     <div class="chart-card">
-      <div class="chart-title">Removable Cost if Partner Users Removed from Client Accounts</div>
-      <div class="chart-sub">Two attribution models — proportional (conservative) vs. marginal seat cost</div>
+      <div class="chart-title">Removable Cost if Billable Partner Users Removed from Client Accounts</div>
+      <div class="chart-sub">Billable-only (616 users) — two attribution models</div>
       <div class="split-stats">
         <div class="split-stat red">
-          <div class="val">~$112K<span style="font-size:13px;font-weight:400">/mo</span></div>
+          <div class="val">~$74K<span style="font-size:13px;font-weight:400">/mo</span></div>
           <div class="lbl">Proportional model (recommended)</div>
         </div>
         <div class="split-stat amber">
-          <div class="val">~$247K<span style="font-size:13px;font-weight:400">/mo</span></div>
+          <div class="val">~$137K<span style="font-size:13px;font-weight:400">/mo</span></div>
           <div class="lbl">Marginal seat-cost model</div>
         </div>
       </div>
       <div style="margin:14px 0 6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted)">Removal impact by presence type</div>
       <div style="display:flex;flex-direction:column;gap:8px" id="removal-breakdown"></div>
       <div style="margin-top:14px;padding:10px 12px;background:#fff7ed;border-radius:6px;font-size:11px;color:#92400e;border:1px solid #fed7aa">
-        <strong>Annualized savings:</strong> $1.35M–$2.97M/year if all embedded partner users are removed from client billing
+        <strong>Annualized savings (billable-only):</strong> $889K–$1.65M/year if all billable embedded partner users are removed from client billing
       </div>
     </div>
 
@@ -538,7 +578,8 @@
     <ul style="margin-left:16px;margin-top:4px;line-height:1.8">
       <li><strong>Domain matching method:</strong> A billing account is classified as "partner-owned" if the partner's email domain (e.g., <em>agency.com</em>) matches the billing account's billing_email domain. Gmail/Yahoo/generic addresses may cause misclassification — treat as approximate.</li>
       <li><strong>Match rate gap:</strong> 57.4% of PartnerStack partners (3,274) have no matching Close user account. These may use different emails, haven't signed up, or are inactive.</li>
-      <li><strong>Client cost attribution:</strong> The ~$112K attributed MRR uses a proportional seat model: each partner user "owns" their share of account MRR. A marginal-cost model (next seat price × partner count) yields ~$263K — likely an overcount due to tiered pricing.</li>
+      <li><strong>Client cost attribution:</strong> The ~$74K attributed MRR uses a proportional seat model applied to <em>billable-only</em> embedded partner users (616). A marginal-cost model yields ~$137K. Prior figures (~$112K / ~$247K) included all 720 embedded partners regardless of <code>is_billable</code> status.</li>
+      <li><strong>Billable status source:</strong> <code>user_org_memberships.is_billable</code> is the authoritative per-user billing flag. 120 partners (9%) had no membership record and are shown as "unknown" — these may be inactive or on a different org.</li>
       <li><strong>billing_accounts.monthly_billable_amount</strong> is a current snapshot, not historical. MRR figures reflect the account's state as of the latest Snowflake sync.</li>
       <li><strong>Amplitude data</strong> was not available for this analysis. Activity and engagement validation of partner users could not be performed.</li>
       <li><strong>March 2026 partner join data</strong> is partial (20 of 31 days) — the 100 new partners this month understates the full-month pace.</li>
@@ -551,15 +592,26 @@
 // ── DATA ────────────────────────────────────────────────────────────────────
 
 const DATA = {
+  billableByType: {
+    labels: ['Embedded in Client', 'Partner-Owned'],
+    billable:    [616, 495],
+    nonBillable: [45,  24],
+    unknown:     [59,  61],
+  },
+  billableEmbeddedByPlan: {
+    labels: ['Professional','Growth','Enterprise','Startup','Solo','Scale','Business','Essentials','Basic','Base','Starter'],
+    values: [111, 102, 87, 80, 52, 48, 42, 39, 21, 20, 9],
+    colors: ['#0f62fe','#24a148','#8a3ffc','#f1c21b','#da1e28','#06b6d4','#f97316','#6366f1','#84cc16','#94a3b8','#ec4899']
+  },
   overlapDist: {
     labels: ['Single Client Acct (1,342)','Partner-Owned Only (762)','Multi-Client Acct (4)','Dual Presence (1)'],
     values: [1342, 762, 4, 1],
     colors: ['#f1c21b','#8a3ffc','#0f62fe','#da1e28']
   },
   removalBreakdown: [
-    { label: 'Single client account (1,342 partners)',    attributed: 111602, marginal: 245413 },
-    { label: 'Multiple client accounts (4 partners)',      attributed: 684,    marginal: 1832   },
-    { label: 'Dual presence — client seat only (1 partner)', attributed: 59,  marginal: 59     },
+    { label: 'Billable active (423 partners)',             attributed: 51371,  marginal: 96853  },
+    { label: 'Billable inactive (193 partners)',           attributed: 22759,  marginal: 40546  },
+    { label: 'Non-billable embedded (45 partners)',        attributed: 4179,   marginal: 12018  },
   ],
   mrrByType: {
     labels: ['Partner-Owned Accounts', 'Client Accts w/ Partners'],
@@ -910,6 +962,55 @@ document.getElementById('reset-btn').addEventListener('click', () => {
 
 // Initial render
 renderTable(DATA.clientTable);
+
+// ── BILLABLE SEGMENTATION CHARTS ─────────────────────────────────────────────
+
+new Chart(document.getElementById('chart-billable-by-type'), {
+  type: 'bar',
+  data: {
+    labels: DATA.billableByType.labels,
+    datasets: [
+      { label: 'Billable',     data: DATA.billableByType.billable,    backgroundColor: '#24a148' },
+      { label: 'Non-Billable', data: DATA.billableByType.nonBillable, backgroundColor: '#da1e28' },
+      { label: 'Unknown',      data: DATA.billableByType.unknown,     backgroundColor: '#94a3b8' },
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { position: 'bottom', labels: { font: { size: 10 }, boxWidth: 10 } },
+      tooltip: { mode: 'index' }
+    },
+    scales: {
+      x: { stacked: true, grid: { display: false }, ticks: { font: { size: 11 } } },
+      y: { stacked: true, ticks: { font: { size: 10 } } }
+    }
+  }
+});
+
+new Chart(document.getElementById('chart-billable-by-plan'), {
+  type: 'bar',
+  data: {
+    labels: DATA.billableEmbeddedByPlan.labels,
+    datasets: [{
+      data: DATA.billableEmbeddedByPlan.values,
+      backgroundColor: DATA.billableEmbeddedByPlan.colors,
+      borderWidth: 0
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: ctx => ` ${ctx.raw} billable partners` } }
+    },
+    scales: {
+      x: { ticks: { font: { size: 10 } }, grid: { color: '#f1f5f9' } },
+      y: { ticks: { font: { size: 10 } }, grid: { display: false } }
+    }
+  }
+});
 
 // ── OVERLAP & REMOVABLE COST CHARTS ─────────────────────────────────────────
 
