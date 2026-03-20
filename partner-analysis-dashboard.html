@@ -330,6 +330,133 @@
     </div>
   </div>
 
+  <!-- ── BEHAVIOR PROFILES ── -->
+  <div class="section-title" style="margin-top:32px"><span class="dot" style="background:#f59e0b"></span>Partner Behavior Profile Analysis</div>
+  <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:10px 16px;margin-bottom:16px;font-size:12px;color:#92400e">
+    Based on 90-day Segment activity (calls, email, SMS) for <strong>190 billable embedded partners</strong> with matched org records. Partners with zero activity across all three channels are classified as <strong>Partner Admin</strong>; any usage classifies as <strong>Partner User</strong>.
+  </div>
+
+  <div class="kpi-grid" style="grid-template-columns:repeat(2,1fr);margin-bottom:20px">
+    <div class="kpi-card" style="border-top:3px solid #f59e0b">
+      <div class="kpi-label">Partner Admin Profile</div>
+      <div class="kpi-value" style="color:#b45309">114 <span style="font-size:16px;font-weight:500;color:#92400e">/ 60%</span></div>
+      <div class="kpi-sub">In client portal — not using calls, email, or SMS</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px">
+        <div style="padding:7px 10px;background:#fef3c7;border-radius:6px">
+          <div style="font-size:17px;font-weight:700;color:#b45309">$103<span style="font-size:11px;font-weight:400">/mo</span></div>
+          <div style="font-size:10px;color:#92400e">Avg cost / user (proportional)</div>
+        </div>
+        <div style="padding:7px 10px;background:#fff7ed;border-radius:6px">
+          <div style="font-size:17px;font-weight:700;color:#b45309">$192<span style="font-size:11px;font-weight:400">/mo</span></div>
+          <div style="font-size:10px;color:#92400e">Avg cost / user (marginal)</div>
+        </div>
+      </div>
+      <div style="margin-top:8px;padding:7px 10px;background:#fef9c3;border-radius:6px;font-size:11px;color:#713f12">
+        <strong>If converted to free:</strong> save <strong>$11,755–$21,943/mo</strong> · <strong>$141K–$263K/yr</strong>
+      </div>
+    </div>
+    <div class="kpi-card" style="border-top:3px solid #0f62fe">
+      <div class="kpi-label">Partner User Profile</div>
+      <div class="kpi-value" style="color:#0043ce">76 <span style="font-size:16px;font-weight:500;color:#0f62fe">/ 40%</span></div>
+      <div class="kpi-sub">Actively using calls, email, or SMS in client accounts</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px">
+        <div style="padding:7px 10px;background:#eff6ff;border-radius:6px">
+          <div style="font-size:17px;font-weight:700;color:#1d4ed8">$111<span style="font-size:11px;font-weight:400">/mo</span></div>
+          <div style="font-size:10px;color:#1e40af">Avg cost / user (proportional)</div>
+        </div>
+        <div style="padding:7px 10px;background:#dbeafe;border-radius:6px">
+          <div style="font-size:17px;font-weight:700;color:#1d4ed8">$272<span style="font-size:11px;font-weight:400">/mo</span></div>
+          <div style="font-size:10px;color:#1e40af">Avg cost / user (marginal)</div>
+        </div>
+      </div>
+      <div style="margin-top:8px;padding:7px 10px;background:#dbeafe;border-radius:6px;font-size:11px;color:#1e3a8a">
+        <strong>If converted to free:</strong> save <strong>$8,469–$20,663/mo</strong> · <strong>$102K–$248K/yr</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scenario impact table -->
+  <div class="chart-card" style="margin-bottom:20px">
+    <div class="chart-title">Scenario Analysis — Impact of Converting Profiles to Free</div>
+    <div class="chart-sub">Proportional model (conservative) vs. marginal seat-cost model</div>
+    <table style="width:100%;font-size:12px;border-collapse:collapse;margin-top:10px;table-layout:fixed">
+      <colgroup>
+        <col style="width:34%">
+        <col style="width:10%">
+        <col style="width:18%">
+        <col style="width:18%">
+        <col style="width:20%">
+      </colgroup>
+      <thead>
+        <tr style="background:#f8fafc">
+          <th style="text-align:left;padding:7px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);border-bottom:2px solid var(--border)">Scenario</th>
+          <th style="text-align:center;padding:7px 6px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);border-bottom:2px solid var(--border)">Users</th>
+          <th style="text-align:right;padding:7px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);border-bottom:2px solid var(--border)">Mo. Savings<br><span style="font-weight:400;text-transform:none;font-size:9px">(Proportional)</span></th>
+          <th style="text-align:right;padding:7px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);border-bottom:2px solid var(--border)">Mo. Savings<br><span style="font-weight:400;text-transform:none;font-size:9px">(Marginal)</span></th>
+          <th style="text-align:right;padding:7px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);border-bottom:2px solid var(--border)">Annual Range</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--border);background:#fffbeb">
+          <td style="padding:9px 10px;font-weight:600;color:#b45309">Convert Partner Admins → Free</td>
+          <td style="padding:9px 6px;text-align:center">114</td>
+          <td style="padding:9px 10px;text-align:right;font-weight:600">$11,755</td>
+          <td style="padding:9px 10px;text-align:right;font-weight:600">$21,943</td>
+          <td style="padding:9px 10px;text-align:right;font-weight:700;color:#b45309">$141K–$263K</td>
+        </tr>
+        <tr style="border-bottom:1px solid var(--border);background:#eff6ff">
+          <td style="padding:9px 10px;font-weight:600;color:#1d4ed8">Convert Partner Users → Free</td>
+          <td style="padding:9px 6px;text-align:center">76</td>
+          <td style="padding:9px 10px;text-align:right;font-weight:600">$8,469</td>
+          <td style="padding:9px 10px;text-align:right;font-weight:600">$20,663</td>
+          <td style="padding:9px 10px;text-align:right;font-weight:700;color:#1d4ed8">$102K–$248K</td>
+        </tr>
+        <tr style="background:#f0fdf4">
+          <td style="padding:9px 10px;font-weight:700;color:#15803d">Convert All Billable Embedded → Free</td>
+          <td style="padding:9px 6px;text-align:center;font-weight:700">190</td>
+          <td style="padding:9px 10px;text-align:right;font-weight:700">$20,224</td>
+          <td style="padding:9px 10px;text-align:right;font-weight:700">$42,606</td>
+          <td style="padding:9px 10px;text-align:right;font-weight:700;color:#15803d">$243K–$511K</td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="margin-top:10px;font-size:11px;color:var(--text-muted);font-style:italic">* Proportional model = partner's share of account MRR. Marginal = next seat cost × users removed. True savings depends on plan tier and whether seat counts are reduced.</div>
+  </div>
+
+  <div class="chart-grid-2">
+    <!-- Left: profile split + activity totals -->
+    <div class="chart-card">
+      <div class="chart-title">Profile Split by Plan</div>
+      <div class="chart-sub">Partner Admin vs Partner User across Close plans</div>
+      <div class="chart-wrap" style="max-height:230px">
+        <canvas id="chart-profile-by-plan"></canvas>
+      </div>
+    </div>
+
+    <!-- Right: channel mix for partner users -->
+    <div class="chart-card">
+      <div class="chart-title">Channel Mix — Partner Users Only</div>
+      <div class="chart-sub">Which paid features the 76 active partners are using (90-day window)</div>
+      <div class="chart-wrap" style="max-height:160px;margin-bottom:14px">
+        <canvas id="chart-channel-mix"></canvas>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px">
+        <div style="text-align:center;padding:10px 6px;background:#eff6ff;border-radius:8px">
+          <div style="font-size:20px;font-weight:700;color:#0f62fe">18,990</div>
+          <div style="font-size:10px;color:#64748b;margin-top:2px">Total Calls (90d)</div>
+        </div>
+        <div style="text-align:center;padding:10px 6px;background:#f0fdf4;border-radius:8px">
+          <div style="font-size:20px;font-weight:700;color:#16a34a">7,788</div>
+          <div style="font-size:10px;color:#64748b;margin-top:2px">Total Emails (90d)</div>
+        </div>
+        <div style="text-align:center;padding:10px 6px;background:#fef9c3;border-radius:8px">
+          <div style="font-size:20px;font-weight:700;color:#ca8a04">6,593</div>
+          <div style="font-size:10px;color:#64748b;margin-top:2px">Total SMS (90d)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ── MRR IMPACT ── -->
   <div class="section-title" style="margin-top:32px"><span class="dot dot-green"></span>Revenue Impact by Account Type</div>
   <div class="chart-grid-2">
@@ -592,6 +719,16 @@
 // ── DATA ────────────────────────────────────────────────────────────────────
 
 const DATA = {
+  profileByPlan: {
+    plans:  ['Professional','Enterprise','Growth','Scale','Business','Startup','Essentials','Solo','Base','Basic','Starter'],
+    admin:  [22, 19, 12, 12, 12, 13, 11, 6, 5, 4, 1],
+    user:   [19, 5,  18, 12, 9,  9,  1,  6, 0, 0, 1],
+  },
+  channelMix: {
+    labels: ['Calls + Email','All Channels','Email Only','Calls Only','Calls + SMS','Email + SMS','SMS Only'],
+    values: [34, 19, 12, 5, 5, 3, 2],
+    colors: ['#0f62fe','#8a3ffc','#24a148','#06b6d4','#f97316','#f59e0b','#da1e28']
+  },
   billableByType: {
     labels: ['Embedded in Client', 'Partner-Owned'],
     billable:    [616, 495],
@@ -962,6 +1099,51 @@ document.getElementById('reset-btn').addEventListener('click', () => {
 
 // Initial render
 renderTable(DATA.clientTable);
+
+// ── BEHAVIOR PROFILE CHARTS ───────────────────────────────────────────────────
+
+new Chart(document.getElementById('chart-profile-by-plan'), {
+  type: 'bar',
+  data: {
+    labels: DATA.profileByPlan.plans,
+    datasets: [
+      { label: 'Partner Admin', data: DATA.profileByPlan.admin, backgroundColor: '#f59e0b' },
+      { label: 'Partner User',  data: DATA.profileByPlan.user,  backgroundColor: '#0f62fe' },
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { position: 'bottom', labels: { font: { size: 10 }, boxWidth: 10 } },
+      tooltip: { mode: 'index' }
+    },
+    scales: {
+      x: { stacked: true, grid: { display: false }, ticks: { font: { size: 9 } } },
+      y: { stacked: true, ticks: { font: { size: 10 } } }
+    }
+  }
+});
+
+new Chart(document.getElementById('chart-channel-mix'), {
+  type: 'doughnut',
+  data: {
+    labels: DATA.channelMix.labels,
+    datasets: [{
+      data: DATA.channelMix.values,
+      backgroundColor: DATA.channelMix.colors,
+      borderWidth: 2,
+      borderColor: '#fff'
+    }]
+  },
+  options: {
+    responsive: true,
+    cutout: '55%',
+    plugins: {
+      legend: { position: 'right', labels: { font: { size: 10 }, boxWidth: 10 } },
+      tooltip: { callbacks: { label: ctx => ` ${ctx.raw} users (${Math.round(ctx.raw/76*100)}%)` } }
+    }
+  }
+});
 
 // ── BILLABLE SEGMENTATION CHARTS ─────────────────────────────────────────────
 
