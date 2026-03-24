@@ -315,7 +315,7 @@
     </div>
     <div class="kpi-card c-green" style="--green:#0891b2;">
       <div class="kpi-label">Beta Waitlist</div>
-      <div class="kpi-value" id="kpi-betawaitlist">0</div>
+      <div class="kpi-value" id="kpi-betawaitlist">6523</div>
       <div class="kpi-sub">Unique lead submissions</div>
     </div>
     <div class="kpi-card c-red">
@@ -1356,7 +1356,6 @@ const COMPANIES = [
   { company:'Executive Performance Coaching', stage:'betainvite', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'Relay', stage:'betainvite', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'Wealth Partners Capital Group', stage:'betainvite', rep:'Tina Duong', note:'', closeAt:'' },
-  { company:'Merchant Pro Funding', stage:'betainvite', rep:'Laura Turnbull', note:'3/24- onboarding call scheduled', closeAt:'2026-04-10' },
   { company:'Petracca Group', stage:'betainvite', rep:'Lauren Weisenthal', note:'3/18/26 - Mitch responded to email with some feedback RE Chloe\'s pronunciation and asked about a use case that is do-able. He booked a call', closeAt:'' },
   { company:'Latin American Immigration Association', stage:'betainvite', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'Tetra Capital LLC', stage:'betainvite', rep:'Christine Sotelo', note:'', closeAt:'' },
@@ -1374,6 +1373,7 @@ const COMPANIES = [
   { company:'Avocado', stage:'testing', rep:'Laura Turnbull', note:'3/23- follow up meeting schedule 3/27 after they\'ve set up first job', closeAt:'2026-04-24' },
   { company:'Vending Media Inc.', stage:'testing', rep:'Kyle Craig', note:'3/23 - Met with Jack who shared qualified use case. His developer will lead the onboarding of Chloe, once I have his contact I will enable C', closeAt:'' },
   { company:'Eazy Grease', stage:'testing', rep:'Kyle Craig', note:'3/24 - Actively testing agent on small batches of leads, optimizing Chloe after each conversation. Has a few feedback points around AI scree', closeAt:'' },
+  { company:'Merchant Pro Funding', stage:'testing', rep:'Laura Turnbull', note:'3/24- onboarding call scheduled', closeAt:'2026-04-10' },
   { company:'Radix Financial Group', stage:'testing', rep:'Kyle Craig', note:'3/23 - He is actively testing the agent and has had Chloe call some leads. He was pretty frustrated with the initial experience and felt lik', closeAt:'' },
   { company:'Dating with Gracie', stage:'testing', rep:'Kyle Craig', note:'3/18 - Had discovery call and went straight into onboarding set-up. Strong use case with a lot of volume, committed to moving quickly. We al', closeAt:'' },
   { company:'Muscle Intelligence', stage:'testing', rep:'Laura Turnbull', note:'3/17 - onboarding call', closeAt:'2026-03-27' },
@@ -1671,7 +1671,7 @@ function renderKPIs() {
 // ── Init ──────────────────────────────────────────────────────────────────────
 const now = new Date();
 document.getElementById('dateLabel').textContent = 'As of ' + now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-document.getElementById('asOfBadge').textContent = 'Last synced Mar 24, 2026 at 7:41 PM UTC'; // @@SYNC:TIMESTAMP
+document.getElementById('asOfBadge').textContent = 'Last synced Mar 24, 2026 at 7:47 PM UTC'; // @@SYNC:TIMESTAMP
 
 // Reorder: Recommendations above Company Directory
 const recsSection    = document.getElementById('recs-section');
