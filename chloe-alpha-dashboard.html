@@ -118,6 +118,59 @@
     .waitlist-more a { color: var(--accent); text-decoration: none; font-weight: 500; }
     .waitlist-more a:hover { text-decoration: underline; }
 
+    /* ── Recommendations ───────────────────────────────────────────────────── */
+    .rec-tabs { display: flex; gap: 4px; margin-bottom: 16px; flex-wrap: wrap; }
+    .rec-tab {
+      padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
+      cursor: pointer; border: 1px solid var(--border); background: var(--surface);
+      color: var(--muted); transition: all 0.15s; font-family: inherit;
+    }
+    .rec-tab:hover { border-color: var(--accent); color: var(--accent); }
+    .rec-tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+    .rec-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 14px; margin-bottom: 36px; }
+    .rec-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+      padding: 20px 22px; transition: box-shadow 0.15s, border-color 0.15s;
+    }
+    .rec-card:hover { box-shadow: 0 4px 18px rgba(0,0,0,0.07); border-color: #d1d5db; }
+    .rec-card.hidden { display: none; }
+
+    .rec-card-top { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .rec-icon {
+      width: 32px; height: 32px; border-radius: 9px; display: flex;
+      align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0;
+    }
+    .rec-icon-red    { background: rgba(220,38,38,0.09); }
+    .rec-icon-amber  { background: rgba(217,119,6,0.10); }
+    .rec-icon-green  { background: rgba(5,150,105,0.09); }
+    .rec-icon-blue   { background: rgba(37,99,235,0.09); }
+    .rec-icon-purple { background: rgba(124,58,237,0.09); }
+
+    .rec-priority {
+      font-size: 10px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase;
+      padding: 2px 7px; border-radius: 4px; margin-left: auto; flex-shrink: 0;
+    }
+    .rec-p1 { background: rgba(220,38,38,0.10); color: var(--red); }
+    .rec-p2 { background: rgba(217,119,6,0.10); color: var(--amber); }
+    .rec-p3 { background: rgba(37,99,235,0.10); color: var(--blue); }
+
+    .rec-title { font-size: 13px; font-weight: 700; line-height: 1.35; color: var(--text); }
+    .rec-desc  { font-size: 12px; color: var(--muted); margin-top: 5px; line-height: 1.6; }
+    .rec-stat  { display: inline-block; font-weight: 700; color: var(--text); }
+    .rec-companies {
+      display: flex; flex-wrap: wrap; gap: 5px; margin-top: 11px;
+      padding-top: 11px; border-top: 1px solid var(--border);
+    }
+    .rec-co {
+      font-size: 11px; font-weight: 500; color: var(--muted); background: var(--surface2);
+      border: 1px solid var(--border); border-radius: 4px; padding: 2px 7px;
+    }
+    .rec-co.red    { color: var(--red);    background: rgba(220,38,38,0.05);  border-color: rgba(220,38,38,0.15); }
+    .rec-co.green  { color: var(--green);  background: rgba(5,150,105,0.06);  border-color: rgba(5,150,105,0.18); }
+    .rec-co.amber  { color: var(--amber);  background: rgba(217,119,6,0.06);  border-color: rgba(217,119,6,0.18); }
+    .rec-co.purple { color: var(--accent); background: rgba(124,58,237,0.06); border-color: rgba(124,58,237,0.18); }
+
     /* Scrollbar */
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
@@ -286,6 +339,239 @@
       ⚠ Showing first-page results for Waitlist (20 of 401), Beta Invite (20 of 68), Testing Agent (20 of 33), and Beta-Disqualified (20 of 128). All other stages are complete.
     </div>
   </div>
+
+  <!-- Recommendations -->
+  <div class="section-title">Recommendations</div>
+
+  <div class="rec-tabs">
+    <button class="rec-tab active" onclick="filterRecs('all', this)">All (10)</button>
+    <button class="rec-tab" onclick="filterRecs('urgent', this)">🔴 Urgent (2)</button>
+    <button class="rec-tab" onclick="filterRecs('growth', this)">📈 Growth (3)</button>
+    <button class="rec-tab" onclick="filterRecs('product', this)">💡 Product &amp; Process (3)</button>
+    <button class="rec-tab" onclick="filterRecs('pipeline', this)">🔄 Pipeline Health (2)</button>
+  </div>
+
+  <div class="rec-grid">
+
+    <!-- 1 -->
+    <div class="rec-card" data-cat="urgent">
+      <div class="rec-card-top">
+        <div class="rec-icon rec-icon-red">🚨</div>
+        <div class="rec-title">Re-engage the 35 Beta Invite companies that haven't moved</div>
+        <span class="rec-priority rec-p1">P1</span>
+      </div>
+      <div class="rec-desc">
+        <span class="rec-stat">68 invites were sent</span> but only 33 advanced to Testing Agent — a
+        <span class="rec-stat">51% drop-off</span> at the most critical handoff in the funnel. Customers
+        who receive an invite but don't onboard within ~2 weeks typically go cold. Launch a time-bound
+        outreach blitz: personalized email + Chloe-placed outbound call from the assigned CSM within
+        48 hrs. Frame it as "your spot is reserved for this cohort."
+      </div>
+      <div class="rec-companies">
+        <span class="rec-co red">35 Beta Invite companies</span>
+        <span class="rec-co">Christine Sotelo owns ~50</span>
+        <span class="rec-co">Laura Turnbull</span>
+      </div>
+    </div>
+
+    <!-- 2 -->
+    <div class="rec-card" data-cat="urgent">
+      <div class="rec-card-top">
+        <div class="rec-icon rec-icon-red">⚠️</div>
+        <div class="rec-title">Intervene on at-risk Activated accounts before they churn</div>
+        <span class="rec-priority rec-p1">P1</span>
+      </div>
+      <div class="rec-desc">
+        Three of your <span class="rec-stat">17 Activated accounts</span> have explicit red flags:
+        <strong>File Resolutions</strong> called Chloe "not impressive" and said they won't continue
+        without "drastic changes." <strong>Kasa</strong> has an active agent but is completely
+        unresponsive. <strong>FleetCore</strong> is blocked by gatekeepers/IVRs on every call.
+        These aren't usage gaps — they're churn signals. Escalate each to a product + CSM joint call
+        within the week.
+      </div>
+      <div class="rec-companies">
+        <span class="rec-co red">File Resolutions Organization</span>
+        <span class="rec-co red">Kasa</span>
+        <span class="rec-co red">FleetCore Logistics</span>
+      </div>
+    </div>
+
+    <!-- 3 -->
+    <div class="rec-card" data-cat="growth">
+      <div class="rec-card-top">
+        <div class="rec-icon rec-icon-green">📋</div>
+        <div class="rec-title">Build a "second job" playbook and present it at every Activated check-in</div>
+        <span class="rec-priority rec-p2">P2</span>
+      </div>
+      <div class="rec-desc">
+        Three Activated customers have already expanded to a second use case —
+        <span class="rec-stat">EFX Algo, No Flipping Excuses,</span> and
+        <span class="rec-stat">Flatiron School</span> — and the notes show noticeably higher engagement
+        in all three. The pattern is clear: two jobs = stickier customer. Create a structured
+        "Second Job" framework (top 5 complementary use cases by industry) and make it a standing
+        agenda item at every 30/60-day Activated check-in.
+      </div>
+      <div class="rec-companies">
+        <span class="rec-co green">EFX Algo — 2nd job in progress</span>
+        <span class="rec-co green">No Flipping Excuses — 2nd case live</span>
+        <span class="rec-co green">Flatiron School — 2nd case testing</span>
+      </div>
+    </div>
+
+    <!-- 4 -->
+    <div class="rec-card" data-cat="growth">
+      <div class="rec-card-top">
+        <div class="rec-icon rec-icon-green">🔗</div>
+        <div class="rec-title">Cross-reference the 614 Waitlist form submitters against pipeline gaps</div>
+        <span class="rec-priority rec-p2">P2</span>
+      </div>
+      <div class="rec-desc">
+        <span class="rec-stat">614 existing customers</span> submitted the Beta Waitlist form, but the
+        pipeline shows only 722 total opportunities — and most of those are the recent bulk-invite wave.
+        Many of the 614 have likely never received an individual CSM outreach. Pull the delta, identify
+        which customers have <em>not</em> been touched in the pipeline, and assign them. Existing
+        customers who self-selected are the highest-intent cohort you have.
+      </div>
+      <div class="rec-companies">
+        <span class="rec-co purple">614 form submitters</span>
+        <span class="rec-co">~401 currently in Waitlist stage</span>
+        <span class="rec-co amber">Gap: unassigned high-intent leads</span>
+      </div>
+    </div>
+
+    <!-- 5 -->
+    <div class="rec-card" data-cat="growth">
+      <div class="rec-card-top">
+        <div class="rec-icon rec-icon-green">⚡</div>
+        <div class="rec-title">Run a 2-week "Testing → Activated" activation sprint</div>
+        <span class="rec-priority rec-p2">P2</span>
+      </div>
+      <div class="rec-desc">
+        <span class="rec-stat">33 companies are Testing</span> but only
+        <span class="rec-stat">17 have Activated</span> — a 52% stall rate at the final mile.
+        Several have been in testing loops for weeks (SellSFH, Legacy Trading Academy, Kasa).
+        Launch a structured 2-week sprint: shared activation checklist, milestone check-ins on day 3,
+        7, and 14, and a clear "go-live" definition. Companies that hit all milestones get featured
+        in a Beta success spotlight.
+      </div>
+      <div class="rec-companies">
+        <span class="rec-co amber">SellSFH — stalled</span>
+        <span class="rec-co amber">Legacy Trading Academy — stalled</span>
+        <span class="rec-co amber">Amplify Leads — hasn't tested</span>
+        <span class="rec-co amber">OfferHouse LLC — delayed</span>
+      </div>
+    </div>
+
+    <!-- 6 -->
+    <div class="rec-card" data-cat="product">
+      <div class="rec-card-top">
+        <div class="rec-icon rec-icon-blue">🛡️</div>
+        <div class="rec-title">Prioritize the IVR/gatekeeper fix — it's blocking Activated customers from scaling</div>
+        <span class="rec-priority rec-p1">P1</span>
+      </div>
+      <div class="rec-desc">
+        <strong>FleetCore Logistics</strong> reports that nearly every lead has an office/IVR number
+        rather than a direct line, making Chloe unable to reach decision-makers.
+        <strong>WinIt</strong> lists compliance as their #1 concern.
+        These aren't edge cases — B2B companies with shared phone lines are a huge segment of
+        Close's customer base. A gatekeeper navigation capability unlocks the entire B2B outbound
+        use case at scale. Escalate to EPD as a Beta-blocking issue.
+      </div>
+      <div class="rec-companies">
+        <span class="rec-co red">FleetCore Logistics — IVR blocked</span>
+        <span class="rec-co red">WinIt — compliance gating</span>
+      </div>
+    </div>
+
+    <!-- 7 -->
+    <div class="rec-card" data-cat="product">
+      <div class="rec-card-top">
+        <div class="rec-icon rec-icon-blue">📞</div>
+        <div class="rec-title">Use Chloe to re-engage no-show qualification leads — and demo the product</div>
+        <span class="rec-priority rec-p2">P2</span>
+      </div>
+      <div class="rec-desc">
+        At least <span class="rec-stat">4 companies</span> no-showed qualification calls and
+        went dark with no follow-up automation. A Chloe-placed re-engagement call to these prospects
+        is both a retention tactic <em>and</em> a live product demo — they experience firsthand what
+        their customers would hear. Build a "Chloe calls for Chloe" re-engagement flow triggered
+        48 hrs after a no-show.
+      </div>
+      <div class="rec-companies">
+        <span class="rec-co amber">TIDY — qual call no-show</span>
+        <span class="rec-co amber">Epiic — no-showed, apologized</span>
+        <span class="rec-co amber">Dropship Circle — wants info first</span>
+        <span class="rec-co amber">Carrera Capital Group — postponing</span>
+      </div>
+    </div>
+
+    <!-- 8 -->
+    <div class="rec-card" data-cat="product">
+      <div class="rec-card-top">
+        <div class="rec-icon rec-icon-blue">📝</div>
+        <div class="rec-title">Capture and systematize prompt patterns from top-performing Activated accounts</div>
+        <span class="rec-priority rec-p3">P3</span>
+      </div>
+      <div class="rec-desc">
+        Activated accounts with the richest notes — <strong>NFN8 Group</strong> (accredited investor
+        re-qual), <strong>No Flipping Excuses</strong> (webinar no-show recovery),
+        <strong>VV Sourcing</strong> ("glowing compliments"), and <strong>RevPilot</strong>
+        (post-purchase instant call) — all share one thing: highly specific, well-scoped prompts.
+        Document these as reusable templates by use-case category (re-engagement, speed-to-lead,
+        post-purchase, appointment confirmation) to cut onboarding time for new Beta testers.
+      </div>
+      <div class="rec-companies">
+        <span class="rec-co green">NFN8 Group — investor re-qual</span>
+        <span class="rec-co green">No Flipping Excuses — webinar recovery</span>
+        <span class="rec-co green">RevPilot — post-purchase</span>
+        <span class="rec-co green">VV Sourcing — template candidate</span>
+      </div>
+    </div>
+
+    <!-- 9 -->
+    <div class="rec-card" data-cat="pipeline">
+      <div class="rec-card-top">
+        <div class="rec-icon rec-icon-purple">🎯</div>
+        <div class="rec-title">Break the Targeted → Interested stall with a time-limited Beta framing</div>
+        <span class="rec-priority rec-p2">P2</span>
+      </div>
+      <div class="rec-desc">
+        <span class="rec-stat">56 companies are Targeted</span> but only
+        <span class="rec-stat">11 have advanced to Interested</span> — an
+        <span class="rec-stat">80% stall rate.</span> Most Targeted records have zero notes and no
+        close date, suggesting passive or single-touch outreach only. Switch the framing: instead of
+        "want to learn about Chloe?" use "we have a limited number of Beta spots this cohort —
+        your CSM has reserved one for you." Urgency converts.
+      </div>
+      <div class="rec-companies">
+        <span class="rec-co">56 Targeted companies</span>
+        <span class="rec-co amber">~36 with no notes or close date</span>
+        <span class="rec-co">Travefy, SignWell, Hipcamp, CourtReserve</span>
+      </div>
+    </div>
+
+    <!-- 10 -->
+    <div class="rec-card" data-cat="pipeline">
+      <div class="rec-card-top">
+        <div class="rec-icon rec-icon-purple">🤝</div>
+        <div class="rec-title">Formalize the implementation partner channel (FlowDataAI model)</div>
+        <span class="rec-priority rec-p3">P3</span>
+      </div>
+      <div class="rec-desc">
+        <strong>The Lanam Group</strong> is implementing Chloe through <strong>FlowDataAI</strong>,
+        a third-party integration partner — and Barrett was looped in to clarify scope. This is the
+        first signal of a partner-led channel forming organically. If Close formalized an
+        "Implementation Partner" designation for Close-adjacent agencies and consultants, each partner
+        could bring 5–20 customers into the Beta funnel with very little CSM overhead. Identify
+        which other Targeted/Qualified accounts use integration consultants and replicate the model.
+      </div>
+      <div class="rec-companies">
+        <span class="rec-co purple">The Lanam Group × FlowDataAI</span>
+        <span class="rec-co">Potential: 5–20 accounts per partner</span>
+      </div>
+    </div>
+
+  </div><!-- /rec-grid -->
 
   <!-- Beta Waitlist section -->
   <div class="section-title">GTM: Chloe Beta Waitlist</div>
@@ -664,6 +950,16 @@ function renderCharts() {
         y: { grid: { color: '#f0f0f0' }, ticks: { color: '#9ca3af', font: { size: 11 } } }
       }
     }
+  });
+}
+
+// ── Recommendations filter ────────────────────────────────────────────────────
+function filterRecs(cat, btn) {
+  document.querySelectorAll('.rec-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.rec-card').forEach(card => {
+    const match = cat === 'all' || card.dataset.cat === cat;
+    card.classList.toggle('hidden', !match);
   });
 }
 
