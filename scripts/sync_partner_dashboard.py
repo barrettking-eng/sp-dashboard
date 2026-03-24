@@ -296,13 +296,20 @@ def patch_id_text(html, elem_id, new_text):
     return html
 
 
-def patch_timestamp(html, now_str):
+def patch_timestamp(html, now_dt):
+    """
+    Embed the sync time as both a machine-readable ISO attribute (data-sync-time)
+    and a human-readable fallback.  The browser JS turns this into a live
+    relative timestamp ("Synced 2 hours ago") in the viewer's local timezone.
+    """
+    iso    = now_dt.strftime("%Y-%m-%dT%H:%M:%SZ")          # UTC ISO-8601
+    pretty = now_dt.strftime("%b %-d, %Y at %-I:%M %p UTC") # fallback text
     html, n = re.subn(
         r'(id="sync-timestamp")[^>]*>[^<]*',
-        rf'\1>Updated {now_str}',
+        rf'\1 data-sync-time="{iso}">Updated {pretty}',
         html,
     )
-    print(f"  Timestamp → {now_str} ({n} replacement)")
+    print(f"  Timestamp → {iso} ({n} replacement)")
     return html
 
 
@@ -374,9 +381,8 @@ def main():
 
     # Timestamps
     now_dt   = datetime.now(timezone.utc)
-    now_str  = now_dt.strftime("%b %-d, %Y at %-I:%M %p UTC")
     date_str = now_dt.strftime("%b %-d, %Y")
-    html = patch_timestamp(html, now_str)
+    html = patch_timestamp(html, now_dt)
     html = patch_footer_date(html, date_str)
 
     with open(HTML_FILE, "w", encoding="utf-8") as f:

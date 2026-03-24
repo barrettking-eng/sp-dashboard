@@ -226,7 +226,7 @@
     <span class="badge badge-blue" id="badge-total-opps">696 Chloe Opps</span>
     <span class="badge badge-amber" id="badge-partner-count">3 Active Partners</span>
     <span class="badge badge-green" id="badge-beta-waitlist">570 Beta Waitlist</span>
-    <span class="as-of" id="sync-timestamp">Updated Mar 24, 2026</span>
+    <span class="as-of" id="sync-timestamp" data-sync-time="2026-03-24T19:00:00Z">Updated Mar 24, 2026</span>
   </div>
 </div>
 
@@ -1033,6 +1033,29 @@ const COMPANIES = [
       row.style.display = (matchSearch && matchStage) ? '' : 'none';
     });
   }
+
+  // ── Live "Synced X ago" timestamp ───────────────────────────────────────────
+  function updateSyncBadge() {
+    const el = document.getElementById('sync-timestamp');
+    if (!el) return;
+    const iso = el.getAttribute('data-sync-time');
+    if (!iso) return;
+    const syncedAt = new Date(iso);
+    const diffMs   = Date.now() - syncedAt.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    let label;
+    if (diffMins < 1)        label = 'Synced just now';
+    else if (diffMins < 60)  label = `Synced ${diffMins}m ago`;
+    else if (diffMins < 120) label = 'Synced 1h ago';
+    else if (diffMins < 1440) label = `Synced ${Math.floor(diffMins / 60)}h ago`;
+    else                     label = `Synced ${Math.floor(diffMins / 1440)}d ago`;
+    // Append local clock time so users know exactly when
+    const localTime = syncedAt.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    el.textContent  = `${label} (${localTime} local)`;
+    el.title        = `Last Close CRM sync: ${syncedAt.toLocaleString()}`;
+  }
+  updateSyncBadge();
+  setInterval(updateSyncBadge, 60000); // refresh label every minute
 
   // Init
   renderTable();
