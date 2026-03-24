@@ -285,42 +285,42 @@
   <div class="kpi-grid">
     <div class="kpi-card c-green">
       <div class="kpi-label">Activated</div>
-      <div class="kpi-value">17</div>
+      <div class="kpi-value" id="kpi-activated">17</div>
       <div class="kpi-sub">Agent live &amp; calling</div>
     </div>
     <div class="kpi-card c-purple">
       <div class="kpi-label">Testing Agent</div>
-      <div class="kpi-value">33</div>
+      <div class="kpi-value" id="kpi-testing">33</div>
       <div class="kpi-sub">Onboarded, in testing</div>
     </div>
     <div class="kpi-card c-purple" style="--accent:rgba(109,40,217,1);">
       <div class="kpi-label">Beta Invite Sent</div>
-      <div class="kpi-value">68</div>
+      <div class="kpi-value" id="kpi-betainvite">68</div>
       <div class="kpi-sub">Invitation delivered</div>
     </div>
     <div class="kpi-card c-amber">
       <div class="kpi-label">Qualified</div>
-      <div class="kpi-value">8</div>
+      <div class="kpi-value" id="kpi-qualified">8</div>
       <div class="kpi-sub">Cleared for onboarding</div>
     </div>
     <div class="kpi-card c-blue">
       <div class="kpi-label">Targeted</div>
-      <div class="kpi-value">56</div>
+      <div class="kpi-value" id="kpi-targeted">56</div>
       <div class="kpi-sub">CSM-identified customers</div>
     </div>
     <div class="kpi-card c-gray">
       <div class="kpi-label">Waitlist</div>
-      <div class="kpi-value">401</div>
+      <div class="kpi-value" id="kpi-waitlist">401</div>
       <div class="kpi-sub">Form submitters, pending</div>
     </div>
     <div class="kpi-card c-green" style="--green:#0891b2;">
       <div class="kpi-label">Beta Waitlist</div>
-      <div class="kpi-value">614</div>
+      <div class="kpi-value" id="kpi-betawaitlist">614</div>
       <div class="kpi-sub">Unique lead submissions</div>
     </div>
     <div class="kpi-card c-red">
       <div class="kpi-label">Lost / DQ'd</div>
-      <div class="kpi-value">128</div>
+      <div class="kpi-value" id="kpi-disqualified">128</div>
       <div class="kpi-sub">No longer interested or DQ'd</div>
     </div>
   </div>
@@ -805,6 +805,7 @@ const STAGES = {
   disqualified:{ label: 'Beta-Disqualified',  cls: 'stage-disqualified', order: 7 },
 };
 
+// @@SYNC:COMPANIES_START
 const COMPANIES = [
   // ── Activated (17 / 17) ──
   { company:'WinIt',                        stage:'activated',    rep:"Meghann O'Brien",    note:'Calling all buyers 12 min after purchase. Compliance is #1 concern.',     closeAt:'2026-02-28' },
@@ -958,6 +959,7 @@ const COMPANIES = [
   { company:'Vela Studio Limited',          stage:'disqualified', rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
   { company:'Ilya Levelev',                 stage:'disqualified', rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
 ];
+// @@SYNC:COMPANIES_END
 
 // ── Filters ──────────────────────────────────────────────────────────────────
 let rowLimit = 25;
@@ -1060,16 +1062,32 @@ function filterRecs(cat, btn) {
   });
 }
 
+// ── KPI renderer (computed from COMPANIES on every load) ──────────────────────
+function renderKPIs() {
+  const counts = {};
+  COMPANIES.forEach(c => { counts[c.stage] = (counts[c.stage] || 0) + 1; });
+  const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  set('kpi-activated',    counts.activated    || 0);
+  set('kpi-testing',      counts.testing      || 0);
+  set('kpi-betainvite',   counts.betainvite   || 0);
+  set('kpi-qualified',    counts.qualified    || 0);
+  set('kpi-targeted',     counts.targeted     || 0);
+  set('kpi-waitlist',     counts.waitlist     || 0);
+  set('kpi-disqualified', counts.disqualified || 0);
+  // kpi-betawaitlist is updated by the sync script (separate data source)
+}
+
 // ── Init ──────────────────────────────────────────────────────────────────────
 const now = new Date();
 document.getElementById('dateLabel').textContent = 'As of ' + now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-document.getElementById('asOfBadge').textContent = 'Last synced ' + now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+document.getElementById('asOfBadge').textContent = 'Last synced manually'; // @@SYNC:TIMESTAMP
 
 // Reorder: Recommendations above Company Directory
 const recsSection    = document.getElementById('recs-section');
 const companySection = document.getElementById('company-section');
 companySection.parentNode.insertBefore(recsSection, companySection);
 
+renderKPIs();
 renderTable();
 applyFilters();
 </script>

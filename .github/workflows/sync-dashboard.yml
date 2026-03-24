@@ -1,0 +1,50 @@
+name: Sync Chloe Alpha Dashboard
+
+# Runs at 8 AM, 12 PM, and 5 PM Eastern Time.
+# GitHub Actions cron uses UTC. EST = UTC-5, EDT = UTC-4.
+# Schedules below target Eastern Standard Time (UTC-5).
+# During Daylight Saving (Mar–Nov) runs will be 1 hour later in local time.
+
+on:
+  schedule:
+    - cron: '0 13 * * *'   # 8:00 AM EST  / 9:00 AM EDT
+    - cron: '0 17 * * *'   # 12:00 PM EST / 1:00 PM EDT
+    - cron: '0 22 * * *'   # 5:00 PM EST  / 6:00 PM EDT
+  workflow_dispatch:         # Allow one-click manual runs from the GitHub UI
+
+jobs:
+  sync:
+    name: Pull Close CRM data and redeploy dashboard
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write        # Needed to commit the updated HTML back to main
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: pip install requests
+
+      - name: Run sync script
+        env:
+          CLOSE_API_KEY: ${{ secrets.CLOSE_API_KEY }}
+        run: python scripts/sync_dashboard.py
+
+      - name: Commit and push updated dashboard
+        run: |
+          git config user.name  "Dashboard Sync Bot"
+          git config user.email "noreply@github.com"
+          git add chloe-alpha-dashboard.html
+          # Only commit if the file actually changed
+          if git diff --staged --quiet; then
+            echo "No changes detected — skipping commit."
+          else
+            git commit -m "chore: auto-sync dashboard $(date -u '+%Y-%m-%d %H:%M UTC')"
+            git push
+          fi
