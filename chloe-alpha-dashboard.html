@@ -315,7 +315,7 @@
     </div>
     <div class="kpi-card c-green" style="--green:#0891b2;">
       <div class="kpi-label">Beta Waitlist</div>
-      <div class="kpi-value" id="kpi-betawaitlist">462635</div>
+      <div class="kpi-value" id="kpi-betawaitlist">0</div>
       <div class="kpi-sub">Unique lead submissions</div>
     </div>
     <div class="kpi-card c-red">
@@ -1671,7 +1671,7 @@ function renderKPIs() {
 // ── Init ──────────────────────────────────────────────────────────────────────
 const now = new Date();
 document.getElementById('dateLabel').textContent = 'As of ' + now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-document.getElementById('asOfBadge').textContent = 'Last synced Mar 24, 2026 at 7:34 PM UTC'; // @@SYNC:TIMESTAMP
+document.getElementById('asOfBadge').textContent = 'Last synced Mar 24, 2026 at 7:41 PM UTC'; // @@SYNC:TIMESTAMP
 
 // Reorder: Recommendations above Company Directory
 const recsSection    = document.getElementById('recs-section');
