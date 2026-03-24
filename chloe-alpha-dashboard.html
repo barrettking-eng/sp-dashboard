@@ -807,6 +807,11 @@ const STAGES = {
 
 // @@SYNC:COMPANIES_START
 const COMPANIES = [
+  { company:'Gage Goyena', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
+  { company:'Digitale Unternehmensvorsorge', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
+  { company:'HASE GmbH + Co. KG', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
+  { company:'RMD', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
+  { company:'HealthByDan', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'National Solar', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'Bungalow', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'Guardian Engineering', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
@@ -1271,6 +1276,7 @@ const COMPANIES = [
   { company:'FIRST Delivery', stage:'qualified', rep:'Lauren Weisenthal', note:'2/4/26 - Interested and has a good use case/qualified, but wants to test our own Chloe before committing.', closeAt:'' },
   { company:'Undetectable AI', stage:'qualified', rep:'Laura Turnbull', note:'3/13- showed interest in February, following up to get onboarding meeting booked', closeAt:'2026-03-20' },
   { company:'Pulse Medical Inc', stage:'qualified', rep:'Laura Turnbull', note:'3/6- emailed to inform them of new call takover skill and set up meeting for next week.', closeAt:'2026-04-03' },
+  { company:'DripJobs', stage:'betainvite', rep:'Laura Turnbull', note:'3/24- up front with that their implementation would be slow, but want to start testing and thinking of use cases', closeAt:'2026-04-30' },
   { company:'OneRoof Real Estate', stage:'betainvite', rep:'Tina Duong', note:'', closeAt:'' },
   { company:'Good Results Home Buyers', stage:'betainvite', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'Launch Socials', stage:'betainvite', rep:'Christine Sotelo', note:'', closeAt:'' },
@@ -1408,6 +1414,7 @@ const COMPANIES = [
   { company:'SMRT Systems, Inc', stage:'disqualified', rep:'Laura Turnbull', note:'', closeAt:'' },
   { company:'New Age Trading', stage:'disqualified', rep:'Tina Duong', note:'', closeAt:'' },
   { company:'Maggie Giele', stage:'disqualified', rep:'Success Team', note:'', closeAt:'' },
+  { company:'Comeketo Catering', stage:'disqualified', rep:'Laura Turnbull', note:'', closeAt:'' },
   { company:'Payments Toolbox', stage:'disqualified', rep:'Kyle Craig', note:'3/17 - Had discovery call and they don\'t have the strongest use case or volume for Chloe. Most of their leads are very hot so their closers', closeAt:'' },
   { company:'MMM Express', stage:'disqualified', rep:'Liz Stephany', note:'disqualified, startup plan', closeAt:'' },
   { company:'Rooted & Seen', stage:'disqualified', rep:'Liz Stephany', note:'disqualified, essentials plan', closeAt:'' },
@@ -1616,7 +1623,7 @@ function renderKPIs() {
 // ── Init ──────────────────────────────────────────────────────────────────────
 const now = new Date();
 document.getElementById('dateLabel').textContent = 'As of ' + now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-document.getElementById('asOfBadge').textContent = 'Last synced Mar 24, 2026 at 9:07 PM UTC'; // @@SYNC:TIMESTAMP
+document.getElementById('asOfBadge').textContent = 'Last synced Mar 24, 2026 at 9:37 PM UTC'; // @@SYNC:TIMESTAMP
 
 // Reorder: Recommendations above Company Directory
 const recsSection    = document.getElementById('recs-section');
