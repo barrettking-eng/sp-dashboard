@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Chloe Alpha — Call Volume</title>
+  <title>Chloe Beta — Implementation Pipeline</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     :root {
@@ -20,158 +20,113 @@
       --red: #dc2626;
       --red-dim: rgba(220,38,38,0.08);
       --amber: #d97706;
+      --blue: #2563eb;
+      --blue-dim: rgba(37,99,235,0.07);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif; font-size: 14px; min-height: 100vh; }
     .page { max-width: 1300px; margin: 0 auto; padding: 48px 32px 80px; }
 
-    /* ── Header ── */
+    /* Header */
     .header { margin-bottom: 32px; padding-bottom: 28px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
     .header-eyebrow { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); margin-bottom: 10px; }
     .header h1 { font-size: 30px; font-weight: 800; letter-spacing: -0.6px; line-height: 1.15; }
     .header h1 em { font-style: normal; color: var(--accent); }
     .header-sub { color: var(--muted); margin-top: 8px; font-size: 13px; }
-    .header-badge { display: inline-flex; align-items: center; gap: 7px; margin-top: 14px; font-size: 12px; color: var(--muted); }
-    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+    .header-badges { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+    .header-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 3px 8px; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .dot-green { background: var(--green); }
+    .dot-purple { background: var(--accent); }
     .header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
     .phase-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(124,58,237,0.2); border-radius: 20px; padding: 5px 12px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; }
 
-    /* ── Filter bar ── */
+    /* Filter bar */
     .filter-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; margin-bottom: 32px; }
     .filter-group { display: flex; align-items: center; gap: 8px; }
     .filter-sep { width: 1px; height: 22px; background: var(--border); margin: 0 4px; }
     .filter-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); white-space: nowrap; }
-    .filter-input {
-      background: #fff; border: 1px solid var(--border); border-radius: 8px;
-      padding: 6px 10px; font-size: 13px; color: var(--text); cursor: pointer;
-      font-family: inherit; transition: border-color 0.15s; outline: none;
-    }
+    .filter-input { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; font-size: 13px; color: var(--text); cursor: pointer; font-family: inherit; transition: border-color 0.15s; outline: none; }
     .filter-input:focus, .filter-input:hover { border-color: var(--accent); }
-    .filter-input[type="date"] { padding: 5px 9px; }
-    .filter-select-wrap { position: relative; }
-    .filter-select-btn {
-      display: flex; align-items: center; gap: 8px;
-      background: #fff; border: 1px solid var(--border); border-radius: 8px;
-      padding: 6px 10px; font-size: 13px; color: var(--text); cursor: pointer;
-      font-family: inherit; transition: border-color 0.15s; white-space: nowrap; min-width: 180px;
-      user-select: none;
-    }
-    .filter-select-btn:hover, .filter-select-btn.open { border-color: var(--accent); }
-    .filter-select-btn .chev { margin-left: auto; transition: transform 0.15s; color: var(--muted); }
-    .filter-select-btn.open .chev { transform: rotate(180deg); }
-    .filter-select-menu {
-      display: none; position: absolute; top: calc(100% + 6px); left: 0;
-      background: #fff; border: 1px solid var(--border); border-radius: 10px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.10); min-width: 220px; z-index: 200; padding: 6px;
-      max-height: 300px; overflow-y: auto;
-    }
-    .filter-select-menu.open { display: block; }
-    .filter-option {
-      display: flex; align-items: center; gap: 8px;
-      padding: 8px 10px; border-radius: 6px; cursor: pointer;
-      font-size: 13px; color: var(--text); transition: background 0.1s; user-select: none;
-    }
-    .filter-option:hover { background: var(--surface2); }
-    .filter-option.selected { color: var(--accent); font-weight: 600; background: var(--accent-dim); }
-    .filter-option .org-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; opacity: 0.5; }
-    .filter-option.selected .org-dot { opacity: 1; }
+    .filter-select { background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 6px 10px; font-size: 13px; color: var(--text); cursor: pointer; font-family: inherit; outline: none; }
+    .filter-select:hover, .filter-select:focus { border-color: var(--accent); }
     .filter-reset { font-size: 12px; color: var(--accent); cursor: pointer; font-weight: 500; padding: 4px 8px; border-radius: 6px; transition: background 0.1s; border: none; background: none; font-family: inherit; }
     .filter-reset:hover { background: var(--accent-dim); }
-    .active-filter-tag { display: inline-flex; align-items: center; gap: 5px; background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(124,58,237,0.2); border-radius: 20px; padding: 3px 10px; font-size: 11px; font-weight: 600; }
-    .active-filter-tag .remove { cursor: pointer; opacity: 0.6; }
-    .active-filter-tag .remove:hover { opacity: 1; }
 
-    /* ── Section labels ── */
+    /* Section labels */
     .section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin-bottom: 16px; }
 
-    /* ── KPI cards ── */
-    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; margin-bottom: 36px; }
-    .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px 22px; transition: box-shadow 0.15s; }
+    /* KPI cards */
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 12px; margin-bottom: 36px; }
+    .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; transition: box-shadow 0.15s; cursor: default; }
     .kpi-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
-    .kpi-label { font-size: 12px; color: var(--muted); margin-bottom: 10px; font-weight: 500; }
-    .kpi-value { font-size: 36px; font-weight: 800; letter-spacing: -1.5px; line-height: 1; }
+    .kpi-label { font-size: 12px; color: var(--muted); margin-bottom: 10px; font-weight: 500; line-height: 1.3; }
+    .kpi-value { font-size: 34px; font-weight: 800; letter-spacing: -1.5px; line-height: 1; }
     .kpi-sub { font-size: 11px; color: var(--muted); margin-top: 8px; line-height: 1.4; }
     .c-purple .kpi-value { color: var(--accent); }
     .c-amber .kpi-value { color: var(--amber); }
-    .c-blue .kpi-value { color: #2563eb; }
+    .c-blue .kpi-value { color: var(--blue); }
     .c-green .kpi-value { color: var(--green); }
+    .c-red .kpi-value { color: var(--red); }
+    .c-gray .kpi-value { color: var(--muted); }
 
-    /* ── Charts grid ── */
+    /* Charts */
     .charts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; margin-bottom: 36px; }
     .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
     .chart-card.full { grid-column: 1 / -1; }
     .chart-card h3 { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
     .chart-sub { font-size: 12px; color: var(--muted); margin-bottom: 20px; }
-    .chart-wrap { position: relative; height: 220px; }
-    .chart-wrap.tall { height: 280px; }
+    .chart-wrap { position: relative; height: 240px; }
+    .chart-wrap.tall { height: 300px; }
 
-    /* ── Signals section ── */
-    .signals-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 36px; }
-    .signals-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px 0; flex-wrap: wrap; gap: 12px; }
-    .signals-header-left h3 { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
-    .signals-header-left .chart-sub { margin-bottom: 0; }
-    .signal-tabs { display: flex; gap: 2px; background: var(--surface2); padding: 3px; border-radius: 9px; border: 1px solid var(--border); }
-    .signal-tab { padding: 5px 14px; border-radius: 7px; cursor: pointer; font-size: 12px; font-weight: 500; color: var(--muted); border: none; background: none; transition: all 0.15s; font-family: inherit; }
-    .signal-tab.active { background: #fff; color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
-    .signal-tab.active.spike { color: var(--green); }
-    .signal-tab.active.dip { color: var(--red); }
-    .signals-count { font-size: 11px; color: var(--muted); padding: 4px 24px 12px; }
-    .signals-list { max-height: 540px; overflow-y: auto; }
-    .signal-row { display: grid; grid-template-columns: 32px 1fr auto auto auto 120px; align-items: center; gap: 12px; padding: 12px 24px; border-bottom: 1px solid var(--border); transition: background 0.1s; }
-    .signal-row:last-child { border-bottom: none; }
-    .signal-row:hover { background: #fafaff; }
-    .signal-rank { font-size: 11px; font-weight: 700; color: var(--muted); text-align: center; }
-    .signal-customer { font-size: 13px; font-weight: 600; }
-    .signal-date { font-size: 12px; color: var(--muted); }
-    .signal-flow { font-size: 12px; color: var(--muted); white-space: nowrap; }
-    .signal-flow b { color: var(--text); }
-    .signal-pct { font-size: 14px; font-weight: 800; white-space: nowrap; letter-spacing: -0.3px; }
-    .signal-pct.pos { color: var(--green); }
-    .signal-pct.neg { color: var(--red); }
-    .signal-bar-wrap { display: flex; align-items: center; gap: 6px; }
-    .signal-bar-bg { flex: 1; height: 4px; background: var(--border); border-radius: 2px; }
-    .signal-bar-fill { height: 4px; border-radius: 2px; opacity: 0.75; min-width: 2px; }
-    .signal-bar-fill.pos { background: var(--green); }
-    .signal-bar-fill.neg { background: var(--red); }
-    .signals-empty { padding: 40px 24px; text-align: center; color: var(--muted); font-size: 13px; }
+    /* Stage chip */
+    .stage-chip { display: inline-flex; align-items: center; gap: 5px; border-radius: 6px; padding: 2px 8px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+    .stage-waitlist    { background: #f3f4f6; color: #6b7280; }
+    .stage-targeted    { background: var(--blue-dim); color: var(--blue); }
+    .stage-interested  { background: rgba(217,119,6,0.08); color: var(--amber); }
+    .stage-qualified   { background: rgba(234,88,12,0.08); color: #ea580c; }
+    .stage-betainvite  { background: rgba(124,58,237,0.08); color: var(--accent); }
+    .stage-testing     { background: rgba(124,58,237,0.15); color: #6d28d9; }
+    .stage-activated   { background: var(--green-dim); color: var(--green); }
+    .stage-disqualified { background: var(--red-dim); color: var(--red); }
+    .stage-lost        { background: var(--red-dim); color: var(--red); }
 
-    /* ── Tables ── */
+    /* Table */
     .table-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 36px; }
-    .table-card-header { padding: 20px 24px 0; }
-    .table-card-header h3 { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+    .table-card-header { padding: 20px 24px 12px; display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+    .table-card-header h3 { font-size: 14px; font-weight: 700; }
+    .table-meta { font-size: 12px; color: var(--muted); }
     table { width: 100%; border-collapse: collapse; }
     thead tr { background: var(--surface2); border-bottom: 1px solid var(--border); }
-    thead th { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); padding: 10px 24px; text-align: left; white-space: nowrap; }
-    thead th:not(:first-child) { text-align: right; }
+    thead th { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); padding: 10px 20px; text-align: left; white-space: nowrap; }
     tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
     tbody tr:last-child { border-bottom: none; }
     tbody tr:hover { background: #fafaff; }
-    tbody td { padding: 12px 24px; font-size: 13px; }
-    tbody td:not(:first-child) { text-align: right; }
-    .td-label { font-weight: 600; }
+    tbody td { padding: 11px 20px; font-size: 13px; vertical-align: middle; }
+    .td-company { font-weight: 600; }
     .td-muted { color: var(--muted); font-size: 12px; }
-    .td-num { font-weight: 600; font-variant-numeric: tabular-nums; }
-    .td-pos { color: var(--green); font-size: 12px; font-weight: 600; }
-    .td-neg { color: var(--red); font-size: 12px; font-weight: 600; }
-    .td-neutral { color: var(--muted); font-size: 12px; }
-    .bar-cell { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
-    .bar-bg { width: 72px; height: 4px; background: var(--border); border-radius: 2px; }
-    .bar-fill { height: 4px; border-radius: 2px; background: var(--accent); opacity: 0.65; }
-    .peak-chip { display: inline-block; background: rgba(217,119,6,0.10); color: var(--amber); border-radius: 4px; font-size: 10px; font-weight: 700; padding: 2px 6px; margin-left: 4px; }
+    .td-note { color: var(--muted); font-size: 12px; max-width: 340px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .row-hidden { display: none; }
 
-    /* ── Scrollbar ── */
-    .signals-list::-webkit-scrollbar { width: 4px; }
-    .signals-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+    /* Waitlist section */
+    .waitlist-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 36px; }
+    .waitlist-header { padding: 20px 24px 0; display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+    .waitlist-header h3 { font-size: 14px; font-weight: 700; }
+    .waitlist-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1px; background: var(--border); border-top: 1px solid var(--border); margin-top: 16px; }
+    .waitlist-item { background: var(--surface); padding: 12px 18px; font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .waitlist-more { background: var(--surface2); padding: 14px 18px; font-size: 12px; color: var(--muted); text-align: center; grid-column: 1 / -1; }
+    .waitlist-more a { color: var(--accent); text-decoration: none; font-weight: 500; }
+    .waitlist-more a:hover { text-decoration: underline; }
 
-    /* ── Empty state ── */
-    .empty-state { padding: 32px 24px; text-align: center; color: var(--muted); font-size: 13px; }
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
     @media (max-width: 640px) {
       .page { padding: 24px 16px 60px; }
       .charts-grid { grid-template-columns: 1fr; }
       .kpi-grid { grid-template-columns: repeat(2, 1fr); }
-      .signal-row { grid-template-columns: 28px 1fr auto auto; }
-      .signal-flow, .signal-bar-wrap { display: none; }
+      .td-note { display: none; }
     }
   </style>
 </head>
@@ -181,552 +136,545 @@
   <!-- Header -->
   <div class="header">
     <div>
-      <div class="header-eyebrow">Product Analytics · Amplitude</div>
-      <h1>Chloe <em>Alpha</em> — Call Volume</h1>
-      <div class="header-sub">Day-over-day Chloe AI call activity for alpha users, pre-Beta launch.</div>
-      <div class="header-badge">
-        <span class="dot"></span>
-        Close Production · <code style="font-size:11px;background:var(--surface2);padding:1px 5px;border-radius:4px;border:1px solid var(--border)">Call</code> where <code style="font-size:11px;background:var(--surface2);padding:1px 5px;border-radius:4px;border:1px solid var(--border)">agent_config_id is set</code>
+      <div class="header-eyebrow">CRM Intelligence · Close</div>
+      <h1>Chloe <em>Beta</em> — Implementation Pipeline</h1>
+      <div class="header-sub">Live pipeline from Close CRM — every company's journey to Chloe activation.</div>
+      <div class="header-badges">
+        <span class="header-badge"><span class="dot dot-purple"></span>Chloe Implementation Pipeline · 722 opps</span>
+        <span class="header-badge"><span class="dot dot-green"></span>GTM: Chloe Beta Waitlist · 614 leads</span>
+        <span class="header-badge" id="asOfBadge"></span>
       </div>
     </div>
     <div class="header-right">
       <div class="phase-badge">
         <svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="4" fill="#7c3aed"/></svg>
-        Alpha Phase
+        Beta Launch
       </div>
-      <div id="activeRangeLabel" style="font-size:12px;color:var(--muted)">Jan 20 – Mar 8, 2026</div>
+      <div style="font-size:12px;color:var(--muted)" id="dateLabel"></div>
     </div>
   </div>
 
   <!-- Filter bar -->
   <div class="filter-bar">
     <div class="filter-group">
-      <span class="filter-label">From</span>
-      <input type="date" id="filterStart" class="filter-input" value="2026-01-20" min="2026-01-20" max="2026-03-08" />
-    </div>
-    <div class="filter-group">
-      <span class="filter-label">To</span>
-      <input type="date" id="filterEnd" class="filter-input" value="2026-03-08" min="2026-01-20" max="2026-03-08" />
+      <span class="filter-label">Stage</span>
+      <select id="stageFilter" class="filter-select" onchange="applyFilters()">
+        <option value="">All Stages</option>
+        <option value="activated">✅ Activated</option>
+        <option value="testing">🧪 Testing Agent</option>
+        <option value="betainvite">📬 Beta Invite</option>
+        <option value="qualified">⭐ Qualified</option>
+        <option value="interested">💬 Interested</option>
+        <option value="targeted">🎯 Targeted</option>
+        <option value="waitlist">⏳ Waitlist</option>
+        <option value="disqualified">✕ Disqualified</option>
+      </select>
     </div>
     <div class="filter-sep"></div>
     <div class="filter-group">
-      <span class="filter-label">Customer</span>
-      <div class="filter-select-wrap" id="custWrap">
-        <div class="filter-select-btn" id="custBtn" onclick="toggleCustMenu()">
-          <span id="custBtnLabel">All Customers</span>
-          <svg class="chev" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <div class="filter-select-menu" id="custMenu"></div>
-      </div>
+      <span class="filter-label">Rep</span>
+      <select id="repFilter" class="filter-select" onchange="applyFilters()">
+        <option value="">All Reps</option>
+        <option value="Meghann O'Brien">Meghann O'Brien</option>
+        <option value="Teodora Soso">Teodora Soso</option>
+        <option value="Laura Turnbull">Laura Turnbull</option>
+        <option value="Tina Duong">Tina Duong</option>
+        <option value="Lauren Weisenthal">Lauren Weisenthal</option>
+        <option value="Kyle Craig">Kyle Craig</option>
+        <option value="Christine Sotelo">Christine Sotelo</option>
+        <option value="Forrest Dwyer">Forrest Dwyer</option>
+      </select>
+    </div>
+    <div class="filter-sep"></div>
+    <div class="filter-group">
+      <span class="filter-label">Search</span>
+      <input type="text" id="searchFilter" class="filter-input" placeholder="Company name…" oninput="applyFilters()" style="min-width:180px;" />
     </div>
     <div class="filter-sep"></div>
     <button class="filter-reset" onclick="resetFilters()">Reset</button>
-    <div id="activeTagsArea" style="display:flex;gap:6px;flex-wrap:wrap;margin-left:4px;"></div>
+    <div id="filterCount" style="font-size:12px;color:var(--muted);margin-left:4px;"></div>
   </div>
 
   <!-- KPIs -->
-  <div class="section-title" id="kpiTitle">Summary</div>
-  <div class="kpi-grid" id="kpiGrid"></div>
-
-  <!-- Main chart -->
-  <div class="charts-grid">
-    <div class="chart-card full">
-      <h3 id="mainChartTitle">Daily Call Volume</h3>
-      <div class="chart-sub" id="mainChartSub"></div>
-      <div class="chart-wrap tall"><canvas id="mainChart"></canvas></div>
+  <div class="section-title">Pipeline Summary</div>
+  <div class="kpi-grid">
+    <div class="kpi-card c-green">
+      <div class="kpi-label">Activated</div>
+      <div class="kpi-value">17</div>
+      <div class="kpi-sub">Agent live &amp; calling</div>
     </div>
-  </div>
-
-  <!-- DoD + Weekly -->
-  <div class="charts-grid">
-    <div class="chart-card">
-      <h3>Day-over-Day Change</h3>
-      <div class="chart-sub">% change vs previous day</div>
-      <div class="chart-wrap"><canvas id="dodChart"></canvas></div>
-    </div>
-    <div class="chart-card">
-      <h3>Weekly Call Totals</h3>
-      <div class="chart-sub">Calls grouped by calendar week</div>
-      <div class="chart-wrap"><canvas id="weeklyChart"></canvas></div>
-    </div>
-  </div>
-
-  <!-- Signals section -->
-  <div class="section-title">Usage Signals</div>
-  <div class="signals-card">
-    <div class="signals-header">
-      <div class="signals-header-left">
-        <h3>Spikes &amp; Dips — ≥±10% Day-over-Day</h3>
-        <div class="chart-sub">Stack-ranked by magnitude · requires ≥5 calls on prior day</div>
-      </div>
-      <div class="signal-tabs">
-        <button class="signal-tab active" data-filter="all" onclick="setSignalFilter('all')">All</button>
-        <button class="signal-tab spike" data-filter="spike" onclick="setSignalFilter('spike')">↑ Spikes</button>
-        <button class="signal-tab dip" data-filter="dip" onclick="setSignalFilter('dip')">↓ Dips</button>
-      </div>
-    </div>
-    <div class="signals-count" id="signalsCount"></div>
-    <div class="signals-list" id="signalsList"></div>
-  </div>
-
-  <!-- Weekly breakdown -->
-  <div class="section-title">Weekly Breakdown</div>
-  <div class="table-card">
-    <div class="table-card-header">
-      <h3>Week-by-Week Summary</h3>
-      <div class="chart-sub" style="padding-bottom:4px">Total calls, peak day, and WoW change</div>
-    </div>
-    <table><thead><tr>
-      <th>Week</th><th>Total Calls</th><th>Peak Day</th><th>Peak Volume</th><th>WoW Change</th><th style="width:120px">Volume</th>
-    </tr></thead>
-    <tbody id="weeklyBody"></tbody></table>
-  </div>
-
-  <!-- Daily detail -->
-  <div class="section-title">Daily Detail</div>
-  <div class="table-card">
-    <div class="table-card-header">
-      <h3>Day-by-Day Call Log</h3>
-      <div class="chart-sub" style="padding-bottom:4px">Every active day in the filtered range with DoD change</div>
-    </div>
-    <table><thead><tr>
-      <th>Date</th><th>Day</th><th>Calls</th><th>DoD Change</th><th style="width:120px">Volume</th>
-    </tr></thead>
-    <tbody id="dailyBody"></tbody></table>
-  </div>
-
-</div>
-
-<script>
-// ── Raw data ──────────────────────────────────────────────────────────────────
-const DATES = [
-  '2026-01-20','2026-01-21','2026-01-22','2026-01-23','2026-01-24','2026-01-25',
-  '2026-01-26','2026-01-27','2026-01-28','2026-01-29','2026-01-30','2026-01-31',
-  '2026-02-01','2026-02-02','2026-02-03','2026-02-04','2026-02-05','2026-02-06',
-  '2026-02-07','2026-02-08','2026-02-09','2026-02-10','2026-02-11','2026-02-12',
-  '2026-02-13','2026-02-14','2026-02-15','2026-02-16','2026-02-17','2026-02-18',
-  '2026-02-19','2026-02-20','2026-02-21','2026-02-22','2026-02-23','2026-02-24',
-  '2026-02-25','2026-02-26','2026-02-27','2026-02-28',
-  '2026-03-01','2026-03-02','2026-03-03','2026-03-04','2026-03-05','2026-03-06',
-  '2026-03-07','2026-03-08'
-];
-
-const AGG = [902,1090,52,58,1552,1505,569,999,609,71,96,2110,832,826,3491,566,78,498,1766,3402,1603,1738,1771,84,98,1333,1047,3059,2858,3401,104,75,2374,1356,2125,2545,1258,99,472,1720,6564,4396,3001,1340,70,60,2534,1042];
-
-const ORG_DATA = {
-  'Career Evolved':         [0,0,0,0,0,0,0,0,0,456,635,15,0,451,668,242,504,56,8,0,249,591,517,15,126,9,0,53,1427,865,721,335,17,0,118,714,1993,1872,2089,19,0,480,60,1428,777,873,20,1],
-  'Close':                  [0,0,0,0,0,0,0,0,0,267,156,34,57,501,181,249,432,264,53,95,774,181,277,521,212,61,76,720,189,223,597,239,61,95,753,178,287,644,231,68,74,780,336,448,718,199,68,85],
-  'Umbrella Micro Enterprises Inc': [0,0,0,0,0,0,0,0,0,0,0,0,0,294,356,0,1,0,0,0,796,0,0,1657,0,0,0,0,1769,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-  'Operation Graduate':     [0,0,0,0,0,0,0,0,0,0,7,0,0,44,0,6,0,0,0,0,43,6,0,776,1,0,0,789,10,0,0,719,0,0,1,0,697,1,0,0,0,1,682,0,0,0,0,0],
-  'NFN8, Inc.':             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,139,1,0,225,994,4,0,908,1,0,866,2,0,0],
-  'EFX Algo':               [0,0,0,0,0,0,0,0,0,143,260,1,0,226,288,7,0,231,5,0,204,5,0,473,14,0,417,11,0,390,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-  'NFN8 Group, Inc':        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,187,0,0,168,1,0,317,393,0,0,235,0,0,0,0,0,0,0,0,0,0,0,0,0],
-  'Fast Capital Advance':   [0,0,0,0,0,0,0,0,0,34,32,0,0,30,0,27,28,21,0,0,21,16,11,11,10,0,0,0,0,103,70,60,4,0,72,63,56,54,63,6,0,78,70,63,60,53,5,0],
-  'Admin JetMo LLC':        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,9,52,16,45,11,0,0,111,194,156,90,88,0,0],
-  'No Flipping Excuses':    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,383],
-  'Flatiron School':        [0,0,0,0,0,0,0,0,0,0,0,0,0,3,12,36,31,34,0,0,17,29,19,29,13,2,0,23,4,20,13,5,0,0,2,3,4,8,2,0,0,5,5,16,21,25,0,0],
-  'RevPilot':               [0,0,0,0,0,0,0,0,0,2,0,2,1,3,0,2,3,3,3,1,6,2,2,5,3,6,4,2,2,2,2,2,1,1,0,0,0,2,2,4,0,10,8,10,9,9,6,2],
-  'OpulenceMindset.com, Inc.': [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,3,1,2,1,4,5,4,6,3,1,1,0,1,2,2,0,1],
-  'WinIt':                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,0,0,3,1,1,3,3,0,0,0,0,0,0,0,0,0],
-  'Downtobid':              [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,2,4,0,0],
-};
-
-const ORG_NAMES = Object.keys(ORG_DATA);
-
-// ── Helpers ──────────────────────────────────────────────────────────────────
-const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-
-function parseDate(str) { return new Date(str + 'T12:00:00'); }
-function fmtShort(str) { const d = parseDate(str); return `${MONTHS[d.getMonth()]} ${d.getDate()}`; }
-function fmtFull(str)  { const d = parseDate(str); return `${MONTHS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`; }
-function dayName(str)  { return DAYS[parseDate(str).getDay()]; }
-function commas(n)     { return Math.round(n).toLocaleString(); }
-function kf(n)         { return n >= 1000 ? (n/1000).toFixed(n % 1000 === 0 ? 0 : 1) + 'k' : String(n); }
-
-// ── State ─────────────────────────────────────────────────────────────────────
-let state = {
-  startDate: DATES[0],
-  endDate: DATES[DATES.length - 1],
-  customer: 'all',
-  signalFilter: 'all'
-};
-
-// ── Chart instances ───────────────────────────────────────────────────────────
-const charts = {};
-Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif";
-Chart.defaults.color = '#6b7280';
-
-function destroyChart(id) {
-  if (charts[id]) { charts[id].destroy(); delete charts[id]; }
-}
-
-// ── Filtered data ─────────────────────────────────────────────────────────────
-function getSlice() {
-  const si = DATES.indexOf(state.startDate);
-  const ei = DATES.indexOf(state.endDate);
-  const s = si === -1 ? 0 : si;
-  const e = ei === -1 ? DATES.length - 1 : ei;
-  const dates = DATES.slice(s, e + 1);
-  const values = (state.customer === 'all' ? AGG : ORG_DATA[state.customer]).slice(s, e + 1);
-  return { dates, values, s, e };
-}
-
-// ── KPI render ────────────────────────────────────────────────────────────────
-function renderKPIs(dates, values) {
-  const total = values.reduce((a, b) => a + b, 0);
-  const peak = Math.max(...values);
-  const peakDate = dates[values.indexOf(peak)];
-  const active = values.filter(v => v > 0).length;
-  const avg = active > 0 ? Math.round(total / active) : 0;
-
-  // WoW: first 7 days avg vs last 7 days avg
-  const firstWeek = values.slice(0, Math.min(7, values.length));
-  const lastWeek = values.slice(Math.max(0, values.length - 7));
-  const fw = firstWeek.reduce((a,b)=>a+b,0) / firstWeek.length;
-  const lw = lastWeek.reduce((a,b)=>a+b,0) / lastWeek.length;
-  const wow = fw > 0 ? Math.round(((lw - fw) / fw) * 100) : null;
-
-  document.getElementById('kpiTitle').textContent = state.customer === 'all' ? 'Summary' : `Summary — ${state.customer}`;
-  document.getElementById('kpiGrid').innerHTML = `
     <div class="kpi-card c-purple">
-      <div class="kpi-label">Total Calls</div>
-      <div class="kpi-value">${total >= 1000 ? (total/1000).toFixed(1)+'K' : commas(total)}</div>
-      <div class="kpi-sub">${dates.length}-day window</div>
+      <div class="kpi-label">Testing Agent</div>
+      <div class="kpi-value">33</div>
+      <div class="kpi-sub">Onboarded, in testing</div>
+    </div>
+    <div class="kpi-card c-purple" style="--accent:rgba(109,40,217,1);">
+      <div class="kpi-label">Beta Invite Sent</div>
+      <div class="kpi-value">68</div>
+      <div class="kpi-sub">Invitation delivered</div>
     </div>
     <div class="kpi-card c-amber">
-      <div class="kpi-label">Peak Day</div>
-      <div class="kpi-value">${commas(peak)}</div>
-      <div class="kpi-sub">${fmtShort(peakDate)}, ${dayName(peakDate)}</div>
+      <div class="kpi-label">Qualified</div>
+      <div class="kpi-value">8</div>
+      <div class="kpi-sub">Cleared for onboarding</div>
     </div>
     <div class="kpi-card c-blue">
-      <div class="kpi-label">Avg / Active Day</div>
-      <div class="kpi-value">${commas(avg)}</div>
-      <div class="kpi-sub">Over ${active} active day${active !== 1 ? 's' : ''}</div>
+      <div class="kpi-label">Targeted</div>
+      <div class="kpi-value">56</div>
+      <div class="kpi-sub">CSM-identified customers</div>
     </div>
-    <div class="kpi-card c-green">
-      <div class="kpi-label">WoW Growth</div>
-      <div class="kpi-value">${wow === null ? '—' : (wow > 0 ? '+' : '') + wow + '%'}</div>
-      <div class="kpi-sub">First vs last 7 days</div>
+    <div class="kpi-card c-gray">
+      <div class="kpi-label">Waitlist</div>
+      <div class="kpi-value">401</div>
+      <div class="kpi-sub">Form submitters, pending</div>
     </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Active Days</div>
-      <div class="kpi-value" style="color:var(--accent)">${active}</div>
-      <div class="kpi-sub">of ${dates.length} total days</div>
+    <div class="kpi-card c-green" style="--green:#0891b2;">
+      <div class="kpi-label">Beta Waitlist</div>
+      <div class="kpi-value">614</div>
+      <div class="kpi-sub">Unique lead submissions</div>
     </div>
-    <div class="kpi-card">
-      <div class="kpi-label">Customers</div>
-      <div class="kpi-value" style="color:var(--text)">${state.customer === 'all' ? ORG_NAMES.length : '1'}</div>
-      <div class="kpi-sub">${state.customer === 'all' ? 'in alpha cohort' : 'selected'}</div>
+    <div class="kpi-card c-red">
+      <div class="kpi-label">Lost / DQ'd</div>
+      <div class="kpi-value">128</div>
+      <div class="kpi-sub">No longer interested or DQ'd</div>
     </div>
-  `;
+  </div>
+
+  <!-- Charts -->
+  <div class="charts-grid">
+    <div class="chart-card full">
+      <h3>Pipeline Stage Breakdown</h3>
+      <div class="chart-sub">Opportunity count by stage across the Chloe Implementation pipeline</div>
+      <div class="chart-wrap"><canvas id="funnelChart"></canvas></div>
+    </div>
+  </div>
+
+  <div class="charts-grid">
+    <div class="chart-card">
+      <h3>Active vs. Lost Breakdown</h3>
+      <div class="chart-sub">Distribution of active pipeline vs. lost outcomes</div>
+      <div class="chart-wrap"><canvas id="donutChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Activation Depth</h3>
+      <div class="chart-sub">Companies that have progressed past Beta Invite</div>
+      <div class="chart-wrap"><canvas id="depthChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Company directory -->
+  <div class="section-title">Company Directory</div>
+  <div class="table-card">
+    <div class="table-card-header">
+      <h3>All Pipeline Companies</h3>
+      <span class="table-meta" id="tableCount"></span>
+    </div>
+    <table id="companyTable">
+      <thead>
+        <tr>
+          <th>Company</th>
+          <th>Stage</th>
+          <th>Rep</th>
+          <th>Notes</th>
+          <th style="text-align:left;">Close Date</th>
+        </tr>
+      </thead>
+      <tbody id="companyTbody"></tbody>
+    </table>
+    <div id="tableEmpty" style="display:none;padding:32px 24px;text-align:center;color:var(--muted);font-size:13px;">No companies match your filters.</div>
+    <div id="partialNote" style="padding:12px 24px;font-size:12px;color:var(--muted);border-top:1px solid var(--border);background:var(--surface2);">
+      ⚠ Showing first-page results for Waitlist (20 of 401), Beta Invite (20 of 68), Testing Agent (20 of 33), and Beta-Disqualified (20 of 128). All other stages are complete.
+    </div>
+  </div>
+
+  <!-- Beta Waitlist section -->
+  <div class="section-title">GTM: Chloe Beta Waitlist</div>
+  <div class="waitlist-card">
+    <div class="waitlist-header">
+      <h3>614 Leads — Beta Waitlist Form Submitters</h3>
+      <a href="https://app.close.com/leads/save_6HkdoVqth3RjDLaP15yXeAbnVwRI0buetTqpe5UexSd/" target="_blank" rel="noopener" style="font-size:12px;color:var(--accent);text-decoration:none;font-weight:500;">View in Close ↗</a>
+    </div>
+    <p style="padding:8px 24px 0;font-size:12px;color:var(--muted);">Existing Close customers who submitted the Chloe Beta Waitlist Form (recorded as a Custom Activity). Showing 20 of 614.</p>
+    <div class="waitlist-grid">
+      <div class="waitlist-item">CJ Coaching</div>
+      <div class="waitlist-item">AMF FZ LLE</div>
+      <div class="waitlist-item">Elite Performance Health Group</div>
+      <div class="waitlist-item">Golden Lotus Labs</div>
+      <div class="waitlist-item">Idlebrook Equity Group</div>
+      <div class="waitlist-item">One Goal</div>
+      <div class="waitlist-item">CK-Agentur</div>
+      <div class="waitlist-item">Sherpa</div>
+      <div class="waitlist-item">Expertzz GmbH</div>
+      <div class="waitlist-item">OneRoof Real Estate</div>
+      <div class="waitlist-item">Nimbus Health</div>
+      <div class="waitlist-item">Green Pine Group LLC</div>
+      <div class="waitlist-item">Zoda Limited</div>
+      <div class="waitlist-item">ace ltd</div>
+      <div class="waitlist-item">The Pangea Agency</div>
+      <div class="waitlist-item">ATD</div>
+      <div class="waitlist-item">Caliber</div>
+      <div class="waitlist-item">Betabox Educators</div>
+      <div class="waitlist-item">InvestWell Solutions</div>
+      <div class="waitlist-item">Pro Sales Growth</div>
+      <div class="waitlist-more">+ 594 more · <a href="https://app.close.com/leads/save_6HkdoVqth3RjDLaP15yXeAbnVwRI0buetTqpe5UexSd/" target="_blank" rel="noopener">Open full list in Close</a></div>
+    </div>
+  </div>
+
+</div><!-- /page -->
+
+<script>
+// ── Data ──────────────────────────────────────────────────────────────────────
+const STAGES = {
+  activated:   { label: 'Activated',         cls: 'stage-activated',    order: 0 },
+  testing:     { label: 'Testing Agent',      cls: 'stage-testing',      order: 1 },
+  betainvite:  { label: 'Beta Invite',        cls: 'stage-betainvite',   order: 2 },
+  qualified:   { label: 'Qualified',          cls: 'stage-qualified',    order: 3 },
+  interested:  { label: 'Interested',         cls: 'stage-interested',   order: 4 },
+  targeted:    { label: 'Targeted',           cls: 'stage-targeted',     order: 5 },
+  waitlist:    { label: 'Waitlist',           cls: 'stage-waitlist',     order: 6 },
+  disqualified:{ label: 'Beta-Disqualified',  cls: 'stage-disqualified', order: 7 },
+};
+
+const COMPANIES = [
+  // ── Activated (17 / 17) ──
+  { company:'WinIt',                        stage:'activated',    rep:"Meghann O'Brien",    note:'Calling all buyers 12 min after purchase. Compliance is #1 concern.',     closeAt:'2026-02-28' },
+  { company:'RevPilot',                     stage:'activated',    rep:'Teodora Soso',       note:'Calling buyers 12 minutes after purchase comes through.',                 closeAt:'2026-01-28' },
+  { company:'Career Evolved',               stage:'activated',    rep:'Teodora Soso',       note:'Final checks — waiting on outcomes/workflow setup before full launch.',   closeAt:'2026-01-20' },
+  { company:'EFX Algo',                     stage:'activated',    rep:'Laura Turnbull',     note:'Deploying on more recent leads; discussing a second job.',                closeAt:'2026-01-16' },
+  { company:'Umbrella Micro Enterprises',   stage:'activated',    rep:'Tina Duong',         note:'Re-engage stale leads — goal is to book meetings with reps.',             closeAt:'2026-01-14' },
+  { company:'myFootpath - Billing',         stage:'activated',    rep:'Tina Duong',         note:'Agent live.',                                                             closeAt:'2026-01-27' },
+  { company:'Fast Capital Advance',         stage:'activated',    rep:'Tina Duong',         note:'Re-engaging leads that didn\'t close — requesting bank statements.',      closeAt:'2026-01-14' },
+  { company:'Flatiron School',              stage:'activated',    rep:'Lauren Weisenthal',  note:'Testing second use case — liked initial results on small first list.',    closeAt:'2026-02-02' },
+  { company:'No Flipping Excuses',          stage:'activated',    rep:'Lauren Weisenthal',  note:'Made 100+ calls. Second use case onboarded.',                             closeAt:'2026-02-27' },
+  { company:'NFN8 Group, Inc',              stage:'activated',    rep:'Tina Duong',         note:'Launched! Re-qualifying stale accredited investor leads.',                closeAt:'2026-02-13' },
+  { company:'File Resolutions Organization',stage:'activated',    rep:'Tina Duong',         note:'Tested small batch — not impressed in current state, needs drastic changes.', closeAt:'2026-02-06' },
+  { company:'BasisBoard',                   stage:'activated',    rep:'Laura Turnbull',     note:'Still testing and editing prompts.',                                      closeAt:'2026-03-13' },
+  { company:'Admin JetMo LLC',              stage:'activated',    rep:'Teodora Soso',       note:'',                                                                        closeAt:'2026-02-25' },
+  { company:'OpulenceMindset.com, Inc.',    stage:'activated',    rep:'Teodora Soso',       note:'',                                                                        closeAt:'2026-02-19' },
+  { company:'Bklyn commons',                stage:'activated',    rep:'Teodora Soso',       note:'Completed onboarding with Jack — follow-up 3/16 to go fully live.',      closeAt:'2026-03-13' },
+  { company:'Zeta CDL',                     stage:'activated',    rep:'Tina Duong',         note:'Agent live — first successful call, task created for rep follow-up.',     closeAt:'2026-03-20' },
+  { company:'FleetCore Logistics',          stage:'activated',    rep:'Lauren Weisenthal',  note:'First round of calling done — challenge with gatekeepers/IVRs.',          closeAt:'2026-03-20' },
+
+  // ── Testing Agent (20 of 33) ──
+  { company:'Avocado',                      stage:'testing',      rep:'Laura Turnbull',     note:'Follow-up meeting 3/27 after first job setup.',                           closeAt:'2026-04-24' },
+  { company:'Vending Media Inc.',           stage:'testing',      rep:'Kyle Craig',         note:'Developer will lead Chloe onboarding once contact info received.',        closeAt:null },
+  { company:'Eazy Grease',                  stage:'testing',      rep:'Kyle Craig',         note:'Actively testing small batches, optimizing after each conversation.',     closeAt:null },
+  { company:'Radix Financial Group',        stage:'testing',      rep:'Kyle Craig',         note:'Testing agent — frustrated with initial UX, uncovered key feedback.',     closeAt:null },
+  { company:'Dating with Gracie',           stage:'testing',      rep:'Kyle Craig',         note:'Strong use case with high volume — follow-up call Friday.',               closeAt:null },
+  { company:'Muscle Intelligence',          stage:'testing',      rep:'Laura Turnbull',     note:'Onboarding call 3/17.',                                                   closeAt:'2026-03-27' },
+  { company:'Coperniq Inc.',                stage:'testing',      rep:'Kyle Craig',         note:'In progress.',                                                            closeAt:null },
+  { company:'Bay Valley Investments, LLC',  stage:'testing',      rep:'Laura Turnbull',     note:'Multiple use cases — follow-up meeting booked for 4/3.',                  closeAt:'2026-04-03' },
+  { company:'Amplify Leads',                stage:'testing',      rep:'Laura Turnbull',     note:'Hasn\'t tested since last call — SMS communication works best for him.',  closeAt:'2026-03-27' },
+  { company:'Persona',                      stage:'testing',      rep:'Kyle Craig',         note:'Super excited initial setup — refining prompts before full launch.',      closeAt:null },
+  { company:'Let Growth',                   stage:'testing',      rep:'Lauren Weisenthal',  note:'Qualified and began onboarding. Follow-up booked for 3/18.',              closeAt:'2026-03-27' },
+  { company:'FareHarbor',                   stage:'testing',      rep:"Meghann O'Brien",    note:'Early stage discovery — targeting proposal by mid-April.',                closeAt:'2026-06-30' },
+  { company:'FinTrade Master Academy',      stage:'testing',      rep:'Kyle Craig',         note:'Onboarding done, working through feedback with product team.',             closeAt:null },
+  { company:'VV Sourcing',                  stage:'testing',      rep:'Kyle Craig',         note:'Final prompt revisions — glowing initial feedback from customer.',        closeAt:null },
+  { company:'Attain',                       stage:'testing',      rep:'Kyle Craig',         note:'Great fit — lower volume (~20–40 calls/wk), ready to onboard.',           closeAt:null },
+  { company:'Saw.com',                      stage:'testing',      rep:'Tina Duong',         note:'Re-engaging old leads; reviewing scheduling setup with team.',             closeAt:'2026-03-30' },
+  { company:'OfferHouse LLC',               stage:'testing',      rep:'Lauren Weisenthal',  note:'Had surgery — back on his feet, still excited, testing ASAP.',            closeAt:'2026-03-06' },
+  { company:'Legacy Trading Academy',       stage:'testing',      rep:'Forrest Dwyer',      note:'',                                                                        closeAt:'2026-03-11' },
+  { company:'SellSFH',                      stage:'testing',      rep:'Teodora Soso',       note:'Slacked Luc about getting Chloe activated.',                              closeAt:'2026-03-13' },
+  { company:'Kasa',                         stage:'testing',      rep:'Tina Duong',         note:'Agent live but hasn\'t tested — currently unresponsive.',                 closeAt:'2026-03-13' },
+
+  // ── Beta Invite (20 of 68) ──
+  { company:'OneRoof Real Estate',          stage:'betainvite',   rep:'Tina Duong',         note:'',                                                                        closeAt:null },
+  { company:'Emma',                         stage:'betainvite',   rep:'Laura Turnbull',     note:'Jacomo is main POC — knows to reach out with questions.',                 closeAt:'2026-04-03' },
+  { company:'Good Results Home Buyers',     stage:'betainvite',   rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'Launch Socials',               stage:'betainvite',   rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'Douglas L. Gibson Enterprises',stage:'betainvite',   rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'Dolezal Wealth',               stage:'betainvite',   rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'Hampton Property Solutions',   stage:'betainvite',   rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'Small Biz Heroes',             stage:'betainvite',   rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'Emerald Estate Investments',   stage:'betainvite',   rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'Direct Finance Group',         stage:'betainvite',   rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'Golden Group CRE',             stage:'betainvite',   rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'PPL Labs',                     stage:'betainvite',   rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'Unforget Yourself',            stage:'betainvite',   rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'Kingdom 320',                  stage:'betainvite',   rep:'Laura Turnbull',     note:'Onboarding email with calendar link sent 3/23.',                         closeAt:'2026-04-24' },
+  { company:'Motion Consulting AI',         stage:'betainvite',   rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'Achieve Greatness',            stage:'betainvite',   rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'Business Capital LLC',         stage:'betainvite',   rep:'Laura Turnbull',     note:'',                                                                        closeAt:null },
+  { company:'Zoda Limited',                 stage:'betainvite',   rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'Kingdom Properties',           stage:'betainvite',   rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'Sophie Society',               stage:'betainvite',   rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+
+  // ── Qualified (8 / 8) ──
+  { company:'ClientMatchmaking.com',        stage:'qualified',    rep:'Tina Duong',         note:'',                                                                        closeAt:null },
+  { company:'EB3',                          stage:'qualified',    rep:'Tina Duong',         note:'Busy, reconnect mid-April — meeting booked for 4/16.',                   closeAt:'2026-04-17' },
+  { company:'ReallyTrusted',                stage:'qualified',    rep:'Lauren Weisenthal',  note:'Great first call — large list of old leads; onboarding call 3/26.',      closeAt:'2026-03-27' },
+  { company:'Paladin Security',             stage:'qualified',    rep:'Lauren Weisenthal',  note:'Working on a separate contract first — Chloe to follow.',                closeAt:'2026-03-20' },
+  { company:'DNS Financial',                stage:'qualified',    rep:'Lauren Weisenthal',  note:'Has stale leads in mind for re-engagement — gave booking link.',          closeAt:null },
+  { company:'FIRST Delivery',               stage:'qualified',    rep:'Lauren Weisenthal',  note:'Wants to test Close\'s own Chloe before committing.',                     closeAt:null },
+  { company:'Undetectable AI',              stage:'qualified',    rep:'Laura Turnbull',     note:'Showed interest in Feb — following up to book onboarding meeting.',       closeAt:'2026-03-20' },
+  { company:'Pulse Medical Inc',            stage:'qualified',    rep:'Laura Turnbull',     note:'Emailed re: new call takeover skill — meeting next week.',               closeAt:'2026-04-03' },
+
+  // ── Interested, Qualification Unknown (11 / 11) ──
+  { company:'LoanGuys.com',                 stage:'interested',   rep:'Tina Duong',         note:'Max reached out re: moving up waitlist — meeting requested for March 23.', closeAt:'2026-04-03' },
+  { company:'EverythingCard Outbound Team', stage:'interested',   rep:'Tina Duong',         note:'Interested in both inbound and outbound. Agent activated on both orgs.',  closeAt:null },
+  { company:'Epiic',                        stage:'interested',   rep:'Lauren Weisenthal',  note:'No-showed first call but apologized and will rebook.',                    closeAt:null },
+  { company:'Exults',                       stage:'interested',   rep:'Tina Duong',         note:'Randy reached out on Slack — meeting set for March 23.',                  closeAt:'2026-03-31' },
+  { company:'TIDY',                         stage:'interested',   rep:'Lauren Weisenthal',  note:'Qualification call no-show.',                                             closeAt:'2026-03-27' },
+  { company:'Actuvi',                       stage:'interested',   rep:'Kyle Craig',         note:'Strong use case — needs to become opt-in compliant with LinkedIn ads first.', closeAt:null },
+  { company:'Josephine Agency',             stage:'interested',   rep:'Kyle Craig',         note:'Low volume — need to qualify further before pushing along.',              closeAt:null },
+  { company:'Dropship Circle',              stage:'interested',   rep:'Lauren Weisenthal',  note:'Wants more info before committing to a call.',                            closeAt:'2026-03-13' },
+  { company:'Stay at Home Bookkeeper',      stage:'interested',   rep:'Tina Duong',         note:'Interested but wants demo call for their users booked first.',            closeAt:null },
+  { company:'Ruby Capital Group',           stage:'interested',   rep:'Tina Duong',         note:'',                                                                        closeAt:null },
+  { company:'Carrera Capital Group',        stage:'interested',   rep:'Teodora Soso',       note:'Call with Pedro keeps postponing.',                                       closeAt:'2026-03-17' },
+
+  // ── Targeted (20 of 56) ──
+  { company:'The Lanam Group',              stage:'targeted',     rep:'Laura Turnbull',     note:'Spoke with FlowDataAI (implementation partner) — looped Barrett in.',    closeAt:'2026-03-20' },
+  { company:'Travefy',                      stage:'targeted',     rep:'Success Team',       note:'',                                                                        closeAt:null },
+  { company:'The Rainmaker Family',         stage:'targeted',     rep:'Tina Duong',         note:'',                                                                        closeAt:null },
+  { company:'Tallyfy',                      stage:'targeted',     rep:'Success Team',       note:'',                                                                        closeAt:null },
+  { company:'SignWell',                     stage:'targeted',     rep:'Success Team',       note:'',                                                                        closeAt:null },
+  { company:'Referrizer',                   stage:'targeted',     rep:'Laura Turnbull',     note:'',                                                                        closeAt:null },
+  { company:'LifeData',                     stage:'targeted',     rep:'Success Team',       note:'',                                                                        closeAt:null },
+  { company:'intaker',                      stage:'targeted',     rep:'Fiona Hollingsworth',note:'',                                                                        closeAt:null },
+  { company:'IceWeb',                       stage:'targeted',     rep:'Tina Duong',         note:'',                                                                        closeAt:null },
+  { company:'Hipcamp',                      stage:'targeted',     rep:'Tina Duong',         note:'',                                                                        closeAt:null },
+  { company:'Freedom Club',                 stage:'targeted',     rep:'Laura Turnbull',     note:'',                                                                        closeAt:null },
+  { company:'CourtReserve',                 stage:'targeted',     rep:'Laura Turnbull',     note:'',                                                                        closeAt:null },
+  { company:'Blue Ink Digital',             stage:'targeted',     rep:'Success Team',       note:'',                                                                        closeAt:null },
+  { company:'Zecher Financial',             stage:'targeted',     rep:'Success Team',       note:'',                                                                        closeAt:null },
+  { company:'Wealth Streams Academy',       stage:'targeted',     rep:'Success Team',       note:'',                                                                        closeAt:null },
+  { company:'Trusted TV',                   stage:'targeted',     rep:'Success Team',       note:'',                                                                        closeAt:null },
+  { company:'The Preferred Recruit',        stage:'targeted',     rep:'Success Team',       note:'',                                                                        closeAt:null },
+  { company:'Saasberry Labs',               stage:'targeted',     rep:'Success Team',       note:'',                                                                        closeAt:null },
+  { company:'Revealbot',                    stage:'targeted',     rep:'Success Team',       note:'',                                                                        closeAt:null },
+  { company:'Lumis',                        stage:'targeted',     rep:'Success Team',       note:'',                                                                        closeAt:null },
+
+  // ── Waitlist (20 of 401) ──
+  { company:'CJ Coaching',                  stage:'waitlist',     rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'CK-Agentur',                   stage:'waitlist',     rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'Expertzz GmbH',                stage:'waitlist',     rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'Frederik Linke',               stage:'waitlist',     rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'Userbrain',                    stage:'waitlist',     rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'Rush Properties LLC',          stage:'waitlist',     rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'BMS Recruiting Pros',          stage:'waitlist',     rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'Dubai Catch',                  stage:'waitlist',     rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'CyberScouts',                  stage:'waitlist',     rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'AKW Consultants',              stage:'waitlist',     rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'Carbonara',                    stage:'waitlist',     rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'ATD',                          stage:'waitlist',     rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'Content Flash',                stage:'waitlist',     rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'Trendzonemarketing',           stage:'waitlist',     rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'Carlaunch',                    stage:'waitlist',     rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'MODA Vi',                      stage:'waitlist',     rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'Freedom Conex',                stage:'waitlist',     rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'Providence Wealth',            stage:'waitlist',     rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'Rear View Safety',             stage:'waitlist',     rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'Lux Solutions Group Inc',      stage:'waitlist',     rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+
+  // ── Beta-Disqualified (20 of 128) ──
+  { company:'ScaleNova AI',                 stage:'disqualified', rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'dinnerHQ',                     stage:'disqualified', rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'Sen Marketing LLC',            stage:'disqualified', rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'Buildofarm',                   stage:'disqualified', rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'Clinic Sites',                 stage:'disqualified', rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'Rezora',                       stage:'disqualified', rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'Elektro-Conzept',              stage:'disqualified', rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'Fluid Focus',                  stage:'disqualified', rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'LuxuryLeasing',                stage:'disqualified', rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'Enflet AMZ',                   stage:'disqualified', rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'Professions Loans Limited',    stage:'disqualified', rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'EverHype Systems GmbH',        stage:'disqualified', rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'SalesHub',                     stage:'disqualified', rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'Levelev Consulting UG',        stage:'disqualified', rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'Bonobo Living',                stage:'disqualified', rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'The Rainmakers',               stage:'disqualified', rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'hiral',                        stage:'disqualified', rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'Revenue.farm S.R.L.',          stage:'disqualified', rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'Vela Studio Limited',          stage:'disqualified', rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+  { company:'Ilya Levelev',                 stage:'disqualified', rep:'Christine Sotelo',   note:'',                                                                        closeAt:null },
+];
+
+// ── Filters ──────────────────────────────────────────────────────────────────
+function applyFilters() {
+  const stage  = document.getElementById('stageFilter').value;
+  const rep    = document.getElementById('repFilter').value;
+  const search = document.getElementById('searchFilter').value.toLowerCase().trim();
+
+  let visible = 0;
+  document.querySelectorAll('#companyTbody tr').forEach(row => {
+    const s = row.dataset.stage;
+    const r = row.dataset.rep;
+    const c = row.dataset.company;
+    const matchStage  = !stage  || s === stage;
+    const matchRep    = !rep    || r === rep;
+    const matchSearch = !search || c.includes(search);
+    const show = matchStage && matchRep && matchSearch;
+    row.style.display = show ? '' : 'none';
+    if (show) visible++;
+  });
+
+  document.getElementById('tableCount').textContent =
+    visible + ' compan' + (visible === 1 ? 'y' : 'ies') + ' shown';
+  document.getElementById('tableEmpty').style.display = visible === 0 ? '' : 'none';
 }
 
-// ── Main chart ────────────────────────────────────────────────────────────────
-function renderMainChart(dates, values) {
-  destroyChart('mainChart');
-  const labels = dates.map(fmtShort);
-  const maxVal = Math.max(...values);
-  const ctx = document.getElementById('mainChart').getContext('2d');
-  const grad = ctx.createLinearGradient(0, 0, 0, 280);
-  grad.addColorStop(0, 'rgba(124,58,237,0.18)');
-  grad.addColorStop(1, 'rgba(124,58,237,0.00)');
+function resetFilters() {
+  document.getElementById('stageFilter').value = '';
+  document.getElementById('repFilter').value = '';
+  document.getElementById('searchFilter').value = '';
+  applyFilters();
+}
 
-  const customer = state.customer;
-  document.getElementById('mainChartTitle').textContent = customer === 'all' ? 'Daily Call Volume — All Customers' : `Daily Call Volume — ${customer}`;
-  document.getElementById('mainChartSub').textContent = `Total Chloe AI calls per day · ${fmtShort(dates[0])} – ${fmtShort(dates[dates.length-1])}, 2026`;
+// ── Render table ─────────────────────────────────────────────────────────────
+function renderTable() {
+  const tbody = document.getElementById('companyTbody');
+  const sorted = [...COMPANIES].sort((a, b) => STAGES[a.stage].order - STAGES[b.stage].order);
 
-  charts['mainChart'] = new Chart(ctx, {
-    type: 'line',
-    data: { labels, datasets: [{
-      label: 'Calls', data: values,
-      borderColor: '#7c3aed', borderWidth: 2,
-      pointRadius: values.map(v => v === maxVal ? 5 : 2),
-      pointBackgroundColor: values.map(v => v === maxVal ? '#7c3aed' : 'rgba(124,58,237,0.5)'),
-      pointBorderColor: values.map(v => v === maxVal ? '#fff' : 'transparent'),
-      pointBorderWidth: values.map(v => v === maxVal ? 2 : 0),
-      backgroundColor: grad, fill: true, tension: 0.35,
-    }]},
+  sorted.forEach(row => {
+    const tr = document.createElement('tr');
+    tr.dataset.stage   = row.stage;
+    tr.dataset.rep     = row.rep;
+    tr.dataset.company = row.company.toLowerCase();
+
+    const s = STAGES[row.stage];
+    const closeStr = row.closeAt
+      ? new Date(row.closeAt).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'2-digit' })
+      : '—';
+
+    tr.innerHTML = `
+      <td class="td-company">${row.company}</td>
+      <td><span class="stage-chip ${s.cls}">${s.label}</span></td>
+      <td class="td-muted">${row.rep}</td>
+      <td class="td-note" title="${row.note}">${row.note || '<span style="opacity:.4">—</span>'}</td>
+      <td class="td-muted">${closeStr}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById('tableCount').textContent = sorted.length + ' companies shown';
+}
+
+// ── Charts ────────────────────────────────────────────────────────────────────
+function renderCharts() {
+  const PALETTE = {
+    activated:    '#059669',
+    testing:      '#6d28d9',
+    betainvite:   '#7c3aed',
+    qualified:    '#ea580c',
+    interested:   '#d97706',
+    targeted:     '#2563eb',
+    waitlist:     '#9ca3af',
+    disqualified: '#dc2626',
+  };
+
+  // Pipeline funnel (horizontal bar)
+  const funnelCtx = document.getElementById('funnelChart').getContext('2d');
+  const funnelData = [
+    { label: 'Waitlist',          count: 401, stage: 'waitlist' },
+    { label: 'Targeted',          count: 56,  stage: 'targeted' },
+    { label: 'Interested',        count: 11,  stage: 'interested' },
+    { label: 'Qualified',         count: 8,   stage: 'qualified' },
+    { label: 'Beta Invite',       count: 68,  stage: 'betainvite' },
+    { label: 'Testing Agent',     count: 33,  stage: 'testing' },
+    { label: 'Activated',         count: 17,  stage: 'activated' },
+    { label: 'Lost / DQ\'d',      count: 128, stage: 'disqualified' },
+  ];
+
+  new Chart(funnelCtx, {
+    type: 'bar',
+    data: {
+      labels: funnelData.map(d => d.label),
+      datasets: [{
+        data: funnelData.map(d => d.count),
+        backgroundColor: funnelData.map(d => PALETTE[d.stage]),
+        borderRadius: 6,
+        borderSkipped: false,
+      }]
+    },
     options: {
-      responsive: true, maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: '#111827', titleColor: '#f9fafb', bodyColor: '#d1d5db',
-          padding: 10, cornerRadius: 8,
           callbacks: {
-            title: ctx => `${fmtFull(dates[ctx[0].dataIndex])} · ${dayName(dates[ctx[0].dataIndex])}`,
-            label: ctx => `  ${commas(ctx.parsed.y)} calls`,
+            label: ctx => ' ' + ctx.raw + ' companies'
           }
         }
       },
       scales: {
-        x: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { maxTicksLimit: 12, font: { size: 11 }, color: '#9ca3af', maxRotation: 0 }, border: { color: 'rgba(0,0,0,0.06)' } },
-        y: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { size: 11 }, color: '#9ca3af', callback: v => v >= 1000 ? kf(v) : v }, border: { display: false } }
+        x: { grid: { color: '#f0f0f0' }, ticks: { color: '#9ca3af', font: { size: 11 } } },
+        y: { grid: { display: false }, ticks: { color: '#374151', font: { size: 12, weight: '500' } } }
       }
     }
   });
-}
 
-// ── DoD chart ─────────────────────────────────────────────────────────────────
-function renderDoDChart(dates, values) {
-  destroyChart('dodChart');
-  const dodVals = values.map((v, i) => {
-    if (i === 0 || values[i-1] === 0) return null;
-    return Math.round(((v - values[i-1]) / values[i-1]) * 100);
-  }).slice(1);
-  const dodLabels = dates.slice(1).map(fmtShort);
-  const colors = dodVals.map(v => v === null ? 'rgba(0,0,0,0.08)' : v >= 0 ? 'rgba(5,150,105,0.75)' : 'rgba(220,38,38,0.7)');
-  const ctx = document.getElementById('dodChart').getContext('2d');
-  charts['dodChart'] = new Chart(ctx, {
-    type: 'bar',
-    data: { labels: dodLabels, datasets: [{ label: 'DoD %', data: dodVals, backgroundColor: colors, borderRadius: 3, borderSkipped: false }]},
+  // Donut — Active vs Lost
+  const donutCtx = document.getElementById('donutChart').getContext('2d');
+  new Chart(donutCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['Active Pipeline', 'Lost / Disqualified'],
+      datasets: [{
+        data: [594, 128],
+        backgroundColor: ['#7c3aed', '#dc2626'],
+        borderWidth: 0,
+        hoverOffset: 6,
+      }]
+    },
     options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: { backgroundColor: '#111827', titleColor: '#f9fafb', bodyColor: '#d1d5db', padding: 10, cornerRadius: 8, callbacks: { label: ctx => ctx.parsed.y === null ? ' No data' : `  ${ctx.parsed.y > 0 ? '+' : ''}${ctx.parsed.y}%` } } },
-      scales: {
-        x: { grid: { display: false }, ticks: { maxTicksLimit: 10, font: { size: 10 }, color: '#9ca3af', maxRotation: 0 }, border: { color: 'rgba(0,0,0,0.06)' } },
-        y: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { size: 11 }, color: '#9ca3af', callback: v => v + '%' }, border: { display: false } }
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '65%',
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { font: { size: 12 }, padding: 16, color: '#374151' }
+        },
+        tooltip: {
+          callbacks: {
+            label: ctx => ' ' + ctx.raw + ' (' + Math.round(ctx.raw / 722 * 100) + '%)'
+          }
+        }
       }
     }
   });
-}
 
-// ── Weekly chart ──────────────────────────────────────────────────────────────
-function getWeeks(dates, values) {
-  const map = {};
-  dates.forEach((d, i) => {
-    const dt = parseDate(d);
-    const jan1 = new Date(dt.getFullYear(), 0, 1);
-    const wk = `${dt.getFullYear()}-W${String(Math.ceil(((dt - jan1) / 86400000 + jan1.getDay() + 1) / 7)).padStart(2,'0')}`;
-    if (!map[wk]) map[wk] = { dates: [], values: [] };
-    map[wk].dates.push(d); map[wk].values.push(values[i]);
-  });
-  return Object.keys(map).sort().map(k => map[k]);
-}
-
-function renderWeeklyChart(dates, values) {
-  destroyChart('weeklyChart');
-  const weeks = getWeeks(dates, values);
-  const totals = weeks.map(w => w.values.reduce((a,b)=>a+b,0));
-  const labels = weeks.map((_, i) => `Wk ${i+1}`);
-  const wLabels = weeks.map(w => `${fmtShort(w.dates[0])} – ${fmtShort(w.dates[w.dates.length-1])}`);
-  const ctx = document.getElementById('weeklyChart').getContext('2d');
-  const grad = ctx.createLinearGradient(0, 0, 0, 220);
-  grad.addColorStop(0, 'rgba(37,99,235,0.80)'); grad.addColorStop(1, 'rgba(37,99,235,0.50)');
-  charts['weeklyChart'] = new Chart(ctx, {
+  // Depth bar — stages past Beta Invite
+  const depthCtx = document.getElementById('depthChart').getContext('2d');
+  new Chart(depthCtx, {
     type: 'bar',
-    data: { labels, datasets: [{ label: 'Total', data: totals, backgroundColor: grad, borderRadius: 5, borderSkipped: false }]},
+    data: {
+      labels: ['Beta Invite', 'Testing Agent', 'Activated'],
+      datasets: [{
+        label: 'Companies',
+        data: [68, 33, 17],
+        backgroundColor: ['rgba(124,58,237,0.25)', 'rgba(109,40,217,0.65)', '#059669'],
+        borderRadius: 8,
+        borderSkipped: false,
+      }]
+    },
     options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: { backgroundColor: '#111827', titleColor: '#f9fafb', bodyColor: '#d1d5db', padding: 10, cornerRadius: 8, callbacks: { title: ctx => wLabels[ctx[0].dataIndex], label: ctx => `  ${commas(ctx.parsed.y)} calls` } } },
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: { label: ctx => ' ' + ctx.raw + ' companies' }
+        }
+      },
       scales: {
-        x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#9ca3af' }, border: { color: 'rgba(0,0,0,0.06)' } },
-        y: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { size: 11 }, color: '#9ca3af', callback: v => v >= 1000 ? kf(v) : v }, border: { display: false } }
+        x: { grid: { display: false }, ticks: { color: '#374151', font: { size: 12 } } },
+        y: { grid: { color: '#f0f0f0' }, ticks: { color: '#9ca3af', font: { size: 11 } } }
       }
     }
   });
 }
-
-// ── Signals ───────────────────────────────────────────────────────────────────
-function computeSignals(si, ei) {
-  const signals = [];
-  const orgsToCheck = state.customer === 'all' ? ORG_NAMES : [state.customer];
-
-  orgsToCheck.forEach(org => {
-    const data = ORG_DATA[org];
-    for (let i = si + 1; i <= ei; i++) {
-      const prev = data[i - 1];
-      const curr = data[i];
-      if (prev < 5) continue; // require meaningful prior volume
-      const pct = Math.round(((curr - prev) / prev) * 100);
-      if (Math.abs(pct) < 10) continue;
-      signals.push({ org, date: DATES[i], prev, curr, pct, absPct: Math.abs(pct) });
-    }
-  });
-
-  signals.sort((a, b) => b.absPct - a.absPct);
-  return signals;
-}
-
-function renderSignals(si, ei) {
-  const all = computeSignals(si, ei);
-  const filtered = all.filter(s =>
-    state.signalFilter === 'all' ? true :
-    state.signalFilter === 'spike' ? s.pct > 0 : s.pct < 0
-  );
-
-  // Update tab states
-  document.querySelectorAll('.signal-tab').forEach(t => {
-    t.classList.toggle('active', t.dataset.filter === state.signalFilter);
-  });
-
-  const maxAbsPct = filtered.length > 0 ? filtered[0].absPct : 1;
-  document.getElementById('signalsCount').textContent = `${filtered.length} signal${filtered.length !== 1 ? 's' : ''} detected`;
-
-  const list = document.getElementById('signalsList');
-  if (filtered.length === 0) {
-    list.innerHTML = '<div class="signals-empty">No signals match the current filters.</div>';
-    return;
-  }
-
-  list.innerHTML = filtered.slice(0, 150).map((s, idx) => {
-    const isPos = s.pct > 0;
-    const barW = Math.round((s.absPct / Math.min(maxAbsPct, 2000)) * 100);
-    return `<div class="signal-row">
-      <div class="signal-rank">${idx + 1}</div>
-      <div>
-        <div class="signal-customer">${s.org}</div>
-        <div class="signal-date">${fmtShort(s.date)} · ${dayName(s.date)}</div>
-      </div>
-      <div class="signal-flow"><b>${commas(s.prev)}</b> → <b>${commas(s.curr)}</b></div>
-      <div class="signal-pct ${isPos ? 'pos' : 'neg'}">${isPos ? '+' : ''}${s.pct}%</div>
-      <div class="signal-bar-wrap">
-        <div class="signal-bar-bg"><div class="signal-bar-fill ${isPos ? 'pos' : 'neg'}" style="width:${Math.min(100, barW)}%"></div></div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-// ── Weekly table ──────────────────────────────────────────────────────────────
-function renderWeeklyTable(dates, values) {
-  const weeks = getWeeks(dates, values);
-  const totals = weeks.map(w => w.values.reduce((a,b)=>a+b,0));
-  const maxT = Math.max(...totals);
-  const tbody = document.getElementById('weeklyBody');
-  tbody.innerHTML = weeks.map((w, i) => {
-    const total = totals[i];
-    const prev = i > 0 ? totals[i-1] : null;
-    const wow = prev !== null && prev > 0 ? Math.round(((total - prev) / prev) * 100) : null;
-    const peakIdx = w.values.indexOf(Math.max(...w.values));
-    const peakDate = w.dates[peakIdx]; const peakVal = w.values[peakIdx];
-    const isOverallPeak = peakVal === Math.max(...values);
-    const pct = Math.round((total / maxT) * 100);
-    return `<tr>
-      <td class="td-label">${fmtShort(w.dates[0])} – ${fmtShort(w.dates[w.dates.length-1])}</td>
-      <td class="td-num">${commas(total)}</td>
-      <td class="td-muted">${fmtShort(peakDate)} · ${dayName(peakDate)}${isOverallPeak ? '<span class="peak-chip">Peak</span>' : ''}</td>
-      <td class="td-num">${commas(peakVal)}</td>
-      <td class="${wow === null ? 'td-neutral' : wow >= 0 ? 'td-pos' : 'td-neg'}">${wow === null ? '—' : (wow > 0 ? '+' : '') + wow + '%'}</td>
-      <td><div class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:${pct}%"></div></div></div></td>
-    </tr>`;
-  }).join('');
-}
-
-// ── Daily table ───────────────────────────────────────────────────────────────
-function renderDailyTable(dates, values) {
-  const maxV = Math.max(...values);
-  const tbody = document.getElementById('dailyBody');
-  tbody.innerHTML = dates.map((d, i) => {
-    const v = values[i];
-    const prev = i > 0 ? values[i-1] : null;
-    const chg = prev !== null && prev > 0 ? Math.round(((v - prev) / prev) * 100) : null;
-    const pct = maxV > 0 ? Math.round((v / maxV) * 100) : 0;
-    const isPeak = v === maxV && v > 0;
-    return `<tr>
-      <td class="td-label">${fmtFull(d)}${isPeak ? '<span class="peak-chip">Peak</span>' : ''}</td>
-      <td class="td-muted">${dayName(d)}</td>
-      <td class="td-num">${commas(v)}</td>
-      <td class="${chg === null ? 'td-neutral' : chg >= 0 ? 'td-pos' : 'td-neg'}">${chg === null ? '—' : (chg > 0 ? '+' : '') + chg + '%'}</td>
-      <td><div class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:${pct}%"></div></div></div></td>
-    </tr>`;
-  }).join('');
-}
-
-// ── Active tags ───────────────────────────────────────────────────────────────
-function renderTags() {
-  const area = document.getElementById('activeTagsArea');
-  const tags = [];
-  if (state.startDate !== DATES[0] || state.endDate !== DATES[DATES.length-1]) {
-    tags.push(`<span class="active-filter-tag">${fmtShort(state.startDate)} – ${fmtShort(state.endDate)}<span class="remove" onclick="resetDate()">✕</span></span>`);
-  }
-  if (state.customer !== 'all') {
-    tags.push(`<span class="active-filter-tag">${state.customer}<span class="remove" onclick="resetCustomer()">✕</span></span>`);
-  }
-  area.innerHTML = tags.join('');
-  document.getElementById('activeRangeLabel').textContent = `${fmtShort(state.startDate)} – ${fmtShort(state.endDate)}, 2026${state.customer !== 'all' ? ' · ' + state.customer : ''}`;
-}
-
-// ── Main render ───────────────────────────────────────────────────────────────
-function render() {
-  const { dates, values, s, e } = getSlice();
-  renderTags();
-  renderKPIs(dates, values);
-  renderMainChart(dates, values);
-  renderDoDChart(dates, values);
-  renderWeeklyChart(dates, values);
-  renderSignals(s, e);
-  renderWeeklyTable(dates, values);
-  renderDailyTable(dates, values);
-}
-
-// ── Customer dropdown ─────────────────────────────────────────────────────────
-function buildCustMenu() {
-  const menu = document.getElementById('custMenu');
-  const allOpt = `<div class="filter-option ${state.customer === 'all' ? 'selected' : ''}" onclick="selectCustomer('all')"><span class="org-dot"></span>All Customers</div>`;
-  const opts = ORG_NAMES.map(n =>
-    `<div class="filter-option ${state.customer === n ? 'selected' : ''}" onclick="selectCustomer('${n.replace(/'/g,"\\'")}')"><span class="org-dot"></span>${n}</div>`
-  ).join('');
-  menu.innerHTML = allOpt + '<div style="height:1px;background:var(--border);margin:4px 0"></div>' + opts;
-}
-
-function toggleCustMenu() {
-  const btn = document.getElementById('custBtn');
-  const menu = document.getElementById('custMenu');
-  btn.classList.toggle('open');
-  menu.classList.toggle('open');
-  if (menu.classList.contains('open')) buildCustMenu();
-}
-
-function selectCustomer(name) {
-  state.customer = name;
-  document.getElementById('custBtnLabel').textContent = name === 'all' ? 'All Customers' : name;
-  document.getElementById('custBtn').classList.remove('open');
-  document.getElementById('custMenu').classList.remove('open');
-  render();
-}
-
-// ── Date inputs ───────────────────────────────────────────────────────────────
-document.getElementById('filterStart').addEventListener('change', e => {
-  const v = e.target.value;
-  if (DATES.includes(v)) { state.startDate = v; render(); }
-});
-document.getElementById('filterEnd').addEventListener('change', e => {
-  const v = e.target.value;
-  if (DATES.includes(v)) { state.endDate = v; render(); }
-});
-
-function resetDate() {
-  state.startDate = DATES[0]; state.endDate = DATES[DATES.length-1];
-  document.getElementById('filterStart').value = state.startDate;
-  document.getElementById('filterEnd').value = state.endDate;
-  render();
-}
-function resetCustomer() {
-  state.customer = 'all';
-  document.getElementById('custBtnLabel').textContent = 'All Customers';
-  render();
-}
-function resetFilters() { resetDate(); resetCustomer(); }
-
-// ── Signal filter tabs ────────────────────────────────────────────────────────
-function setSignalFilter(f) {
-  state.signalFilter = f;
-  const { s, e } = getSlice();
-  renderSignals(s, e);
-}
-
-// ── Close dropdown on outside click ──────────────────────────────────────────
-document.addEventListener('click', e => {
-  if (!document.getElementById('custWrap').contains(e.target)) {
-    document.getElementById('custBtn').classList.remove('open');
-    document.getElementById('custMenu').classList.remove('open');
-  }
-});
 
 // ── Init ──────────────────────────────────────────────────────────────────────
-render();
+const now = new Date();
+document.getElementById('dateLabel').textContent = 'As of ' + now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+document.getElementById('asOfBadge').textContent = 'Last synced ' + now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+
+renderTable();
+renderCharts();
+applyFilters();
 </script>
 </body>
 </html>
