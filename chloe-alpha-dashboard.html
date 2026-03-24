@@ -526,7 +526,15 @@
   <div class="table-card">
     <div class="table-card-header">
       <h3>All Pipeline Companies</h3>
-      <span class="table-meta" id="tableCount"></span>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span class="table-meta" id="tableCount"></span>
+        <select id="limitSelect" class="filter-select" onchange="setLimit(this.value)" style="font-size:12px;padding:5px 10px;height:auto;">
+          <option value="25">Show 25</option>
+          <option value="50">Show 50</option>
+          <option value="75">Show 75</option>
+          <option value="all">All results</option>
+        </select>
+      </div>
     </div>
     <table id="companyTable">
       <thead>
@@ -541,9 +549,7 @@
       <tbody id="companyTbody"></tbody>
     </table>
     <div id="tableEmpty" style="display:none;padding:32px 24px;text-align:center;color:var(--muted);font-size:13px;">No companies match your filters.</div>
-    <div id="partialNote" style="padding:12px 24px;font-size:12px;color:var(--muted);border-top:1px solid var(--border);background:var(--surface2);">
-      ⚠ Showing first-page results for Waitlist (20 of 401), Beta Invite (20 of 68), Testing Agent (20 of 33), and Beta-Disqualified (20 of 128). All other stages are complete.
-    </div>
+    <div id="limitNote" style="display:none;padding:10px 24px;font-size:12px;color:var(--muted);border-top:1px solid var(--border);background:var(--surface2);"></div>
   </div>
   </div><!-- /company-section -->
 
@@ -985,32 +991,49 @@ const COMPANIES = [
 ];
 
 // ── Filters ──────────────────────────────────────────────────────────────────
+let rowLimit = 25;
+
 function applyFilters() {
   const stage  = document.getElementById('stageFilter').value;
   const rep    = document.getElementById('repFilter').value;
   const search = document.getElementById('searchFilter').value.toLowerCase().trim();
 
-  let visible = 0;
+  let matched = 0, shown = 0;
   document.querySelectorAll('#companyTbody tr').forEach(row => {
-    const s = row.dataset.stage;
-    const r = row.dataset.rep;
-    const c = row.dataset.company;
-    const matchStage  = !stage  || s === stage;
-    const matchRep    = !rep    || r === rep;
-    const matchSearch = !search || c.includes(search);
-    const show = matchStage && matchRep && matchSearch;
-    row.style.display = show ? '' : 'none';
-    if (show) visible++;
+    const matchStage  = !stage  || row.dataset.stage === stage;
+    const matchRep    = !rep    || row.dataset.rep === rep;
+    const matchSearch = !search || row.dataset.company.includes(search);
+    if (matchStage && matchRep && matchSearch) {
+      matched++;
+      const withinLimit = rowLimit === 0 || shown < rowLimit;
+      row.style.display = withinLimit ? '' : 'none';
+      if (withinLimit) shown++;
+    } else {
+      row.style.display = 'none';
+    }
   });
 
-  document.getElementById('tableCount').textContent =
-    visible + ' compan' + (visible === 1 ? 'y' : 'ies') + ' shown';
-  document.getElementById('tableEmpty').style.display = visible === 0 ? '' : 'none';
+  const countEl   = document.getElementById('tableCount');
+  const noteEl    = document.getElementById('limitNote');
+  const truncated = rowLimit > 0 && shown < matched;
+  countEl.textContent = truncated
+    ? 'Showing ' + shown + ' of ' + matched + ' compan' + (matched === 1 ? 'y' : 'ies')
+    : matched + ' compan' + (matched === 1 ? 'y' : 'ies') + ' shown';
+  noteEl.style.display  = truncated ? '' : 'none';
+  noteEl.textContent    = truncated
+    ? '↳ ' + (matched - shown) + ' more companies hidden — use the dropdown above to show more.'
+    : '';
+  document.getElementById('tableEmpty').style.display = matched === 0 ? '' : 'none';
+}
+
+function setLimit(val) {
+  rowLimit = val === 'all' ? 0 : parseInt(val, 10);
+  applyFilters();
 }
 
 function resetFilters() {
-  document.getElementById('stageFilter').value = '';
-  document.getElementById('repFilter').value = '';
+  document.getElementById('stageFilter').value  = '';
+  document.getElementById('repFilter').value    = '';
   document.getElementById('searchFilter').value = '';
   applyFilters();
 }
@@ -1041,7 +1064,7 @@ function renderTable() {
     tbody.appendChild(tr);
   });
 
-  document.getElementById('tableCount').textContent = sorted.length + ' companies shown';
+  // Initial count is set by applyFilters() after renderTable()
 }
 
 // ── Charts ────────────────────────────────────────────────────────────────────
