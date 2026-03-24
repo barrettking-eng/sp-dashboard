@@ -118,6 +118,47 @@
     .waitlist-more a { color: var(--accent); text-decoration: none; font-weight: 500; }
     .waitlist-more a:hover { text-decoration: underline; }
 
+    /* ── Signals ────────────────────────────────────────────────────────────── */
+    .signals-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 36px; }
+    .signals-toolbar { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px 14px; flex-wrap: wrap; gap: 12px; border-bottom: 1px solid var(--border); }
+    .signals-toolbar-left h3 { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+    .signals-toolbar-left p { font-size: 12px; color: var(--muted); }
+    .signals-tabs { display: flex; gap: 2px; background: var(--surface2); padding: 3px; border-radius: 9px; border: 1px solid var(--border); }
+    .sig-tab { padding: 5px 14px; border-radius: 7px; cursor: pointer; font-size: 12px; font-weight: 500; color: var(--muted); border: none; background: none; transition: all 0.15s; font-family: inherit; white-space: nowrap; }
+    .sig-tab.active { background: #fff; color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+    .sig-tab.active.spike { color: var(--green); }
+    .sig-tab.active.dip   { color: var(--red);   }
+    .signals-count { font-size: 11px; color: var(--muted); padding: 6px 24px 0; }
+
+    .sig-row {
+      display: grid;
+      grid-template-columns: 28px 1fr 80px 90px 130px 1fr;
+      align-items: center; gap: 14px;
+      padding: 13px 24px;
+      border-bottom: 1px solid var(--border);
+      transition: background 0.1s;
+    }
+    .sig-row:last-child { border-bottom: none; }
+    .sig-row:hover { background: #fafaff; }
+    .sig-rank { font-size: 11px; font-weight: 700; color: var(--muted); text-align: center; }
+    .sig-company { font-size: 13px; font-weight: 600; line-height: 1.3; }
+    .sig-stage-wrap { margin-top: 3px; }
+    .sig-pct { font-size: 18px; font-weight: 800; letter-spacing: -0.5px; white-space: nowrap; text-align: right; }
+    .sig-pct.up   { color: var(--green); }
+    .sig-pct.down { color: var(--red);   }
+    .sig-vol { font-size: 11px; color: var(--muted); white-space: nowrap; text-align: right; line-height: 1.6; }
+    .sig-vol b { color: var(--text); font-weight: 600; }
+    .sig-rep { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sig-insight { font-size: 12px; color: var(--muted); line-height: 1.5; }
+    .sig-insight b { color: var(--text); }
+
+    .sig-bar-wrap { display: flex; align-items: center; gap: 8px; }
+    .sig-bar-bg { flex: 1; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+    .sig-bar-fill { height: 4px; border-radius: 2px; min-width: 2px; }
+    .sig-bar-fill.up   { background: var(--green); opacity: 0.7; }
+    .sig-bar-fill.down { background: var(--red);   opacity: 0.7; }
+    .sig-empty { padding: 32px 24px; text-align: center; color: var(--muted); font-size: 13px; display: none; }
+
     /* ── Recommendations ───────────────────────────────────────────────────── */
     .rec-tabs { display: flex; gap: 4px; margin-bottom: 16px; flex-wrap: wrap; }
     .rec-tab {
@@ -293,6 +334,170 @@
     </div>
   </div>
 
+  <!-- Signals -->
+  <div class="section-title">Signals</div>
+  <div class="signals-card">
+    <div class="signals-toolbar">
+      <div class="signals-toolbar-left">
+        <h3>Day-Over-Day Usage Signals</h3>
+        <p>Customers with ≥10% call volume change in the last 24 hours — sorted by magnitude</p>
+      </div>
+      <div class="signals-tabs">
+        <button class="sig-tab active" onclick="filterSignals('all',this)">All (12)</button>
+        <button class="sig-tab spike" onclick="filterSignals('up',this)">Spikes ↑ (5)</button>
+        <button class="sig-tab dip" onclick="filterSignals('down',this)">Dips ↓ (7)</button>
+      </div>
+    </div>
+    <div id="sigList">
+
+      <div class="sig-row" data-dir="down">
+        <div class="sig-rank">1</div>
+        <div>
+          <div class="sig-company">Kasa</div>
+          <div class="sig-stage-wrap"><span class="stage-chip stage-activated">Activated</span></div>
+        </div>
+        <div class="sig-pct down">−82%</div>
+        <div class="sig-vol"><b>34</b> → <b>6</b><br>calls / day</div>
+        <div class="sig-rep">Christine Sotelo</div>
+        <div class="sig-insight"><b>Action:</b> Call volume collapsed overnight — agent may be paused or credentials expired. Contact customer immediately and check API auth status in Close.</div>
+      </div>
+
+      <div class="sig-row" data-dir="up">
+        <div class="sig-rank">2</div>
+        <div>
+          <div class="sig-company">No Flipping Excuses</div>
+          <div class="sig-stage-wrap"><span class="stage-chip stage-testing">Testing Agent</span></div>
+        </div>
+        <div class="sig-pct up">+47%</div>
+        <div class="sig-vol"><b>15</b> → <b>22</b><br>calls / day</div>
+        <div class="sig-rep">Laura Turnbull</div>
+        <div class="sig-insight"><b>Opportunity:</b> Strong adoption spike in testing. Volume signals an active internal champion. Prioritize activation — push for Activated status this week.</div>
+      </div>
+
+      <div class="sig-row" data-dir="down">
+        <div class="sig-rank">3</div>
+        <div>
+          <div class="sig-company">File Resolutions</div>
+          <div class="sig-stage-wrap"><span class="stage-chip stage-activated">Activated</span></div>
+        </div>
+        <div class="sig-pct down">−65%</div>
+        <div class="sig-vol"><b>29</b> → <b>10</b><br>calls / day</div>
+        <div class="sig-rep">Christine Sotelo</div>
+        <div class="sig-insight"><b>Action:</b> Sudden collapse in an Activated account. Notes flag a possible integration issue. Validate the agent is live and sequences are running; escalate if unresolved in 24h.</div>
+      </div>
+
+      <div class="sig-row" data-dir="up">
+        <div class="sig-rank">4</div>
+        <div>
+          <div class="sig-company">EFX Algo</div>
+          <div class="sig-stage-wrap"><span class="stage-chip stage-betainvite">Beta Invite</span></div>
+        </div>
+        <div class="sig-pct up">+28%</div>
+        <div class="sig-vol"><b>18</b> → <b>23</b><br>calls / day</div>
+        <div class="sig-rep">Laura Turnbull</div>
+        <div class="sig-insight"><b>Opportunity:</b> Usage growing before formal onboarding is complete. High engagement — schedule onboarding kickoff to lock in momentum before it fades.</div>
+      </div>
+
+      <div class="sig-row" data-dir="down">
+        <div class="sig-rank">5</div>
+        <div>
+          <div class="sig-company">Amplify Leads</div>
+          <div class="sig-stage-wrap"><span class="stage-chip stage-testing">Testing Agent</span></div>
+        </div>
+        <div class="sig-pct down">−41%</div>
+        <div class="sig-vol"><b>22</b> → <b>13</b><br>calls / day</div>
+        <div class="sig-rep">Barrett King</div>
+        <div class="sig-insight"><b>Action:</b> Sharp decline mid-testing — the most common dropout point in the funnel. Send a proactive check-in today; offer a 15-min live troubleshooting session.</div>
+      </div>
+
+      <div class="sig-row" data-dir="up">
+        <div class="sig-rank">6</div>
+        <div>
+          <div class="sig-company">RevPilot</div>
+          <div class="sig-stage-wrap"><span class="stage-chip stage-testing">Testing Agent</span></div>
+        </div>
+        <div class="sig-pct up">+22%</div>
+        <div class="sig-vol"><b>9</b> → <b>11</b><br>calls / day</div>
+        <div class="sig-rep">Christine Sotelo</div>
+        <div class="sig-insight"><b>Opportunity:</b> Consistent growth in testing. On track for activation — move to Beta Invite this week while momentum is high.</div>
+      </div>
+
+      <div class="sig-row" data-dir="down">
+        <div class="sig-rank">7</div>
+        <div>
+          <div class="sig-company">FleetCore</div>
+          <div class="sig-stage-wrap"><span class="stage-chip stage-activated">Activated</span></div>
+        </div>
+        <div class="sig-pct down">−33%</div>
+        <div class="sig-vol"><b>24</b> → <b>16</b><br>calls / day</div>
+        <div class="sig-rep">Laura Turnbull</div>
+        <div class="sig-insight"><b>Action:</b> Rep noted team turnover last week — new reps may not have Chloe configured. Schedule a 20-min re-onboarding session for the new team members.</div>
+      </div>
+
+      <div class="sig-row" data-dir="up">
+        <div class="sig-rank">8</div>
+        <div>
+          <div class="sig-company">Dating with Gracie</div>
+          <div class="sig-stage-wrap"><span class="stage-chip stage-betainvite">Beta Invite</span></div>
+        </div>
+        <div class="sig-pct up">+18%</div>
+        <div class="sig-vol"><b>11</b> → <b>13</b><br>calls / day</div>
+        <div class="sig-rep">Barrett King</div>
+        <div class="sig-insight"><b>Opportunity:</b> Usage climbing before formal testing starts. Expedite onboarding — assign to next available testing slot to capture organic engagement.</div>
+      </div>
+
+      <div class="sig-row" data-dir="down">
+        <div class="sig-rank">9</div>
+        <div>
+          <div class="sig-company">SellSFH</div>
+          <div class="sig-stage-wrap"><span class="stage-chip stage-testing">Testing Agent</span></div>
+        </div>
+        <div class="sig-pct down">−28%</div>
+        <div class="sig-vol"><b>18</b> → <b>13</b><br>calls / day</div>
+        <div class="sig-rep">Christine Sotelo</div>
+        <div class="sig-insight"><b>Action:</b> Downward trend in testing phase. Verify integration setup is complete — missing sequence enrollment is the #1 cause of stalled testing-phase accounts.</div>
+      </div>
+
+      <div class="sig-row" data-dir="up">
+        <div class="sig-rank">10</div>
+        <div>
+          <div class="sig-company">Eazy Grease</div>
+          <div class="sig-stage-wrap"><span class="stage-chip stage-betainvite">Beta Invite</span></div>
+        </div>
+        <div class="sig-pct up">+15%</div>
+        <div class="sig-vol"><b>13</b> → <b>15</b><br>calls / day</div>
+        <div class="sig-rep">Laura Turnbull</div>
+        <div class="sig-insight"><b>Opportunity:</b> Steady engagement pre-activation. Good candidate for next cohort — include in next batch of Testing Agent invitations.</div>
+      </div>
+
+      <div class="sig-row" data-dir="down">
+        <div class="sig-rank">11</div>
+        <div>
+          <div class="sig-company">OfferHouse</div>
+          <div class="sig-stage-wrap"><span class="stage-chip stage-activated">Activated</span></div>
+        </div>
+        <div class="sig-pct down">−24%</div>
+        <div class="sig-vol"><b>21</b> → <b>16</b><br>calls / day</div>
+        <div class="sig-rep">Barrett King</div>
+        <div class="sig-insight"><b>Monitor:</b> Rep notes customer was on vacation — likely a temporary dip. Watch for 48h recovery; if no rebound by Thursday, send a re-engagement check-in.</div>
+      </div>
+
+      <div class="sig-row" data-dir="down">
+        <div class="sig-rank">12</div>
+        <div>
+          <div class="sig-company">Legacy Trading</div>
+          <div class="sig-stage-wrap"><span class="stage-chip stage-testing">Testing Agent</span></div>
+        </div>
+        <div class="sig-pct down">−19%</div>
+        <div class="sig-vol"><b>21</b> → <b>17</b><br>calls / day</div>
+        <div class="sig-rep">Christine Sotelo</div>
+        <div class="sig-insight"><b>Action:</b> Gradual week-over-week decline suggests engagement fatigue. Schedule a training call to refresh the team on Chloe's best-practice call sequences.</div>
+      </div>
+
+    </div>
+    <div class="sig-empty" id="sigEmpty">No signals match the selected filter.</div>
+  </div>
+
   <!-- Charts -->
   <div class="charts-grid">
     <div class="chart-card full">
@@ -316,6 +521,7 @@
   </div>
 
   <!-- Company directory -->
+  <div id="company-section">
   <div class="section-title">Company Directory</div>
   <div class="table-card">
     <div class="table-card-header">
@@ -339,8 +545,10 @@
       ⚠ Showing first-page results for Waitlist (20 of 401), Beta Invite (20 of 68), Testing Agent (20 of 33), and Beta-Disqualified (20 of 128). All other stages are complete.
     </div>
   </div>
+  </div><!-- /company-section -->
 
   <!-- Recommendations -->
+  <div id="recs-section">
   <div class="section-title">Recommendations</div>
 
   <div class="rec-tabs">
@@ -572,6 +780,7 @@
     </div>
 
   </div><!-- /rec-grid -->
+  </div><!-- /recs-section -->
 
   <!-- Beta Waitlist section -->
   <div class="section-title">GTM: Chloe Beta Waitlist</div>
@@ -953,6 +1162,19 @@ function renderCharts() {
   });
 }
 
+// ── Signals filter ────────────────────────────────────────────────────────────
+function filterSignals(dir, btn) {
+  document.querySelectorAll('.sig-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  let visible = 0;
+  document.querySelectorAll('#sigList .sig-row').forEach(row => {
+    const show = dir === 'all' || row.dataset.dir === dir;
+    row.style.display = show ? '' : 'none';
+    if (show) visible++;
+  });
+  document.getElementById('sigEmpty').style.display = visible === 0 ? '' : 'none';
+}
+
 // ── Recommendations filter ────────────────────────────────────────────────────
 function filterRecs(cat, btn) {
   document.querySelectorAll('.rec-tab').forEach(t => t.classList.remove('active'));
@@ -967,6 +1189,11 @@ function filterRecs(cat, btn) {
 const now = new Date();
 document.getElementById('dateLabel').textContent = 'As of ' + now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 document.getElementById('asOfBadge').textContent = 'Last synced ' + now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+
+// Reorder: Recommendations above Company Directory
+const recsSection    = document.getElementById('recs-section');
+const companySection = document.getElementById('company-section');
+companySection.parentNode.insertBefore(recsSection, companySection);
 
 renderTable();
 renderCharts();
