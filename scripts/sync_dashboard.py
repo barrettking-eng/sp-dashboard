@@ -111,19 +111,32 @@ def fetch_all_opportunities(pipeline_id):
 
 
 def fetch_beta_waitlist_count():
-    """Count leads that submitted the Chloe Beta Waitlist form.
+    """Count unique leads that submitted the Chloe Beta Waitlist form.
 
-    Queries custom activities by type ID instead of the Smart View — the
-    saved_search_id query param is ignored by the /lead/ endpoint and returns
-    all org leads. One form submission per lead, so activity count == lead count.
+    Paginates through custom activities of type CHLOE_WAITLIST_ACTIVITY_TYPE_ID
+    and collects unique lead_ids. The /activity/custom/ endpoint does not return
+    total_results, so we must count by paginating. Deduplicates leads that
+    submitted the form more than once.
     """
     try:
-        data = close_get('/activity/custom/', {
-            'activity_type_id': CHLOE_WAITLIST_ACTIVITY_TYPE_ID,
-            '_limit':  1,
-            '_fields': 'id',
-        })
-        return data.get('total_results', 0)
+        lead_ids, skip = set(), 0
+        while True:
+            batch = close_get('/activity/custom/', {
+                'activity_type_id': CHLOE_WAITLIST_ACTIVITY_TYPE_ID,
+                '_limit':  100,
+                '_skip':   skip,
+                '_fields': 'id,lead_id',
+            })
+            for activity in batch.get('data', []):
+                if activity.get('lead_id'):
+                    lead_ids.add(activity['lead_id'])
+            if not batch.get('has_more'):
+                break
+            skip += 100
+            if skip >= 10000:
+                print('  Warning: hit 10k activity cap — count may be approximate')
+                break
+        return len(lead_ids)
     except Exception as exc:
         print(f'  Warning: could not fetch Beta Waitlist count — {exc}')
         return None
