@@ -28,8 +28,11 @@ CLOSE_BASE = 'https://api.close.com/api/v1'
 # Path to the HTML file (script lives in /scripts, HTML is one level up)
 HTML_FILE = os.path.join(os.path.dirname(__file__), '..', 'chloe-alpha-dashboard.html')
 
-# Smart View ID for the Beta Waitlist leads
-BETA_WAITLIST_SMART_VIEW_ID = 'save_6HkdoVqth3RjDLaP15yXeAbnVwRI0buetTqpe5UexSd'
+# Custom Activity Type ID for "Chloe Beta Waitlist" form submissions.
+# Using this instead of the Smart View ID — the /lead/?saved_search_id= filter
+# ignores the parameter and returns all org leads. Counting activities by type
+# gives the correct unique-submission count.
+CHLOE_WAITLIST_ACTIVITY_TYPE_ID = 'actitype_67953UBQJSUK6mUOTuaFdP'
 
 # Map Close status labels → the JS stage keys used in the dashboard
 STAGE_MAP = {
@@ -108,10 +111,15 @@ def fetch_all_opportunities(pipeline_id):
 
 
 def fetch_beta_waitlist_count():
-    """Return the total number of leads in the Beta Waitlist Smart View."""
+    """Count leads that submitted the Chloe Beta Waitlist form.
+
+    Queries custom activities by type ID instead of the Smart View — the
+    saved_search_id query param is ignored by the /lead/ endpoint and returns
+    all org leads. One form submission per lead, so activity count == lead count.
+    """
     try:
-        data = close_get('/lead/', {
-            'saved_search_id': BETA_WAITLIST_SMART_VIEW_ID,
+        data = close_get('/activity/custom/', {
+            'activity_type_id': CHLOE_WAITLIST_ACTIVITY_TYPE_ID,
             '_limit':  1,
             '_fields': 'id',
         })

@@ -31,13 +31,8 @@ HTML_FILE = os.path.join(os.path.dirname(__file__), "..", "chloe-partner-dashboa
 # Chloe Implementation Pipeline
 PIPELINE_ID = "pipe_0i0v1kKIr7CV4NRPdRnUhH"
 
-# Beta Waitlist Smart View
-BETA_WAITLIST_SMART_VIEW_ID = "save_6HkdoVqth3RjDLaP15yXeAbnVwRI0buetTqpe5UexSd"
-
-# Custom Field IDs for partner attribution
-CF_AFFILIATE_PARTNER_NAME = "cf_xDjnd1sERjPoK9OKa5qkWjJBJ0cMrFgHpkwkehXI2e4"
-CF_AFFILIATE_REFERRAL     = "lcf_cZapR8Iip0LhFN2hvbJHDYwNpOH51Q9ClzHxTasNp1X"
-CF_AFFILIATE_GROUP        = "cf_szbmm8WWP2tcIBKyZulm9Q5KW0WIlIww9Wqj7saabWP"
+# Custom Activity Type ID for "Chloe Beta Waitlist" form submissions
+CHLOE_WAITLIST_ACTIVITY_TYPE_ID = "actitype_67953UBQJSUK6mUOTuaFdP"
 
 # ── Known partner-attributed lead IDs ─────────────────────────────────────────
 # Maps Close lead_id → partner display name.
@@ -140,37 +135,29 @@ def fetch_all_opportunities():
 
 
 def try_discover_new_partner_leads(known_ids):
+    """Disabled — the CF_AFFILIATE_PARTNER_NAME custom field is populated by
+    Close's own affiliate/referral CRM program, not by Chloe implementation
+    partners. Auto-discovery was pulling noise (6sense, NTTDATA, etc.).
+
+    To add a new Chloe partner, add an entry to PARTNER_LEAD_MAP above.
+    Returns an empty dict so the rest of the pipeline is unaffected.
     """
-    Query Close for leads that have Affiliate Partner Name set but aren't in
-    PARTNER_LEAD_MAP yet. Capped at one page (100 leads) to avoid runaway loops
-    when the custom field filter syntax isn't supported by the API.
-    Returns {lead_id: partner_name}.
-    """
-    discovered = {}
-    try:
-        batch = close_get("/lead/", {
-            f"custom.{CF_AFFILIATE_PARTNER_NAME}[has_value]": 1,
-            "_limit":  100,
-            "_skip":   0,
-            "_fields": f"id,display_name,custom.{CF_AFFILIATE_PARTNER_NAME}",
-        })
-        for lead in batch.get("data", []):
-            lid = lead["id"]
-            if lid not in known_ids:
-                partner_name = (lead.get(f"custom.{CF_AFFILIATE_PARTNER_NAME}") or "").strip()
-                if partner_name:
-                    discovered[lid] = partner_name
-                    print(f"  New partner lead: {lead.get('display_name')} -> {partner_name}")
-    except Exception as exc:
-        print(f"  (partner auto-discovery skipped: {exc})")
-    return discovered
+    print("  (partner auto-discovery disabled — using PARTNER_LEAD_MAP only)")
+    return {}
 
 
 def fetch_beta_waitlist_count():
+    """Count leads that submitted the Chloe Beta Waitlist form.
+
+    Queries custom activities by type ID (actitype_67953UBQJSUK6mUOTuaFdP)
+    instead of the Smart View — the saved_search_id param is ignored by the
+    /lead/ endpoint and returns all 462K org leads. One form submission per
+    lead, so activity count ≈ unique lead count.
+    """
     try:
-        data = close_get("/lead/", {
-            "saved_search_id": BETA_WAITLIST_SMART_VIEW_ID,
-            "_limit": 1,
+        data = close_get("/activity/custom/", {
+            "activity_type_id": CHLOE_WAITLIST_ACTIVITY_TYPE_ID,
+            "_limit":  1,
             "_fields": "id",
         })
         return data.get("total_results", 0)
