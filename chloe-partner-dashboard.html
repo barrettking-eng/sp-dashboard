@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chloe Partner Pipeline Intelligence</title>
+  <style>
+    :root {
+      --blue: #1e40af;
+      --blue-light: #3b82f6;
+      --blue-pale: #eff6ff;
+      --green: #065f46;
+      --green-light: #10b981;
+      --green-pale: #ecfdf5;
+      --amber: #92400e;
+      --amber-light: #f59e0b;
+      --amber-pale: #fffbeb;
+      --red: #991b1b;
+      --red-light: #ef4444;
+      --red-pale: #fef2f2;
+      --purple: #5b21b6;
+      --purple-light: #8b5cf6;
+      --purple-pale: #f5f3ff;
+      --slate: #1e293b;
+      --slate-mid: #475569;
+      --slate-light: #94a3b8;
+      --slate-pale: #f8fafc;
+      --border: #e2e8f0;
+      --radius: 12px;
+      --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.04);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f1f5f9; color: var(--slate); min-height: 100vh; }
+
+    /* HEADER */
+    .header { background: white; border-bottom: 1px solid var(--border); padding: 20px 32px; display: flex; align-items: center; justify-content: space-between; }
+    .header-left h1 { font-size: 20px; font-weight: 700; color: var(--slate); letter-spacing: -0.3px; }
+    .header-left p { font-size: 13px; color: var(--slate-mid); margin-top: 2px; }
+    .header-right { display: flex; gap: 8px; align-items: center; }
+    .badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+    .badge-blue { background: var(--blue-pale); color: var(--blue); }
+    .badge-green { background: var(--green-pale); color: var(--green); }
+    .badge-amber { background: var(--amber-pale); color: var(--amber); }
+    .badge-purple { background: var(--purple-pale); color: var(--purple); }
+    .badge-red { background: var(--red-pale); color: var(--red); }
+    .as-of { font-size: 12px; color: var(--slate-light); }
+
+    /* LAYOUT */
+    .main { padding: 28px 32px; max-width: 1400px; margin: 0 auto; }
+    .section-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--slate-mid); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+    .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    /* ALERT BANNER */
+    .alert { background: #fefce8; border: 1px solid #fde047; border-radius: var(--radius); padding: 14px 18px; margin-bottom: 24px; display: flex; gap: 12px; align-items: flex-start; }
+    .alert-icon { font-size: 18px; flex-shrink: 0; }
+    .alert-body strong { font-size: 13px; font-weight: 700; color: #713f12; }
+    .alert-body p { font-size: 12px; color: #854d0e; margin-top: 2px; line-height: 1.5; }
+
+    /* STAT CARDS */
+    .stats-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; margin-bottom: 28px; }
+    .stat-card { background: white; border-radius: var(--radius); padding: 18px 20px; box-shadow: var(--shadow); border: 1px solid var(--border); }
+    .stat-label { font-size: 11px; font-weight: 600; color: var(--slate-light); text-transform: uppercase; letter-spacing: 0.4px; }
+    .stat-value { font-size: 28px; font-weight: 800; margin-top: 6px; letter-spacing: -1px; }
+    .stat-sub { font-size: 11px; color: var(--slate-mid); margin-top: 4px; }
+    .stat-blue .stat-value { color: var(--blue-light); }
+    .stat-green .stat-value { color: var(--green-light); }
+    .stat-amber .stat-value { color: var(--amber-light); }
+    .stat-purple .stat-value { color: var(--purple-light); }
+    .stat-red .stat-value { color: var(--red-light); }
+
+    /* TWO COL LAYOUT */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px; }
+    .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 28px; }
+    .card { background: white; border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--border); overflow: hidden; }
+    .card-header { padding: 16px 20px 12px; border-bottom: 1px solid var(--border); }
+    .card-title { font-size: 14px; font-weight: 700; color: var(--slate); }
+    .card-subtitle { font-size: 12px; color: var(--slate-mid); margin-top: 2px; }
+    .card-body { padding: 16px 20px; }
+
+    /* PIPELINE FUNNEL */
+    .funnel-wrap { padding: 16px 20px; }
+    .funnel-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+    .funnel-label { width: 200px; font-size: 12px; font-weight: 600; color: var(--slate); flex-shrink: 0; }
+    .funnel-bar-wrap { flex: 1; background: #f1f5f9; border-radius: 6px; height: 26px; overflow: hidden; position: relative; }
+    .funnel-bar { height: 100%; border-radius: 6px; display: flex; align-items: center; padding: 0 10px; transition: width 0.6s ease; }
+    .funnel-count { font-size: 11px; font-weight: 700; color: white; white-space: nowrap; }
+    .funnel-pct { width: 48px; font-size: 11px; color: var(--slate-mid); text-align: right; }
+    .funnel-partner-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .funnel-partner-count { font-size: 11px; color: var(--slate-mid); width: 90px; }
+
+    /* PARTNER TABLE */
+    .partner-table { width: 100%; border-collapse: collapse; }
+    .partner-table th { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: var(--slate-light); padding: 10px 14px; text-align: left; background: var(--slate-pale); border-bottom: 1px solid var(--border); }
+    .partner-table td { padding: 12px 14px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: top; }
+    .partner-table tr:last-child td { border-bottom: none; }
+    .partner-table tr:hover td { background: var(--slate-pale); }
+    .partner-name { font-weight: 700; color: var(--slate); }
+    .partner-role { font-size: 11px; color: var(--slate-mid); margin-top: 1px; }
+    .deal-chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; margin: 2px; cursor: pointer; }
+    .stage-testing { background: var(--amber-pale); color: var(--amber); }
+    .stage-qualified { background: var(--blue-pale); color: var(--blue); }
+    .stage-targeted { background: var(--purple-pale); color: var(--purple); }
+    .stage-activated { background: var(--green-pale); color: var(--green); }
+    .stage-waitlist { background: #f1f5f9; color: var(--slate-mid); }
+    .stage-beta-invite { background: #fdf4ff; color: #7e22ce; }
+    .stage-lost { background: var(--red-pale); color: var(--red); }
+
+    /* DEAL DETAIL */
+    .deal-list { list-style: none; }
+    .deal-item { padding: 12px 0; border-bottom: 1px solid var(--border); }
+    .deal-item:last-child { border-bottom: none; }
+    .deal-item-header { display: flex; justify-content: space-between; align-items: flex-start; }
+    .deal-company { font-size: 13px; font-weight: 700; color: var(--slate); }
+    .deal-meta { display: flex; gap: 8px; align-items: center; margin-top: 4px; flex-wrap: wrap; }
+    .deal-meta span { font-size: 11px; color: var(--slate-mid); }
+    .deal-note { font-size: 12px; color: var(--slate-mid); margin-top: 6px; line-height: 1.5; background: var(--slate-pale); padding: 6px 10px; border-radius: 6px; border-left: 3px solid var(--border); }
+    .deal-note strong { color: var(--slate); }
+    .stalled { border-left-color: var(--amber-light) !important; }
+
+    /* VELOCITY */
+    .velocity-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+    .velocity-item:last-child { border-bottom: none; }
+    .velocity-company { font-size: 13px; font-weight: 600; flex: 1; }
+    .velocity-partner { font-size: 11px; color: var(--slate-mid); }
+    .velocity-days { text-align: right; }
+    .velocity-days .num { font-size: 18px; font-weight: 800; color: var(--blue-light); }
+    .velocity-days .lbl { font-size: 10px; color: var(--slate-light); }
+    .velocity-bar-wrap { width: 100px; background: #f1f5f9; border-radius: 4px; height: 6px; }
+    .velocity-bar { height: 6px; border-radius: 4px; background: var(--blue-light); }
+
+    /* BETA WAITLIST */
+    .waitlist-summary { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+    .waitlist-stat { background: var(--slate-pale); border-radius: 8px; padding: 12px 14px; text-align: center; }
+    .waitlist-stat .num { font-size: 24px; font-weight: 800; color: var(--blue-light); }
+    .waitlist-stat .lbl { font-size: 11px; color: var(--slate-mid); margin-top: 2px; }
+
+    /* RECOMMENDATIONS */
+    .rec-list { list-style: none; }
+    .rec-item { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); align-items: flex-start; }
+    .rec-item:last-child { border-bottom: none; }
+    .rec-icon { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+    .rec-icon-red { background: var(--red-pale); }
+    .rec-icon-amber { background: var(--amber-pale); }
+    .rec-icon-green { background: var(--green-pale); }
+    .rec-icon-blue { background: var(--blue-pale); }
+    .rec-body strong { font-size: 13px; font-weight: 700; display: block; }
+    .rec-body p { font-size: 12px; color: var(--slate-mid); margin-top: 3px; line-height: 1.5; }
+
+    /* FILTERS */
+    .filter-bar { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+    .filter-btn { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; border: 1px solid var(--border); background: white; cursor: pointer; color: var(--slate-mid); transition: all 0.15s; }
+    .filter-btn:hover, .filter-btn.active { background: var(--slate); color: white; border-color: var(--slate); }
+    .filter-btn.active-blue { background: var(--blue-light); color: white; border-color: var(--blue-light); }
+
+    /* PARTNER INTEL */
+    .intel-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+    .intel-card { background: white; border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
+    .intel-header { padding: 14px 16px; border-bottom: 1px solid var(--border); }
+    .intel-partner-name { font-size: 14px; font-weight: 700; }
+    .intel-type { font-size: 11px; margin-top: 2px; }
+    .intel-body { padding: 14px 16px; }
+    .intel-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+    .intel-row:last-child { border-bottom: none; }
+    .intel-key { color: var(--slate-mid); }
+    .intel-val { font-weight: 600; color: var(--slate); }
+    .intel-score { display: flex; gap: 3px; }
+    .score-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--border); }
+    .score-dot.filled { background: var(--green-light); }
+    .score-dot.half { background: var(--amber-light); }
+    .intel-deals { margin-top: 12px; }
+    .intel-deal-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 8px; font-size: 12px; margin: 3px; background: var(--slate-pale); border: 1px solid var(--border); }
+    .intel-deal-chip .dot { width: 6px; height: 6px; border-radius: 50%; }
+    .dot-amber { background: var(--amber-light); }
+    .dot-blue { background: var(--blue-light); }
+    .dot-purple { background: var(--purple-light); }
+    .dot-green { background: var(--green-light); }
+    .intel-alert { background: #fefce8; border: 1px solid #fde047; border-radius: 6px; padding: 8px 10px; margin-top: 10px; font-size: 11px; color: #854d0e; line-height: 1.5; }
+
+    /* TABS */
+    .tabs { display: flex; gap: 0; border-bottom: 2px solid var(--border); margin-bottom: 20px; }
+    .tab { padding: 10px 18px; font-size: 13px; font-weight: 600; cursor: pointer; color: var(--slate-mid); border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.15s; }
+    .tab:hover { color: var(--slate); }
+    .tab.active { color: var(--blue-light); border-bottom-color: var(--blue-light); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* PIPELINE TABLE */
+    .pipeline-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .pipeline-table th { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; color: var(--slate-light); padding: 8px 12px; text-align: left; background: var(--slate-pale); border-bottom: 1px solid var(--border); position: sticky; top: 0; }
+    .pipeline-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); }
+    .pipeline-table tr:hover td { background: var(--slate-pale); }
+    .pipeline-table tr.partner-row td { background: #fefce8; }
+    .pipeline-table tr.partner-row:hover td { background: #fef9c3; }
+    .t-company { font-weight: 600; color: var(--slate); }
+    .t-partner { font-size: 11px; background: var(--amber-pale); color: var(--amber); padding: 2px 7px; border-radius: 10px; font-weight: 600; }
+    .t-stage { font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 600; }
+    .t-mrr { font-weight: 700; color: var(--slate); }
+    .t-csm { font-size: 11px; color: var(--slate-mid); }
+    .t-note { max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--slate-mid); }
+    .table-wrap { max-height: 480px; overflow-y: auto; border-radius: 0 0 var(--radius) var(--radius); }
+    .search-wrap { padding: 12px 20px; border-bottom: 1px solid var(--border); background: var(--slate-pale); display: flex; gap: 10px; align-items: center; }
+    .search-input { flex: 1; padding: 7px 12px; border-radius: 8px; border: 1px solid var(--border); font-size: 13px; outline: none; background: white; }
+    .search-input:focus { border-color: var(--blue-light); box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+    .sort-select { padding: 7px 10px; border-radius: 8px; border: 1px solid var(--border); font-size: 12px; background: white; cursor: pointer; }
+
+    /* LEGEND */
+    .legend { display: flex; gap: 14px; flex-wrap: wrap; padding: 12px 0; }
+    .legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--slate-mid); }
+    .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+    @media (max-width: 1100px) {
+      .stats-grid { grid-template-columns: repeat(3, 1fr); }
+      .two-col, .three-col, .intel-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <h1>Chloe Partner Pipeline Intelligence</h1>
+    <p>Partner attribution × Chloe Implementation Pipeline × Beta Program — Live CRM data</p>
+  </div>
+  <div class="header-right">
+    <span class="badge badge-blue">696 Chloe Opps</span>
+    <span class="badge badge-amber">3 Active Partners</span>
+    <span class="badge badge-green">570 Beta Waitlist</span>
+    <span class="as-of">Updated Mar 24, 2026</span>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- ALERT -->
+  <div class="alert">
+    <div class="alert-icon">⚠️</div>
+    <div class="alert-body">
+      <strong>Action Needed: 2 Partner Deals Stalled in "Testing Agent"</strong>
+      <p>FlowData LLC's <strong>Biz Advance</strong> and Close Accelerate's <strong>Kingdom Kapital</strong> have both been in Testing Agent stage for 6+ weeks. Both are blocked on defining outcomes and workflow triggers. FlowData LLC is also attempting to clarify whether Biz Advance wants to implement Close's Chloe or their own AI system — this ambiguity needs resolution. Kingdom Kapital's decision-maker is on vacation. Immediate partner outreach recommended.</p>
+    </div>
+  </div>
+
+  <!-- STATS ROW -->
+  <div class="stats-grid">
+    <div class="stat-card stat-amber">
+      <div class="stat-label">Partner-Attributed Chloe Deals</div>
+      <div class="stat-value">4</div>
+      <div class="stat-sub">of 193 advanced-stage opps (2.1%)</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Active Partners</div>
+      <div class="stat-value" style="color:#64748b">3</div>
+      <div class="stat-sub">FlowData, Close Accelerate, Arya R.</div>
+    </div>
+    <div class="stat-card stat-blue">
+      <div class="stat-label">Partner Affiliate Groups</div>
+      <div class="stat-value">2</div>
+      <div class="stat-sub">Affiliate Partner + Solution Partner</div>
+    </div>
+    <div class="stat-card stat-green">
+      <div class="stat-label">Partner-Sourced MRR (underlying)</div>
+      <div class="stat-value">~$15K</div>
+      <div class="stat-sub">Kingdom K + Biz Adv + Lanam + Offerland</div>
+    </div>
+    <div class="stat-card stat-purple">
+      <div class="stat-label">Beta Waitlist Leads</div>
+      <div class="stat-value">570</div>
+      <div class="stat-sub">Custom activity form submissions</div>
+    </div>
+    <div class="stat-card stat-red">
+      <div class="stat-label">Avg. Days to Chloe (Partner)</div>
+      <div class="stat-value">~8mo</div>
+      <div class="stat-sub">From Close customer → Chloe opp</div>
+    </div>
+  </div>
+
+  <!-- TABS FOR MAIN CONTENT -->
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('overview')">Pipeline Overview</div>
+    <div class="tab" onclick="switchTab('partners')">Partner Intel</div>
+    <div class="tab" onclick="switchTab('deals')">All Partner Deals</div>
+    <div class="tab" onclick="switchTab('pipeline')">Full Pipeline</div>
+    <div class="tab" onclick="switchTab('beta')">Beta Program</div>
+    <div class="tab" onclick="switchTab('recs')">Recommendations</div>
+  </div>
+
+  <!-- TAB: OVERVIEW -->
+  <div id="tab-overview" class="tab-content active">
+    <div class="two-col">
+      <!-- FUNNEL -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Chloe Implementation Pipeline Funnel</div>
+          <div class="card-subtitle">696 total opportunities · partner-attributed deals highlighted</div>
+        </div>
+        <div class="funnel-wrap">
+          <div style="margin-bottom:14px;">
+            <div class="legend">
+              <div class="legend-item"><div class="legend-dot" style="background:var(--amber-light)"></div>Partner-attributed</div>
+              <div class="legend-item"><div class="legend-dot" style="background:var(--blue-light)"></div>Non-partner</div>
+              <div class="legend-item"><div class="legend-dot" style="background:var(--green-light)"></div>Won (Activated)</div>
+              <div class="legend-item"><div class="legend-dot" style="background:var(--red-light)"></div>Lost</div>
+            </div>
+          </div>
+
+          <!-- Waitlist -->
+          <div class="funnel-row">
+            <div class="funnel-label">Waitlist <span style="font-size:10px;color:var(--slate-light)">(new inbound)</span></div>
+            <div class="funnel-bar-wrap">
+              <div class="funnel-bar" style="width:72%;background:linear-gradient(90deg,#3b82f6,#60a5fa)">
+                <span class="funnel-count">503 leads</span>
+              </div>
+            </div>
+            <div class="funnel-pct">72%</div>
+            <div class="funnel-partner-count" style="font-size:10px;color:#d97706">0 partner</div>
+          </div>
+
+          <!-- Interested/Qual Unknown -->
+          <div class="funnel-row">
+            <div class="funnel-label">Interested / Qual Unknown</div>
+            <div class="funnel-bar-wrap">
+              <div class="funnel-bar" style="width:9%;background:linear-gradient(90deg,#3b82f6,#60a5fa)">
+                <span class="funnel-count" style="font-size:10px">~65</span>
+              </div>
+            </div>
+            <div class="funnel-pct">9%</div>
+            <div class="funnel-partner-count" style="font-size:10px;color:#d97706">0 confirmed</div>
+          </div>
+
+          <!-- Targeted -->
+          <div class="funnel-row">
+            <div class="funnel-label">Targeted <span style="font-size:10px;color:var(--amber)"">★ Partner</span></div>
+            <div class="funnel-bar-wrap" style="position:relative">
+              <div class="funnel-bar" style="width:6%;background:linear-gradient(90deg,#3b82f6,#60a5fa)">
+                <span class="funnel-count" style="font-size:10px">~40</span>
+              </div>
+              <div style="position:absolute;top:0;left:6%;width:0.8%;height:100%;background:var(--amber-light);border-radius:0 4px 4px 0"></div>
+            </div>
+            <div class="funnel-pct">6%</div>
+            <div class="funnel-partner-count" style="font-size:10px;color:#d97706">1 partner (Lanam)</div>
+          </div>
+
+          <!-- Qualified -->
+          <div class="funnel-row">
+            <div class="funnel-label">Qualified <span style="font-size:10px;color:var(--amber)">★ Partner</span></div>
+            <div class="funnel-bar-wrap" style="position:relative">
+              <div class="funnel-bar" style="width:4%;background:linear-gradient(90deg,#3b82f6,#60a5fa)">
+                <span class="funnel-count" style="font-size:10px">~28</span>
+              </div>
+              <div style="position:absolute;top:0;left:4%;width:0.8%;height:100%;background:var(--amber-light);border-radius:0 4px 4px 0"></div>
+            </div>
+            <div class="funnel-pct">4%</div>
+            <div class="funnel-partner-count" style="font-size:10px;color:#d97706">1 partner (Offerland)</div>
+          </div>
+
+          <!-- Beta Invite -->
+          <div class="funnel-row">
+            <div class="funnel-label">Beta Invite</div>
+            <div class="funnel-bar-wrap">
+              <div class="funnel-bar" style="width:2%;background:linear-gradient(90deg,#7c3aed,#8b5cf6)">
+                <span class="funnel-count" style="font-size:10px">~14</span>
+              </div>
+            </div>
+            <div class="funnel-pct">2%</div>
+            <div class="funnel-partner-count" style="font-size:10px;color:var(--slate-light)">0 confirmed</div>
+          </div>
+
+          <!-- Testing Agent -->
+          <div class="funnel-row">
+            <div class="funnel-label">Testing Agent <span style="font-size:10px;color:var(--amber)">★★ Partner</span></div>
+            <div class="funnel-bar-wrap" style="position:relative">
+              <div class="funnel-bar" style="width:3%;background:linear-gradient(90deg,#3b82f6,#60a5fa)">
+                <span class="funnel-count" style="font-size:10px">~22</span>
+              </div>
+              <div style="position:absolute;top:0;left:3%;width:1.2%;height:100%;background:var(--amber-light);border-radius:0 4px 4px 0"></div>
+            </div>
+            <div class="funnel-pct">3%</div>
+            <div class="funnel-partner-count" style="font-size:10px;color:#d97706">2 partners (⚠️ stalled)</div>
+          </div>
+
+          <!-- Activated (Won) -->
+          <div class="funnel-row">
+            <div class="funnel-label">✅ Activated (Won)</div>
+            <div class="funnel-bar-wrap">
+              <div class="funnel-bar" style="width:16%;background:linear-gradient(90deg,var(--green-light),#34d399)">
+                <span class="funnel-count">~110 activated</span>
+              </div>
+            </div>
+            <div class="funnel-pct">16%</div>
+            <div class="funnel-partner-count" style="font-size:10px;color:var(--green)">0 confirmed yet</div>
+          </div>
+
+          <!-- Lost -->
+          <div class="funnel-row">
+            <div class="funnel-label" style="color:var(--red)">✗ Lost (all types)</div>
+            <div class="funnel-bar-wrap">
+              <div class="funnel-bar" style="width:5%;background:linear-gradient(90deg,#ef4444,#f87171)">
+                <span class="funnel-count" style="font-size:10px">~35</span>
+              </div>
+            </div>
+            <div class="funnel-pct">5%</div>
+            <div class="funnel-partner-count" style="font-size:10px;color:var(--slate-light)">—</div>
+          </div>
+
+          <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);font-size:11px;color:var(--slate-mid);">
+            <strong>Note:</strong> Stage counts estimated from available data. 696 total opportunities split across pipeline stages. Partner-attributed deals (4) appear concentrated in Testing Agent and Qualified stages.
+          </div>
+        </div>
+      </div>
+
+      <!-- PARTNER SUMMARY CARDS -->
+      <div>
+        <div class="intel-grid" style="grid-template-columns:1fr; gap: 14px;">
+
+          <!-- FlowData LLC -->
+          <div class="intel-card" style="border-left: 4px solid var(--amber-light)">
+            <div class="intel-header" style="background: var(--amber-pale)">
+              <div class="intel-partner-name">FlowData LLC</div>
+              <div class="intel-type" style="color:var(--amber)">Affiliate Partner · Kevin Yen & Sungmin Yeo</div>
+            </div>
+            <div class="intel-body">
+              <div class="intel-row"><span class="intel-key">Affiliate Referral ID</span><span class="intel-val">7059df25999d</span></div>
+              <div class="intel-row"><span class="intel-key">Customers in Chloe Pipeline</span><span class="intel-val">2</span></div>
+              <div class="intel-row"><span class="intel-key">Partner-Attributed MRR</span><span class="intel-val">~$10K/mo</span></div>
+              <div class="intel-row"><span class="intel-key">Engagement Level</span>
+                <span class="intel-score">
+                  <div class="score-dot filled"></div><div class="score-dot filled"></div><div class="score-dot filled"></div><div class="score-dot filled"></div><div class="score-dot half"></div>
+                </span>
+              </div>
+              <div class="intel-deals">
+                <span class="intel-deal-chip"><div class="dot dot-amber"></div>Biz Advance — Testing Agent ⚠️</span>
+                <span class="intel-deal-chip"><div class="dot dot-purple"></div>The Lanam Group — Targeted</span>
+              </div>
+              <div class="intel-alert">⚠️ Open ambiguity: FlowData asked if Biz Advance wants Close's Chloe or their own AI system (FlowData AI). Barrett looped in. Needs resolution before onboarding proceeds.</div>
+            </div>
+          </div>
+
+          <!-- Close Accelerate -->
+          <div class="intel-card" style="border-left: 4px solid var(--blue-light)">
+            <div class="intel-header" style="background: var(--blue-pale)">
+              <div class="intel-partner-name">Close Accelerate</div>
+              <div class="intel-type" style="color:var(--blue)">Solution Partner · Tier 3 · Pedro Ponciano</div>
+            </div>
+            <div class="intel-body">
+              <div class="intel-row"><span class="intel-key">Affiliate Referral ID</span><span class="intel-val">pedroelpidioponcianolima1947</span></div>
+              <div class="intel-row"><span class="intel-key">Customers in Chloe Pipeline</span><span class="intel-val">1</span></div>
+              <div class="intel-row"><span class="intel-key">Partner-Attributed MRR</span><span class="intel-val">~$4.1K/mo</span></div>
+              <div class="intel-row"><span class="intel-key">Engagement Level</span>
+                <span class="intel-score">
+                  <div class="score-dot filled"></div><div class="score-dot filled"></div><div class="score-dot filled"></div><div class="score-dot filled"></div><div class="score-dot"></div>
+                </span>
+              </div>
+              <div class="intel-deals">
+                <span class="intel-deal-chip"><div class="dot dot-amber"></div>Kingdom Kapital — Testing Agent ⚠️</span>
+              </div>
+              <div class="intel-alert">⚠️ Stalled: Decision-maker on vacation (Mar 19 meeting declined). Outcomes/workflow triggers not yet defined. Pedro is an active advocate — coordinate with him to push Warren to resolve outcomes. Close Beta: True.</div>
+            </div>
+          </div>
+
+          <!-- Arya Rashtchian -->
+          <div class="intel-card" style="border-left: 4px solid var(--green-light)">
+            <div class="intel-header" style="background: var(--green-pale)">
+              <div class="intel-partner-name">Arya Rashtchian</div>
+              <div class="intel-type" style="color:var(--green)">Affiliate Partner · Individual</div>
+            </div>
+            <div class="intel-body">
+              <div class="intel-row"><span class="intel-key">Affiliate Referral ID</span><span class="intel-val">aryarashtchian3219</span></div>
+              <div class="intel-row"><span class="intel-key">Customers in Chloe Pipeline</span><span class="intel-val">1</span></div>
+              <div class="intel-row"><span class="intel-key">Partner-Attributed MRR</span><span class="intel-val">~$541/mo</span></div>
+              <div class="intel-row"><span class="intel-key">Engagement Level</span>
+                <span class="intel-score">
+                  <div class="score-dot filled"></div><div class="score-dot filled"></div><div class="score-dot filled"></div><div class="score-dot"></div><div class="score-dot"></div>
+                </span>
+              </div>
+              <div class="intel-deals">
+                <span class="intel-deal-chip"><div class="dot dot-blue"></div>Offerland — Qualified (100% confidence)</span>
+              </div>
+              <div style="margin-top:10px;font-size:11px;color:var(--green);background:var(--green-pale);padding:8px 10px;border-radius:6px;">
+                ✓ Most advanced single-partner deal. Hamid is engaged and excited. Use case is clear (inbound lead qualification → live transfer). Real estate industry. Canada-only calling.
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: PARTNER INTEL -->
+  <div id="tab-partners" class="tab-content">
+    <div class="two-col">
+      <!-- VELOCITY -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Deal Velocity: Partner-Attributed Customers</div>
+          <div class="card-subtitle">Months from becoming Close customer → Chloe opp created</div>
+        </div>
+        <div class="card-body">
+          <div class="velocity-item">
+            <div>
+              <div class="velocity-company">Biz Advance</div>
+              <div class="velocity-partner">FlowData LLC</div>
+            </div>
+            <div class="velocity-bar-wrap"><div class="velocity-bar" style="width:80%"></div></div>
+            <div class="velocity-days"><div class="num">8</div><div class="lbl">months</div></div>
+          </div>
+          <div class="velocity-item">
+            <div>
+              <div class="velocity-company">The Lanam Group</div>
+              <div class="velocity-partner">FlowData LLC</div>
+            </div>
+            <div class="velocity-bar-wrap"><div class="velocity-bar" style="width:70%"></div></div>
+            <div class="velocity-days"><div class="num">7</div><div class="lbl">months</div></div>
+          </div>
+          <div class="velocity-item">
+            <div>
+              <div class="velocity-company">Offerland</div>
+              <div class="velocity-partner">Arya Rashtchian</div>
+            </div>
+            <div class="velocity-bar-wrap"><div class="velocity-bar" style="width:90%"></div></div>
+            <div class="velocity-days"><div class="num">9</div><div class="lbl">months</div></div>
+          </div>
+          <div class="velocity-item">
+            <div>
+              <div class="velocity-company">Kingdom Kapital</div>
+              <div class="velocity-partner">Close Accelerate</div>
+            </div>
+            <div class="velocity-bar-wrap"><div class="velocity-bar" style="width:100%;background:var(--amber-light)"></div></div>
+            <div class="velocity-days"><div class="num" style="color:var(--amber-light)">25</div><div class="lbl">months</div></div>
+          </div>
+          <div style="margin-top:14px;padding-top:10px;border-top:1px solid var(--border)">
+            <div style="font-size:11px;color:var(--slate-mid);line-height:1.6;">
+              <strong>Insight:</strong> Partner-referred customers take 7–9 months post-purchase to enter the Chloe pipeline (except Kingdom Kapital at 25 months — an outlier as an original alpha customer). This suggests partners are discovering Chloe organically after initial onboarding, rather than being proactively pitched. <strong>Opportunity: proactive Chloe outreach to partner-referred accounts earlier in the lifecycle.</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PARTNER PERFORMANCE TABLE -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Partner Performance Scorecard</div>
+          <div class="card-subtitle">Based on deal activity, engagement, and pipeline contribution</div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="partner-table">
+            <thead>
+              <tr>
+                <th>Partner</th>
+                <th>Type</th>
+                <th>Chloe Deals</th>
+                <th>Current MRR</th>
+                <th>Farthest Stage</th>
+                <th>Risk</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <div class="partner-name">FlowData LLC</div>
+                  <div class="partner-role">Kevin Yen · flowdata.ai</div>
+                </td>
+                <td><span class="badge badge-amber">Affiliate</span></td>
+                <td><strong>2</strong></td>
+                <td><strong>~$10K</strong></td>
+                <td><span class="deal-chip stage-testing">Testing Agent</span></td>
+                <td><span class="badge badge-amber">Med-High</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="partner-name">Close Accelerate</div>
+                  <div class="partner-role">Pedro Ponciano · closeaccelerate.com</div>
+                </td>
+                <td><span class="badge badge-blue">Solution P. T3</span></td>
+                <td><strong>1</strong></td>
+                <td><strong>~$4.1K</strong></td>
+                <td><span class="deal-chip stage-testing">Testing Agent</span></td>
+                <td><span class="badge badge-amber">Medium</span></td>
+              </tr>
+              <tr>
+                <td>
+                  <div class="partner-name">Arya Rashtchian</div>
+                  <div class="partner-role">Individual affiliate</div>
+                </td>
+                <td><span class="badge badge-green">Affiliate</span></td>
+                <td><strong>1</strong></td>
+                <td><strong>~$541</strong></td>
+                <td><span class="deal-chip stage-qualified">Qualified</span></td>
+                <td><span class="badge" style="background:var(--green-pale);color:var(--green)">Low</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="card-body">
+          <div style="font-size:12px;color:var(--slate-mid);line-height:1.6;margin-top:4px;">
+            <strong>Pattern:</strong> FlowData LLC is emerging as the highest-leverage partner — managing multiple enterprise-tier customers (48+ seats each), handling all implementation and support touchpoints, and actively introducing customers to Chloe. Pedro (Close Accelerate) has deep relationship capital with Kingdom Kapital and should be leveraged as an implementation advocate. Arya's Offerland deal is the cleanest, most progressed single-partner opportunity.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: ALL PARTNER DEALS -->
+  <div id="tab-deals" class="tab-content">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">All Partner-Attributed Chloe Implementation Deals</div>
+        <div class="card-subtitle">4 confirmed partner-attributed opportunities · sorted by stage progression</div>
+      </div>
+      <div class="card-body">
+        <ul class="deal-list">
+
+          <!-- Offerland -->
+          <li class="deal-item">
+            <div class="deal-item-header">
+              <div>
+                <div class="deal-company">Offerland</div>
+                <div class="deal-meta">
+                  <span class="deal-chip stage-qualified">Qualified · 100% confidence</span>
+                  <span>MRR: $541/mo · Scale plan · 14 seats</span>
+                  <span>Partner: Arya Rashtchian (aryarashtchian3219)</span>
+                  <span>CSM: Lauren Weisenthal (took from Fiona)</span>
+                </div>
+              </div>
+              <div style="text-align:right">
+                <div style="font-size:20px;font-weight:800;color:var(--green-light)">$600</div>
+                <div style="font-size:10px;color:var(--slate-light)">Chloe ARR est.</div>
+              </div>
+            </div>
+            <div class="deal-note">
+              <strong>Use case:</strong> Chloe calls inbound real estate leads who opted in via webform to qualify them (area, buying/selling, timeline, budget) then live transfers or schedules follow-up with a rep. Calling 30–40 leads/day in Canada only.<br>
+              <strong>Status:</strong> Customer has been using the new prompt editor. Hamid engaged but traveling recently, hasn't had follow-up call booked yet.<br>
+              <strong>Next step:</strong> Book follow-up to confirm no blockers and move to Beta Invite/Testing Agent.
+            </div>
+          </li>
+
+          <!-- Kingdom Kapital -->
+          <li class="deal-item">
+            <div class="deal-item-header">
+              <div>
+                <div class="deal-company">Kingdom Kapital</div>
+                <div class="deal-meta">
+                  <span class="deal-chip stage-testing">Testing Agent ⚠️ Stalled</span>
+                  <span>MRR: $4,155/mo · Enterprise · 23 seats</span>
+                  <span>Partner: Close Accelerate / Pedro Ponciano</span>
+                  <span>CSM: Tina Duong</span>
+                  <span class="badge badge-blue">Chloe Beta: ✓</span>
+                </div>
+              </div>
+              <div style="text-align:right">
+                <div style="font-size:20px;font-weight:800;color:var(--amber-light)">$600</div>
+                <div style="font-size:10px;color:var(--slate-light)">Chloe ARR est.</div>
+              </div>
+            </div>
+            <div class="deal-note stalled">
+              <strong>Use case:</strong> Alternative financing company — Chloe calls leads who submitted applications to qualify them and follow up. NYC-based lending business.<br>
+              <strong>Blocker:</strong> Decision-maker (Warren) missed 3/19 meeting (on vacation). Outcomes/workflow triggers not yet finalized despite agent being tested on their end. Also active A2P 10DLC issues for some clients Pedro manages.<br>
+              <strong>Next step:</strong> Pedro should re-engage Warren. Tina should follow up post-vacation. Target outcomes definition within this week.
+            </div>
+          </li>
+
+          <!-- Biz Advance -->
+          <li class="deal-item">
+            <div class="deal-item-header">
+              <div>
+                <div class="deal-company">Biz Advance</div>
+                <div class="deal-meta">
+                  <span class="deal-chip stage-testing">Testing Agent ⚠️ Ambiguous</span>
+                  <span>MRR: $7,152/mo · Enterprise · 48 seats</span>
+                  <span>Partner: FlowData LLC (7059df25999d)</span>
+                  <span>CSM: Laura Turnbull</span>
+                </div>
+              </div>
+              <div style="text-align:right">
+                <div style="font-size:20px;font-weight:800;color:var(--amber-light)">$600</div>
+                <div style="font-size:10px;color:var(--slate-light)">Chloe ARR est.</div>
+              </div>
+            </div>
+            <div class="deal-note stalled">
+              <strong>Use case:</strong> Business funding company — originally scoped for Chloe but FlowData AI introduced their own AI calling system.<br>
+              <strong>Critical Blocker:</strong> On 3/13, Laura spoke with FlowData and looped Barrett in to understand whether Biz Advance wants to implement Close's Chloe or FlowData's own AI system. This ambiguity must be resolved before any further onboarding investment.<br>
+              <strong>Next step:</strong> Barrett/Laura need to get explicit confirmation from Biz Advance directly (not through FlowData) about which AI calling product they want to use.
+            </div>
+          </li>
+
+          <!-- The Lanam Group -->
+          <li class="deal-item">
+            <div class="deal-item-header">
+              <div>
+                <div class="deal-company">The Lanam Group</div>
+                <div class="deal-meta">
+                  <span class="deal-chip stage-targeted">Targeted</span>
+                  <span>MRR: $3,129/mo · Scale · 21 seats</span>
+                  <span>Partner: FlowData LLC (7059df25999d)</span>
+                  <span>CSM: Laura Turnbull</span>
+                </div>
+              </div>
+              <div style="text-align:right">
+                <div style="font-size:20px;font-weight:800;color:var(--purple-light)">$600</div>
+                <div style="font-size:10px;color:var(--slate-light)">Chloe ARR est.</div>
+              </div>
+            </div>
+            <div class="deal-note">
+              <strong>Use case:</strong> Financial services / lending company (Boca Raton, FL). FlowData introduced them to Chloe in late Feb 2026 as a second customer to test.<br>
+              <strong>Status:</strong> Chloe onboarding call happened 3/4 with Suo. FlowData suggested using same script as Biz Advance as a starting point.<br>
+              <strong>Dependency:</strong> Same partner as Biz Advance — if the FlowData/Chloe ambiguity gets resolved positively, Lanam is likely the cleaner path to move forward quickly given they appear to be a separate FlowData customer without the "own AI" complication.
+            </div>
+          </li>
+
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: FULL PIPELINE -->
+  <div id="tab-pipeline" class="tab-content">
+    <div class="card">
+      <div class="search-wrap">
+        <input class="search-input" type="text" id="pipeline-search" placeholder="Search company, partner, CSM..." oninput="filterTable()" />
+        <select class="sort-select" id="stage-filter" onchange="filterTable()">
+          <option value="">All Stages</option>
+          <option value="Waitlist">Waitlist</option>
+          <option value="Targeted">Targeted</option>
+          <option value="Interested">Interested / Qual Unknown</option>
+          <option value="Qualified">Qualified</option>
+          <option value="Beta Invite">Beta Invite</option>
+          <option value="Testing Agent">Testing Agent</option>
+          <option value="Activated">Activated</option>
+          <option value="partner">Partner-Attributed Only</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table class="pipeline-table" id="pipeline-tbl">
+          <thead>
+            <tr>
+              <th>Company</th>
+              <th>Stage</th>
+              <th>Partner Attribution</th>
+              <th>MRR</th>
+              <th>CSM</th>
+              <th>Last Updated</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody id="pipeline-tbody">
+            <!-- Partner rows highlighted -->
+            <tr class="partner-row" data-partner="FlowData LLC" data-stage="Testing Agent">
+              <td><span class="t-company">Biz Advance</span></td>
+              <td><span class="t-stage stage-testing">Testing Agent ⚠️</span></td>
+              <td><span class="t-partner">FlowData LLC</span></td>
+              <td class="t-mrr">$7,152</td>
+              <td class="t-csm">Laura Turnbull</td>
+              <td>Mar 13, 2026</td>
+              <td class="t-note">Ambiguity: Close Chloe vs FlowData AI system — Barrett looped in</td>
+            </tr>
+            <tr class="partner-row" data-partner="Close Accelerate" data-stage="Testing Agent">
+              <td><span class="t-company">Kingdom Kapital</span></td>
+              <td><span class="t-stage stage-testing">Testing Agent ⚠️</span></td>
+              <td><span class="t-partner">Close Accelerate</span></td>
+              <td class="t-mrr">$4,155</td>
+              <td class="t-csm">Tina Duong</td>
+              <td>Mar 19, 2026</td>
+              <td class="t-note">Warren on vacation, outcomes not defined, 3/19 meeting declined</td>
+            </tr>
+            <tr data-stage="Testing Agent">
+              <td><span class="t-company">Sisu</span></td>
+              <td><span class="t-stage stage-testing">Testing Agent</span></td>
+              <td>—</td>
+              <td class="t-mrr">—</td>
+              <td class="t-csm">Laura Turnbull</td>
+              <td>Mar 13, 2026</td>
+              <td class="t-note">Live-call Alerts feature increased responsiveness</td>
+            </tr>
+            <tr data-stage="Testing Agent">
+              <td><span class="t-company">GrowthDay</span></td>
+              <td><span class="t-stage stage-testing">Testing Agent</span></td>
+              <td>—</td>
+              <td class="t-mrr">—</td>
+              <td class="t-csm">Kyle Craig</td>
+              <td>Mar 10, 2026</td>
+              <td class="t-note">Also testing Lindy; feedback meeting pending</td>
+            </tr>
+            <tr data-stage="Testing Agent">
+              <td><span class="t-company">Reins</span></td>
+              <td><span class="t-stage stage-testing">Testing Agent</span></td>
+              <td>—</td>
+              <td class="t-mrr">—</td>
+              <td class="t-csm">Teodora Soso</td>
+              <td>Mar 10, 2026</td>
+              <td class="t-note">Quid-pro-quo testing arrangement; follow up Wed</td>
+            </tr>
+            <tr data-stage="Testing Agent">
+              <td><span class="t-company">Blazestack</span></td>
+              <td><span class="t-stage stage-testing">Testing Agent</span></td>
+              <td>—</td>
+              <td class="t-mrr">—</td>
+              <td class="t-csm">Laura Turnbull</td>
+              <td>Mar 13, 2026</td>
+              <td class="t-note">Said will start testing, follow-up meeting TBD</td>
+            </tr>
+            <tr data-stage="Testing Agent">
+              <td><span class="t-company">Debbie Sardone Consulting</span></td>
+              <td><span class="t-stage stage-testing">Testing Agent</span></td>
+              <td>—</td>
+              <td class="t-mrr">—</td>
+              <td class="t-csm">Lauren Weisenthal</td>
+              <td>Mar 10, 2026</td>
+              <td class="t-note">Previously marked Activated — never fully launched; restarting setup</td>
+            </tr>
+            <tr class="partner-row" data-partner="Arya Rashtchian" data-stage="Qualified">
+              <td><span class="t-company">Offerland</span></td>
+              <td><span class="t-stage stage-qualified">Qualified 100%</span></td>
+              <td><span class="t-partner">Arya Rashtchian</span></td>
+              <td class="t-mrr">$541</td>
+              <td class="t-csm">Lauren Weisenthal</td>
+              <td>Mar 13, 2026</td>
+              <td class="t-note">Real estate inbound lead qualification; Canada-only; clear use case</td>
+            </tr>
+            <tr data-stage="Qualified">
+              <td><span class="t-company">Pulse Medical Inc</span></td>
+              <td><span class="t-stage stage-qualified">Qualified</span></td>
+              <td>—</td>
+              <td class="t-mrr">—</td>
+              <td class="t-csm">Laura Turnbull</td>
+              <td>Mar 6, 2026</td>
+              <td class="t-note">Call-over takeover skill shared; meeting next week</td>
+            </tr>
+            <tr class="partner-row" data-partner="FlowData LLC" data-stage="Targeted">
+              <td><span class="t-company">The Lanam Group</span></td>
+              <td><span class="t-stage stage-targeted">Targeted</span></td>
+              <td><span class="t-partner">FlowData LLC</span></td>
+              <td class="t-mrr">$3,129</td>
+              <td class="t-csm">Laura Turnbull</td>
+              <td>Mar 4, 2026</td>
+              <td class="t-note">FlowData-referred; onboarding call 3/4; same script as Biz Advance proposed</td>
+            </tr>
+            <tr data-stage="Activated">
+              <td><span class="t-company">WinIt</span></td>
+              <td><span class="t-stage stage-activated">Activated ✓</span></td>
+              <td>—</td>
+              <td class="t-mrr">—</td>
+              <td class="t-csm">Meghann O'Brien</td>
+              <td>Mar 2, 2026</td>
+              <td class="t-note">Live; exploring opportunity CFs in prompt</td>
+            </tr>
+            <tr data-stage="Activated">
+              <td><span class="t-company">RevPilot</span></td>
+              <td><span class="t-stage stage-activated">Activated ✓</span></td>
+              <td>—</td>
+              <td class="t-mrr">—</td>
+              <td class="t-csm">Teodora Soso</td>
+              <td>Feb 27, 2026</td>
+              <td class="t-note">Calling all buyers 12 min after purchase</td>
+            </tr>
+            <tr data-stage="Activated">
+              <td><span class="t-company">EFX Algo</span></td>
+              <td><span class="t-stage stage-activated">Activated ✓</span></td>
+              <td>—</td>
+              <td class="t-mrr">—</td>
+              <td class="t-csm">Laura Turnbull</td>
+              <td>Mar 13, 2026</td>
+              <td class="t-note">Exploring second Chloe job on recent leads</td>
+            </tr>
+            <tr data-stage="Activated">
+              <td><span class="t-company">Flatiron School</span></td>
+              <td><span class="t-stage stage-activated">Activated ✓</span></td>
+              <td>—</td>
+              <td class="t-mrr">—</td>
+              <td class="t-csm">Lauren Weisenthal</td>
+              <td>Mar 7, 2026</td>
+              <td class="t-note">Testing second use case after successful first deployment</td>
+            </tr>
+            <tr data-stage="Activated">
+              <td><span class="t-company">NFN8 Group</span></td>
+              <td><span class="t-stage stage-activated">Activated ✓</span></td>
+              <td>—</td>
+              <td class="t-mrr">—</td>
+              <td class="t-csm">Tina Duong</td>
+              <td>Feb 26, 2026</td>
+              <td class="t-note">Stale lead re-qualification; accredited investor use case</td>
+            </tr>
+            <tr data-stage="Activated">
+              <td><span class="t-company">Fast Capital Advance</span></td>
+              <td><span class="t-stage stage-activated">Activated ✓</span></td>
+              <td>—</td>
+              <td class="t-mrr">—</td>
+              <td class="t-csm">Tina Duong</td>
+              <td>Feb 26, 2026</td>
+              <td class="t-note">Re-engage stale leads for bank statement submission</td>
+            </tr>
+            <tr data-stage="Activated">
+              <td><span class="t-company">No Flipping Excuses</span></td>
+              <td><span class="t-stage stage-activated">Activated ✓</span></td>
+              <td>—</td>
+              <td class="t-mrr">—</td>
+              <td class="t-csm">Lauren Weisenthal</td>
+              <td>Mar 9, 2026</td>
+              <td class="t-note">100+ calls made; webinar no-show follow-up use case</td>
+            </tr>
+            <tr data-stage="Activated">
+              <td><span class="t-company">Career Evolved</span></td>
+              <td><span class="t-stage stage-activated">Activated ✓</span></td>
+              <td>—</td>
+              <td class="t-mrr">—</td>
+              <td class="t-csm">Teodora Soso</td>
+              <td>Jan 22, 2026</td>
+              <td class="t-note">Awaiting task creation workflow to launch</td>
+            </tr>
+            <tr data-stage="Activated">
+              <td><span class="t-company">Avocado</span></td>
+              <td><span class="t-stage stage-testing">Testing Agent</span></td>
+              <td>—</td>
+              <td class="t-mrr">—</td>
+              <td class="t-csm">Laura Turnbull</td>
+              <td>Mar 23, 2026</td>
+              <td class="t-note">Follow-up 3/27 after first job set up</td>
+            </tr>
+            <tr data-stage="Waitlist">
+              <td><span class="t-company">Stay at Home Bookkeeper</span></td>
+              <td><span class="t-stage stage-waitlist">Waitlist</span></td>
+              <td>—</td>
+              <td class="t-mrr">—</td>
+              <td class="t-csm">Christine Sotelo</td>
+              <td>Mar 24, 2026</td>
+              <td class="t-note">New inbound</td>
+            </tr>
+            <tr data-stage="Waitlist">
+              <td><span class="t-company">🇨🇭 Pro Switzerland CH</span></td>
+              <td><span class="t-stage stage-waitlist">Waitlist</span></td>
+              <td>—</td>
+              <td class="t-mrr">—</td>
+              <td class="t-csm">Christine Sotelo</td>
+              <td>Mar 24, 2026</td>
+              <td class="t-note">2 contacts (Jonas Wiesel, Christoph Schwetz)</td>
+            </tr>
+            <tr data-stage="Waitlist">
+              <td><span class="t-company">SmarterMinds</span></td>
+              <td><span class="t-stage stage-waitlist">Waitlist</span></td>
+              <td>—</td>
+              <td class="t-mrr">—</td>
+              <td class="t-csm">Christine Sotelo</td>
+              <td>Mar 24, 2026</td>
+              <td class="t-note">New inbound</td>
+            </tr>
+            <tr data-stage="Waitlist">
+              <td><span class="t-company">Real Estate Skills, Inc.</span></td>
+              <td><span class="t-stage stage-waitlist">Waitlist</span></td>
+              <td>—</td>
+              <td class="t-mrr">—</td>
+              <td class="t-csm">Christine Sotelo</td>
+              <td>Mar 24, 2026</td>
+              <td class="t-note">Real estate — potential fit with Offerland use case</td>
+            </tr>
+            <tr data-stage="Waitlist">
+              <td><span class="t-company">Roamly</span></td>
+              <td><span class="t-stage stage-waitlist">Waitlist</span></td>
+              <td>—</td>
+              <td class="t-mrr">—</td>
+              <td class="t-csm">Christine Sotelo</td>
+              <td>Mar 23, 2026</td>
+              <td class="t-note">New inbound</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: BETA PROGRAM -->
+  <div id="tab-beta" class="tab-content">
+    <div class="two-col">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">GTM: Chloe Beta Waitlist</div>
+          <div class="card-subtitle">save_6HkdoVqth3RjDLaP15yXeAbnVwRI0buetTqpe5UexSd · Created Mar 10, 2026</div>
+        </div>
+        <div class="card-body">
+          <div class="waitlist-summary">
+            <div class="waitlist-stat">
+              <div class="num">570</div>
+              <div class="lbl">Total waitlist leads</div>
+            </div>
+            <div class="waitlist-stat">
+              <div class="num">100%</div>
+              <div class="lbl">Are existing Close customers</div>
+            </div>
+            <div class="waitlist-stat">
+              <div class="num">696</div>
+              <div class="lbl">Chloe Implementation opps</div>
+            </div>
+            <div class="waitlist-stat">
+              <div class="num">~3</div>
+              <div class="lbl">Confirmed partner-sourced</div>
+            </div>
+          </div>
+          <div style="font-size:13px;color:var(--slate);font-weight:700;margin-bottom:8px;">How the Beta Waitlist Works</div>
+          <div style="font-size:12px;color:var(--slate-mid);line-height:1.7;">
+            <p>The waitlist is a <strong>custom activity form</strong> submission filter — leads appear here when they have submitted the "Chloe Beta Waitlist Form." All 570 leads carry "Customer" status, confirming this is an existing-customer beta program, not a new lead acquisition funnel.</p>
+            <br>
+            <p>The <code>Chloe Beta</code> custom field (populated by Hightouch) marks leads whose org has the <code>chloe-beta-release</code> feature flag enabled. Two of our four confirmed partner deals have this flag set:</p>
+            <ul style="margin-top:8px;padding-left:18px;list-style:disc;">
+              <li style="margin-bottom:4px;"><strong>Kingdom Kapital</strong> — Chloe Beta: True (Close Accelerate partner)</li>
+              <li style="margin-bottom:4px;"><strong>Offerland</strong> — Chloe Beta: True (Arya Rashtchian partner)</li>
+              <li style="margin-bottom:4px;"><strong>Biz Advance</strong> — Chloe Beta: False (FlowData partner — flag not yet enabled)</li>
+              <li><strong>The Lanam Group</strong> — Chloe Beta: False (FlowData partner — early stage)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Beta Program Crossover Analysis</div>
+          <div class="card-subtitle">Relationship between waitlist (570) and Chloe Implementation pipeline (696)</div>
+        </div>
+        <div class="card-body">
+          <div style="padding:20px 0;text-align:center;">
+            <svg width="280" height="180" viewBox="0 0 280 180">
+              <ellipse cx="110" cy="90" rx="90" ry="70" fill="#eff6ff" stroke="#3b82f6" stroke-width="2" opacity="0.8"/>
+              <ellipse cx="170" cy="90" rx="90" ry="70" fill="#ecfdf5" stroke="#10b981" stroke-width="2" opacity="0.8"/>
+              <text x="70" y="80" text-anchor="middle" font-size="11" font-weight="700" fill="#1e40af">Beta</text>
+              <text x="70" y="96" text-anchor="middle" font-size="11" font-weight="700" fill="#1e40af">Waitlist</text>
+              <text x="70" y="112" text-anchor="middle" font-size="18" font-weight="800" fill="#1e40af">570</text>
+              <text x="210" y="80" text-anchor="middle" font-size="11" font-weight="700" fill="#065f46">Chloe</text>
+              <text x="210" y="96" text-anchor="middle" font-size="11" font-weight="700" fill="#065f46">Pipeline</text>
+              <text x="210" y="112" text-anchor="middle" font-size="18" font-weight="800" fill="#065f46">696</text>
+              <text x="140" y="86" text-anchor="middle" font-size="10" font-weight="700" fill="#374151">Overlap</text>
+              <text x="140" y="100" text-anchor="middle" font-size="10" fill="#374151">~200-300</text>
+              <text x="140" y="113" text-anchor="middle" font-size="9" fill="#64748b">est.</text>
+            </svg>
+          </div>
+          <div style="font-size:12px;color:var(--slate-mid);line-height:1.6;">
+            <p><strong>Key insight:</strong> The Beta Waitlist represents customers who self-identified as interested in Chloe by submitting the form. The Chloe Implementation Pipeline represents all opportunities Chloe has created — including proactively targeted accounts. There is meaningful overlap (estimated 200–300 leads) but also divergence: some waitlist leads haven't received an Implementation opportunity yet, and some pipeline leads haven't submitted the waitlist form.</p>
+            <br>
+            <p><strong>For partner tracking:</strong> Of the 4 partner-attributed Chloe deals, 2 have <code>Chloe Beta: True</code> indicating the feature flag is live. Neither Biz Advance nor The Lanam Group have the flag enabled yet — suggesting FlowData's customers are earlier in the process.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: RECOMMENDATIONS -->
+  <div id="tab-recs" class="tab-content">
+    <div class="two-col">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Immediate Actions (This Week)</div>
+        </div>
+        <div class="card-body">
+          <ul class="rec-list">
+            <li class="rec-item">
+              <div class="rec-icon rec-icon-red">🚨</div>
+              <div class="rec-body">
+                <strong>Resolve Biz Advance ambiguity with FlowData LLC</strong>
+                <p>Barrett + Laura must directly contact Biz Advance (not through FlowData) to confirm whether they want to implement Close's Chloe or FlowData's own AI system. This blocks both Biz Advance and potentially The Lanam Group from progressing. Kevin Yen at FlowData.ai is the partner POC.</p>
+              </div>
+            </li>
+            <li class="rec-item">
+              <div class="rec-icon rec-icon-amber">⚠️</div>
+              <div class="rec-body">
+                <strong>Leverage Pedro to unblock Kingdom Kapital</strong>
+                <p>Pedro Ponciano (Close Accelerate) has a strong relationship with Warren at Kingdom Kapital. Send Pedro a direct ask to get Warren to define their 3–5 Chloe outcomes this week. Warren's exec team was finalizing the outcome mapping before vacation — timing may be right for a re-engagement now.</p>
+              </div>
+            </li>
+            <li class="rec-item">
+              <div class="rec-icon rec-icon-green">✓</div>
+              <div class="rec-body">
+                <strong>Advance Offerland to Beta Invite / Testing Agent</strong>
+                <p>Offerland is the cleanest, most progressed partner deal. Hamid is engaged, use case is well-defined, and the team has been using the prompt editor. Lauren should book a follow-up this week to confirm no blockers and move the opportunity from Qualified to Testing Agent. Target activation by end of April.</p>
+              </div>
+            </li>
+            <li class="rec-item">
+              <div class="rec-icon rec-icon-blue">💡</div>
+              <div class="rec-body">
+                <strong>Confirm The Lanam Group is independent of Biz Advance confusion</strong>
+                <p>If Biz Advance confirms they want Close's Chloe, prioritize The Lanam Group immediately — FlowData already has a working starting prompt and an onboarding call has been held. They could be Testing Agent within 2 weeks. 23 seats, financial services, Scale plan.</p>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Strategic Recommendations</div>
+        </div>
+        <div class="card-body">
+          <ul class="rec-list">
+            <li class="rec-item">
+              <div class="rec-icon rec-icon-blue">🔍</div>
+              <div class="rec-body">
+                <strong>Audit the 570 beta waitlist for partner attribution</strong>
+                <p>Cross-reference the <code>Affiliate Partner Name</code> and <code>Affiliate Referral</code> fields against the 570 beta waitlist leads. There are likely 30–80 additional partner-sourced leads who submitted the waitlist form but don't yet have a Chloe Implementation opportunity. These are warm, partner-endorsed leads ready to enter the pipeline.</p>
+              </div>
+            </li>
+            <li class="rec-item">
+              <div class="rec-icon rec-icon-amber">🤝</div>
+              <div class="rec-body">
+                <strong>Formalize FlowData LLC as an Implementation Partner</strong>
+                <p>FlowData (Kevin Yen, Sungmin Yeo) operates as a de-facto implementation MSP for financial services Close customers. They manage all support, imports, and now Chloe onboarding for multiple clients. Formalizing this relationship — perhaps as a Chloe Certified Implementer — would accelerate adoption across their customer base and reduce Chloe team burden.</p>
+              </div>
+            </li>
+            <li class="rec-item">
+              <div class="rec-icon rec-icon-green">📣</div>
+              <div class="rec-body">
+                <strong>Proactive Chloe outreach to 702+ "Is Partner and Customer" leads</strong>
+                <p>There are 702 leads with <code>Is Partner and Customer = Yes</code> — meaning these are companies who are both Close customers AND registered PartnerStack partners. These are the highest-intent, highest-credibility Chloe prospects. None appear to have Chloe opportunities yet. A targeted outreach campaign to this segment could be high-ROI.</p>
+              </div>
+            </li>
+            <li class="rec-item">
+              <div class="rec-icon rec-icon-blue">⏱️</div>
+              <div class="rec-body">
+                <strong>Reduce time-to-Chloe for partner-referred accounts</strong>
+                <p>Current velocity: partner-referred accounts take 7–9 months after becoming customers to enter the Chloe pipeline. This happens organically — partners discover Chloe themselves and bring their clients. Build a proactive trigger: when a new account is referred by an active Chloe-engaged partner (FlowData, Close Accelerate), create a Targeted Chloe opp within 30 days of their Close purchase.</p>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANOMALIES -->
+    <div class="card" style="margin-top:4px;">
+      <div class="card-header">
+        <div class="card-title">Notable Patterns & Anomalies</div>
+      </div>
+      <div class="card-body">
+        <div class="three-col" style="gap:14px;margin-bottom:0;">
+          <div style="background:var(--amber-pale);border-radius:10px;padding:14px;">
+            <div style="font-size:12px;font-weight:700;color:var(--amber);margin-bottom:6px;">⚠️ Competing AI Risk</div>
+            <div style="font-size:12px;color:#92400e;line-height:1.6;">FlowData LLC is not just an implementation partner — they have their own AI product (FlowData AI). The Biz Advance situation reveals a potential channel conflict where FlowData may be evaluating Close's Chloe vs. building their own. Monitor this carefully and ensure FlowData's incentives remain aligned with Close's.</div>
+          </div>
+          <div style="background:var(--blue-pale);border-radius:10px;padding:14px;">
+            <div style="font-size:12px;font-weight:700;color:var(--blue);margin-bottom:6px;">🏦 Financial Services Cluster</div>
+            <div style="font-size:12px;color:#1e40af;line-height:1.6;">3 of 4 partner-attributed Chloe deals are in financial services (Kingdom Kapital, Biz Advance, The Lanam Group). All work with lending/financing use cases. This vertical may be particularly well-suited to Chloe given their high-volume lead follow-up needs. Consider a vertical-specific partner enablement play for fintech/lending partners.</div>
+          </div>
+          <div style="background:var(--green-pale);border-radius:10px;padding:14px;">
+            <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:6px;">🌟 High-Value Alpha Accounts</div>
+            <div style="font-size:12px;color:#065f46;line-height:1.6;">The most progressed activated accounts (WinIt, Flatiron School, No Flipping Excuses, NFN8 Group) are not partner-attributed but show what successful Chloe activation looks like. Using these as case studies when engaging partners' customers could accelerate Testing Agent → Activated conversion rates, especially for hesitant customers like Kingdom Kapital.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div style="text-align:center;padding:20px;font-size:11px;color:var(--slate-light);border-top:1px solid var(--border);margin-top:8px;">
+  Data sourced from Close CRM · Chloe Implementation Pipeline · Beta Waitlist Smart View · Lead Custom Fields (Affiliate Referral, Affiliate Partner Name, Affiliate Group, Chloe Beta) · Generated Mar 24, 2026
+</div>
+
+<script>
+  function switchTab(name) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById('tab-' + name).classList.add('active');
+  }
+
+  function filterTable() {
+    const search = document.getElementById('pipeline-search').value.toLowerCase();
+    const stageFilter = document.getElementById('stage-filter').value.toLowerCase();
+    const rows = document.querySelectorAll('#pipeline-tbody tr');
+    rows.forEach(row => {
+      const text = row.textContent.toLowerCase();
+      const stage = (row.getAttribute('data-stage') || '').toLowerCase();
+      const partner = (row.getAttribute('data-partner') || '').toLowerCase();
+      const matchSearch = !search || text.includes(search);
+      let matchStage = true;
+      if (stageFilter === 'partner') {
+        matchStage = partner.length > 0;
+      } else if (stageFilter) {
+        matchStage = stage.includes(stageFilter.toLowerCase());
+      }
+      row.style.display = (matchSearch && matchStage) ? '' : 'none';
+    });
+  }
+</script>
+
+</body>
+</html>
