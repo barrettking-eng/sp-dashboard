@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Chloe Beta — Implementation Pipeline</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     :root {
       --bg: #ffffff;
@@ -71,13 +70,6 @@
     .c-gray .kpi-value { color: var(--muted); }
 
     /* Charts */
-    .charts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; margin-bottom: 36px; }
-    .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
-    .chart-card.full { grid-column: 1 / -1; }
-    .chart-card h3 { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
-    .chart-sub { font-size: 12px; color: var(--muted); margin-bottom: 20px; }
-    .chart-wrap { position: relative; height: 240px; }
-    .chart-wrap.tall { height: 300px; }
 
     /* Stage chip */
     .stage-chip { display: inline-flex; align-items: center; gap: 5px; border-radius: 6px; padding: 2px 8px; font-size: 11px; font-weight: 600; white-space: nowrap; }
@@ -218,7 +210,6 @@
 
     @media (max-width: 640px) {
       .page { padding: 24px 16px 60px; }
-      .charts-grid { grid-template-columns: 1fr; }
       .kpi-grid { grid-template-columns: repeat(2, 1fr); }
       .td-note { display: none; }
     }
@@ -496,28 +487,6 @@
 
     </div>
     <div class="sig-empty" id="sigEmpty">No signals match the selected filter.</div>
-  </div>
-
-  <!-- Charts -->
-  <div class="charts-grid">
-    <div class="chart-card full">
-      <h3>Pipeline Stage Breakdown</h3>
-      <div class="chart-sub">Opportunity count by stage across the Chloe Implementation pipeline</div>
-      <div class="chart-wrap"><canvas id="funnelChart"></canvas></div>
-    </div>
-  </div>
-
-  <div class="charts-grid">
-    <div class="chart-card">
-      <h3>Active vs. Lost Breakdown</h3>
-      <div class="chart-sub">Distribution of active pipeline vs. lost outcomes</div>
-      <div class="chart-wrap"><canvas id="donutChart"></canvas></div>
-    </div>
-    <div class="chart-card">
-      <h3>Activation Depth</h3>
-      <div class="chart-sub">Companies that have progressed past Beta Invite</div>
-      <div class="chart-wrap"><canvas id="depthChart"></canvas></div>
-    </div>
   </div>
 
   <!-- Company directory -->
@@ -1068,123 +1037,6 @@ function renderTable() {
 }
 
 // ── Charts ────────────────────────────────────────────────────────────────────
-function renderCharts() {
-  const PALETTE = {
-    activated:    '#059669',
-    testing:      '#6d28d9',
-    betainvite:   '#7c3aed',
-    qualified:    '#ea580c',
-    interested:   '#d97706',
-    targeted:     '#2563eb',
-    waitlist:     '#9ca3af',
-    disqualified: '#dc2626',
-  };
-
-  // Pipeline funnel (horizontal bar)
-  const funnelCtx = document.getElementById('funnelChart').getContext('2d');
-  const funnelData = [
-    { label: 'Waitlist',          count: 401, stage: 'waitlist' },
-    { label: 'Targeted',          count: 56,  stage: 'targeted' },
-    { label: 'Interested',        count: 11,  stage: 'interested' },
-    { label: 'Qualified',         count: 8,   stage: 'qualified' },
-    { label: 'Beta Invite',       count: 68,  stage: 'betainvite' },
-    { label: 'Testing Agent',     count: 33,  stage: 'testing' },
-    { label: 'Activated',         count: 17,  stage: 'activated' },
-    { label: 'Lost / DQ\'d',      count: 128, stage: 'disqualified' },
-  ];
-
-  new Chart(funnelCtx, {
-    type: 'bar',
-    data: {
-      labels: funnelData.map(d => d.label),
-      datasets: [{
-        data: funnelData.map(d => d.count),
-        backgroundColor: funnelData.map(d => PALETTE[d.stage]),
-        borderRadius: 6,
-        borderSkipped: false,
-      }]
-    },
-    options: {
-      indexAxis: 'y',
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: {
-            label: ctx => ' ' + ctx.raw + ' companies'
-          }
-        }
-      },
-      scales: {
-        x: { grid: { color: '#f0f0f0' }, ticks: { color: '#9ca3af', font: { size: 11 } } },
-        y: { grid: { display: false }, ticks: { color: '#374151', font: { size: 12, weight: '500' } } }
-      }
-    }
-  });
-
-  // Donut — Active vs Lost
-  const donutCtx = document.getElementById('donutChart').getContext('2d');
-  new Chart(donutCtx, {
-    type: 'doughnut',
-    data: {
-      labels: ['Active Pipeline', 'Lost / Disqualified'],
-      datasets: [{
-        data: [594, 128],
-        backgroundColor: ['#7c3aed', '#dc2626'],
-        borderWidth: 0,
-        hoverOffset: 6,
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      cutout: '65%',
-      plugins: {
-        legend: {
-          position: 'bottom',
-          labels: { font: { size: 12 }, padding: 16, color: '#374151' }
-        },
-        tooltip: {
-          callbacks: {
-            label: ctx => ' ' + ctx.raw + ' (' + Math.round(ctx.raw / 722 * 100) + '%)'
-          }
-        }
-      }
-    }
-  });
-
-  // Depth bar — stages past Beta Invite
-  const depthCtx = document.getElementById('depthChart').getContext('2d');
-  new Chart(depthCtx, {
-    type: 'bar',
-    data: {
-      labels: ['Beta Invite', 'Testing Agent', 'Activated'],
-      datasets: [{
-        label: 'Companies',
-        data: [68, 33, 17],
-        backgroundColor: ['rgba(124,58,237,0.25)', 'rgba(109,40,217,0.65)', '#059669'],
-        borderRadius: 8,
-        borderSkipped: false,
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          callbacks: { label: ctx => ' ' + ctx.raw + ' companies' }
-        }
-      },
-      scales: {
-        x: { grid: { display: false }, ticks: { color: '#374151', font: { size: 12 } } },
-        y: { grid: { color: '#f0f0f0' }, ticks: { color: '#9ca3af', font: { size: 11 } } }
-      }
-    }
-  });
-}
-
 // ── Signals filter ────────────────────────────────────────────────────────────
 function filterSignals(dir, btn) {
   document.querySelectorAll('.sig-tab').forEach(t => t.classList.remove('active'));
@@ -1219,7 +1071,6 @@ const companySection = document.getElementById('company-section');
 companySection.parentNode.insertBefore(recsSection, companySection);
 
 renderTable();
-renderCharts();
 applyFilters();
 </script>
 </body>
