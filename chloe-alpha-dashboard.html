@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chloe Alpha — Call Volume</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --surface: #ffffff;
+      --surface2: #f9fafb;
+      --border: #e5e7eb;
+      --text: #111827;
+      --muted: #6b7280;
+      --accent: #7c3aed;
+      --accent-dim: rgba(124,58,237,0.07);
+      --green: #059669;
+      --green-dim: rgba(5,150,105,0.08);
+      --red: #dc2626;
+      --red-dim: rgba(220,38,38,0.08);
+      --amber: #d97706;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif; font-size: 14px; min-height: 100vh; }
+    .page { max-width: 1300px; margin: 0 auto; padding: 48px 32px 80px; }
+
+    /* ── Header ── */
+    .header { margin-bottom: 32px; padding-bottom: 28px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+    .header-eyebrow { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: var(--muted); margin-bottom: 10px; }
+    .header h1 { font-size: 30px; font-weight: 800; letter-spacing: -0.6px; line-height: 1.15; }
+    .header h1 em { font-style: normal; color: var(--accent); }
+    .header-sub { color: var(--muted); margin-top: 8px; font-size: 13px; }
+    .header-badge { display: inline-flex; align-items: center; gap: 7px; margin-top: 14px; font-size: 12px; color: var(--muted); }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
+    .header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+    .phase-badge { display: inline-flex; align-items: center; gap: 6px; background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(124,58,237,0.2); border-radius: 20px; padding: 5px 12px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; }
+
+    /* ── Filter bar ── */
+    .filter-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; margin-bottom: 32px; }
+    .filter-group { display: flex; align-items: center; gap: 8px; }
+    .filter-sep { width: 1px; height: 22px; background: var(--border); margin: 0 4px; }
+    .filter-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; color: var(--muted); white-space: nowrap; }
+    .filter-input {
+      background: #fff; border: 1px solid var(--border); border-radius: 8px;
+      padding: 6px 10px; font-size: 13px; color: var(--text); cursor: pointer;
+      font-family: inherit; transition: border-color 0.15s; outline: none;
+    }
+    .filter-input:focus, .filter-input:hover { border-color: var(--accent); }
+    .filter-input[type="date"] { padding: 5px 9px; }
+    .filter-select-wrap { position: relative; }
+    .filter-select-btn {
+      display: flex; align-items: center; gap: 8px;
+      background: #fff; border: 1px solid var(--border); border-radius: 8px;
+      padding: 6px 10px; font-size: 13px; color: var(--text); cursor: pointer;
+      font-family: inherit; transition: border-color 0.15s; white-space: nowrap; min-width: 180px;
+      user-select: none;
+    }
+    .filter-select-btn:hover, .filter-select-btn.open { border-color: var(--accent); }
+    .filter-select-btn .chev { margin-left: auto; transition: transform 0.15s; color: var(--muted); }
+    .filter-select-btn.open .chev { transform: rotate(180deg); }
+    .filter-select-menu {
+      display: none; position: absolute; top: calc(100% + 6px); left: 0;
+      background: #fff; border: 1px solid var(--border); border-radius: 10px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.10); min-width: 220px; z-index: 200; padding: 6px;
+      max-height: 300px; overflow-y: auto;
+    }
+    .filter-select-menu.open { display: block; }
+    .filter-option {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 10px; border-radius: 6px; cursor: pointer;
+      font-size: 13px; color: var(--text); transition: background 0.1s; user-select: none;
+    }
+    .filter-option:hover { background: var(--surface2); }
+    .filter-option.selected { color: var(--accent); font-weight: 600; background: var(--accent-dim); }
+    .filter-option .org-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); flex-shrink: 0; opacity: 0.5; }
+    .filter-option.selected .org-dot { opacity: 1; }
+    .filter-reset { font-size: 12px; color: var(--accent); cursor: pointer; font-weight: 500; padding: 4px 8px; border-radius: 6px; transition: background 0.1s; border: none; background: none; font-family: inherit; }
+    .filter-reset:hover { background: var(--accent-dim); }
+    .active-filter-tag { display: inline-flex; align-items: center; gap: 5px; background: var(--accent-dim); color: var(--accent); border: 1px solid rgba(124,58,237,0.2); border-radius: 20px; padding: 3px 10px; font-size: 11px; font-weight: 600; }
+    .active-filter-tag .remove { cursor: pointer; opacity: 0.6; }
+    .active-filter-tag .remove:hover { opacity: 1; }
+
+    /* ── Section labels ── */
+    .section-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin-bottom: 16px; }
+
+    /* ── KPI cards ── */
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; margin-bottom: 36px; }
+    .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px 22px; transition: box-shadow 0.15s; }
+    .kpi-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.06); }
+    .kpi-label { font-size: 12px; color: var(--muted); margin-bottom: 10px; font-weight: 500; }
+    .kpi-value { font-size: 36px; font-weight: 800; letter-spacing: -1.5px; line-height: 1; }
+    .kpi-sub { font-size: 11px; color: var(--muted); margin-top: 8px; line-height: 1.4; }
+    .c-purple .kpi-value { color: var(--accent); }
+    .c-amber .kpi-value { color: var(--amber); }
+    .c-blue .kpi-value { color: #2563eb; }
+    .c-green .kpi-value { color: var(--green); }
+
+    /* ── Charts grid ── */
+    .charts-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 16px; margin-bottom: 36px; }
+    .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
+    .chart-card.full { grid-column: 1 / -1; }
+    .chart-card h3 { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+    .chart-sub { font-size: 12px; color: var(--muted); margin-bottom: 20px; }
+    .chart-wrap { position: relative; height: 220px; }
+    .chart-wrap.tall { height: 280px; }
+
+    /* ── Signals section ── */
+    .signals-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 36px; }
+    .signals-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px 0; flex-wrap: wrap; gap: 12px; }
+    .signals-header-left h3 { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+    .signals-header-left .chart-sub { margin-bottom: 0; }
+    .signal-tabs { display: flex; gap: 2px; background: var(--surface2); padding: 3px; border-radius: 9px; border: 1px solid var(--border); }
+    .signal-tab { padding: 5px 14px; border-radius: 7px; cursor: pointer; font-size: 12px; font-weight: 500; color: var(--muted); border: none; background: none; transition: all 0.15s; font-family: inherit; }
+    .signal-tab.active { background: #fff; color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+    .signal-tab.active.spike { color: var(--green); }
+    .signal-tab.active.dip { color: var(--red); }
+    .signals-count { font-size: 11px; color: var(--muted); padding: 4px 24px 12px; }
+    .signals-list { max-height: 540px; overflow-y: auto; }
+    .signal-row { display: grid; grid-template-columns: 32px 1fr auto auto auto 120px; align-items: center; gap: 12px; padding: 12px 24px; border-bottom: 1px solid var(--border); transition: background 0.1s; }
+    .signal-row:last-child { border-bottom: none; }
+    .signal-row:hover { background: #fafaff; }
+    .signal-rank { font-size: 11px; font-weight: 700; color: var(--muted); text-align: center; }
+    .signal-customer { font-size: 13px; font-weight: 600; }
+    .signal-date { font-size: 12px; color: var(--muted); }
+    .signal-flow { font-size: 12px; color: var(--muted); white-space: nowrap; }
+    .signal-flow b { color: var(--text); }
+    .signal-pct { font-size: 14px; font-weight: 800; white-space: nowrap; letter-spacing: -0.3px; }
+    .signal-pct.pos { color: var(--green); }
+    .signal-pct.neg { color: var(--red); }
+    .signal-bar-wrap { display: flex; align-items: center; gap: 6px; }
+    .signal-bar-bg { flex: 1; height: 4px; background: var(--border); border-radius: 2px; }
+    .signal-bar-fill { height: 4px; border-radius: 2px; opacity: 0.75; min-width: 2px; }
+    .signal-bar-fill.pos { background: var(--green); }
+    .signal-bar-fill.neg { background: var(--red); }
+    .signals-empty { padding: 40px 24px; text-align: center; color: var(--muted); font-size: 13px; }
+
+    /* ── Tables ── */
+    .table-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 36px; }
+    .table-card-header { padding: 20px 24px 0; }
+    .table-card-header h3 { font-size: 14px; font-weight: 700; margin-bottom: 3px; }
+    table { width: 100%; border-collapse: collapse; }
+    thead tr { background: var(--surface2); border-bottom: 1px solid var(--border); }
+    thead th { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); padding: 10px 24px; text-align: left; white-space: nowrap; }
+    thead th:not(:first-child) { text-align: right; }
+    tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
+    tbody tr:last-child { border-bottom: none; }
+    tbody tr:hover { background: #fafaff; }
+    tbody td { padding: 12px 24px; font-size: 13px; }
+    tbody td:not(:first-child) { text-align: right; }
+    .td-label { font-weight: 600; }
+    .td-muted { color: var(--muted); font-size: 12px; }
+    .td-num { font-weight: 600; font-variant-numeric: tabular-nums; }
+    .td-pos { color: var(--green); font-size: 12px; font-weight: 600; }
+    .td-neg { color: var(--red); font-size: 12px; font-weight: 600; }
+    .td-neutral { color: var(--muted); font-size: 12px; }
+    .bar-cell { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
+    .bar-bg { width: 72px; height: 4px; background: var(--border); border-radius: 2px; }
+    .bar-fill { height: 4px; border-radius: 2px; background: var(--accent); opacity: 0.65; }
+    .peak-chip { display: inline-block; background: rgba(217,119,6,0.10); color: var(--amber); border-radius: 4px; font-size: 10px; font-weight: 700; padding: 2px 6px; margin-left: 4px; }
+
+    /* ── Scrollbar ── */
+    .signals-list::-webkit-scrollbar { width: 4px; }
+    .signals-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    /* ── Empty state ── */
+    .empty-state { padding: 32px 24px; text-align: center; color: var(--muted); font-size: 13px; }
+
+    @media (max-width: 640px) {
+      .page { padding: 24px 16px 60px; }
+      .charts-grid { grid-template-columns: 1fr; }
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .signal-row { grid-template-columns: 28px 1fr auto auto; }
+      .signal-flow, .signal-bar-wrap { display: none; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <div>
+      <div class="header-eyebrow">Product Analytics · Amplitude</div>
+      <h1>Chloe <em>Alpha</em> — Call Volume</h1>
+      <div class="header-sub">Day-over-day Chloe AI call activity for alpha users, pre-Beta launch.</div>
+      <div class="header-badge">
+        <span class="dot"></span>
+        Close Production · <code style="font-size:11px;background:var(--surface2);padding:1px 5px;border-radius:4px;border:1px solid var(--border)">Call</code> where <code style="font-size:11px;background:var(--surface2);padding:1px 5px;border-radius:4px;border:1px solid var(--border)">agent_config_id is set</code>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="phase-badge">
+        <svg width="8" height="8" viewBox="0 0 8 8"><circle cx="4" cy="4" r="4" fill="#7c3aed"/></svg>
+        Alpha Phase
+      </div>
+      <div id="activeRangeLabel" style="font-size:12px;color:var(--muted)">Jan 20 – Mar 8, 2026</div>
+    </div>
+  </div>
+
+  <!-- Filter bar -->
+  <div class="filter-bar">
+    <div class="filter-group">
+      <span class="filter-label">From</span>
+      <input type="date" id="filterStart" class="filter-input" value="2026-01-20" min="2026-01-20" max="2026-03-08" />
+    </div>
+    <div class="filter-group">
+      <span class="filter-label">To</span>
+      <input type="date" id="filterEnd" class="filter-input" value="2026-03-08" min="2026-01-20" max="2026-03-08" />
+    </div>
+    <div class="filter-sep"></div>
+    <div class="filter-group">
+      <span class="filter-label">Customer</span>
+      <div class="filter-select-wrap" id="custWrap">
+        <div class="filter-select-btn" id="custBtn" onclick="toggleCustMenu()">
+          <span id="custBtnLabel">All Customers</span>
+          <svg class="chev" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="filter-select-menu" id="custMenu"></div>
+      </div>
+    </div>
+    <div class="filter-sep"></div>
+    <button class="filter-reset" onclick="resetFilters()">Reset</button>
+    <div id="activeTagsArea" style="display:flex;gap:6px;flex-wrap:wrap;margin-left:4px;"></div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="section-title" id="kpiTitle">Summary</div>
+  <div class="kpi-grid" id="kpiGrid"></div>
+
+  <!-- Main chart -->
+  <div class="charts-grid">
+    <div class="chart-card full">
+      <h3 id="mainChartTitle">Daily Call Volume</h3>
+      <div class="chart-sub" id="mainChartSub"></div>
+      <div class="chart-wrap tall"><canvas id="mainChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- DoD + Weekly -->
+  <div class="charts-grid">
+    <div class="chart-card">
+      <h3>Day-over-Day Change</h3>
+      <div class="chart-sub">% change vs previous day</div>
+      <div class="chart-wrap"><canvas id="dodChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <h3>Weekly Call Totals</h3>
+      <div class="chart-sub">Calls grouped by calendar week</div>
+      <div class="chart-wrap"><canvas id="weeklyChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Signals section -->
+  <div class="section-title">Usage Signals</div>
+  <div class="signals-card">
+    <div class="signals-header">
+      <div class="signals-header-left">
+        <h3>Spikes &amp; Dips — ≥±10% Day-over-Day</h3>
+        <div class="chart-sub">Stack-ranked by magnitude · requires ≥5 calls on prior day</div>
+      </div>
+      <div class="signal-tabs">
+        <button class="signal-tab active" data-filter="all" onclick="setSignalFilter('all')">All</button>
+        <button class="signal-tab spike" data-filter="spike" onclick="setSignalFilter('spike')">↑ Spikes</button>
+        <button class="signal-tab dip" data-filter="dip" onclick="setSignalFilter('dip')">↓ Dips</button>
+      </div>
+    </div>
+    <div class="signals-count" id="signalsCount"></div>
+    <div class="signals-list" id="signalsList"></div>
+  </div>
+
+  <!-- Weekly breakdown -->
+  <div class="section-title">Weekly Breakdown</div>
+  <div class="table-card">
+    <div class="table-card-header">
+      <h3>Week-by-Week Summary</h3>
+      <div class="chart-sub" style="padding-bottom:4px">Total calls, peak day, and WoW change</div>
+    </div>
+    <table><thead><tr>
+      <th>Week</th><th>Total Calls</th><th>Peak Day</th><th>Peak Volume</th><th>WoW Change</th><th style="width:120px">Volume</th>
+    </tr></thead>
+    <tbody id="weeklyBody"></tbody></table>
+  </div>
+
+  <!-- Daily detail -->
+  <div class="section-title">Daily Detail</div>
+  <div class="table-card">
+    <div class="table-card-header">
+      <h3>Day-by-Day Call Log</h3>
+      <div class="chart-sub" style="padding-bottom:4px">Every active day in the filtered range with DoD change</div>
+    </div>
+    <table><thead><tr>
+      <th>Date</th><th>Day</th><th>Calls</th><th>DoD Change</th><th style="width:120px">Volume</th>
+    </tr></thead>
+    <tbody id="dailyBody"></tbody></table>
+  </div>
+
+</div>
+
+<script>
+// ── Raw data ──────────────────────────────────────────────────────────────────
+const DATES = [
+  '2026-01-20','2026-01-21','2026-01-22','2026-01-23','2026-01-24','2026-01-25',
+  '2026-01-26','2026-01-27','2026-01-28','2026-01-29','2026-01-30','2026-01-31',
+  '2026-02-01','2026-02-02','2026-02-03','2026-02-04','2026-02-05','2026-02-06',
+  '2026-02-07','2026-02-08','2026-02-09','2026-02-10','2026-02-11','2026-02-12',
+  '2026-02-13','2026-02-14','2026-02-15','2026-02-16','2026-02-17','2026-02-18',
+  '2026-02-19','2026-02-20','2026-02-21','2026-02-22','2026-02-23','2026-02-24',
+  '2026-02-25','2026-02-26','2026-02-27','2026-02-28',
+  '2026-03-01','2026-03-02','2026-03-03','2026-03-04','2026-03-05','2026-03-06',
+  '2026-03-07','2026-03-08'
+];
+
+const AGG = [902,1090,52,58,1552,1505,569,999,609,71,96,2110,832,826,3491,566,78,498,1766,3402,1603,1738,1771,84,98,1333,1047,3059,2858,3401,104,75,2374,1356,2125,2545,1258,99,472,1720,6564,4396,3001,1340,70,60,2534,1042];
+
+const ORG_DATA = {
+  'Career Evolved':         [0,0,0,0,0,0,0,0,0,456,635,15,0,451,668,242,504,56,8,0,249,591,517,15,126,9,0,53,1427,865,721,335,17,0,118,714,1993,1872,2089,19,0,480,60,1428,777,873,20,1],
+  'Close':                  [0,0,0,0,0,0,0,0,0,267,156,34,57,501,181,249,432,264,53,95,774,181,277,521,212,61,76,720,189,223,597,239,61,95,753,178,287,644,231,68,74,780,336,448,718,199,68,85],
+  'Umbrella Micro Enterprises Inc': [0,0,0,0,0,0,0,0,0,0,0,0,0,294,356,0,1,0,0,0,796,0,0,1657,0,0,0,0,1769,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  'Operation Graduate':     [0,0,0,0,0,0,0,0,0,0,7,0,0,44,0,6,0,0,0,0,43,6,0,776,1,0,0,789,10,0,0,719,0,0,1,0,697,1,0,0,0,1,682,0,0,0,0,0],
+  'NFN8, Inc.':             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,139,1,0,225,994,4,0,908,1,0,866,2,0,0],
+  'EFX Algo':               [0,0,0,0,0,0,0,0,0,143,260,1,0,226,288,7,0,231,5,0,204,5,0,473,14,0,417,11,0,390,10,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  'NFN8 Group, Inc':        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,187,0,0,168,1,0,317,393,0,0,235,0,0,0,0,0,0,0,0,0,0,0,0,0],
+  'Fast Capital Advance':   [0,0,0,0,0,0,0,0,0,34,32,0,0,30,0,27,28,21,0,0,21,16,11,11,10,0,0,0,0,103,70,60,4,0,72,63,56,54,63,6,0,78,70,63,60,53,5,0],
+  'Admin JetMo LLC':        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,0,0,9,52,16,45,11,0,0,111,194,156,90,88,0,0],
+  'No Flipping Excuses':    [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,383],
+  'Flatiron School':        [0,0,0,0,0,0,0,0,0,0,0,0,0,3,12,36,31,34,0,0,17,29,19,29,13,2,0,23,4,20,13,5,0,0,2,3,4,8,2,0,0,5,5,16,21,25,0,0],
+  'RevPilot':               [0,0,0,0,0,0,0,0,0,2,0,2,1,3,0,2,3,3,3,1,6,2,2,5,3,6,4,2,2,2,2,2,1,1,0,0,0,2,2,4,0,10,8,10,9,9,6,2],
+  'OpulenceMindset.com, Inc.': [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,3,1,2,1,4,5,4,6,3,1,1,0,1,2,2,0,1],
+  'WinIt':                  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,0,0,3,1,1,3,3,0,0,0,0,0,0,0,0,0],
+  'Downtobid':              [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3,2,4,0,0],
+};
+
+const ORG_NAMES = Object.keys(ORG_DATA);
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+function parseDate(str) { return new Date(str + 'T12:00:00'); }
+function fmtShort(str) { const d = parseDate(str); return `${MONTHS[d.getMonth()]} ${d.getDate()}`; }
+function fmtFull(str)  { const d = parseDate(str); return `${MONTHS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`; }
+function dayName(str)  { return DAYS[parseDate(str).getDay()]; }
+function commas(n)     { return Math.round(n).toLocaleString(); }
+function kf(n)         { return n >= 1000 ? (n/1000).toFixed(n % 1000 === 0 ? 0 : 1) + 'k' : String(n); }
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let state = {
+  startDate: DATES[0],
+  endDate: DATES[DATES.length - 1],
+  customer: 'all',
+  signalFilter: 'all'
+};
+
+// ── Chart instances ───────────────────────────────────────────────────────────
+const charts = {};
+Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif";
+Chart.defaults.color = '#6b7280';
+
+function destroyChart(id) {
+  if (charts[id]) { charts[id].destroy(); delete charts[id]; }
+}
+
+// ── Filtered data ─────────────────────────────────────────────────────────────
+function getSlice() {
+  const si = DATES.indexOf(state.startDate);
+  const ei = DATES.indexOf(state.endDate);
+  const s = si === -1 ? 0 : si;
+  const e = ei === -1 ? DATES.length - 1 : ei;
+  const dates = DATES.slice(s, e + 1);
+  const values = (state.customer === 'all' ? AGG : ORG_DATA[state.customer]).slice(s, e + 1);
+  return { dates, values, s, e };
+}
+
+// ── KPI render ────────────────────────────────────────────────────────────────
+function renderKPIs(dates, values) {
+  const total = values.reduce((a, b) => a + b, 0);
+  const peak = Math.max(...values);
+  const peakDate = dates[values.indexOf(peak)];
+  const active = values.filter(v => v > 0).length;
+  const avg = active > 0 ? Math.round(total / active) : 0;
+
+  // WoW: first 7 days avg vs last 7 days avg
+  const firstWeek = values.slice(0, Math.min(7, values.length));
+  const lastWeek = values.slice(Math.max(0, values.length - 7));
+  const fw = firstWeek.reduce((a,b)=>a+b,0) / firstWeek.length;
+  const lw = lastWeek.reduce((a,b)=>a+b,0) / lastWeek.length;
+  const wow = fw > 0 ? Math.round(((lw - fw) / fw) * 100) : null;
+
+  document.getElementById('kpiTitle').textContent = state.customer === 'all' ? 'Summary' : `Summary — ${state.customer}`;
+  document.getElementById('kpiGrid').innerHTML = `
+    <div class="kpi-card c-purple">
+      <div class="kpi-label">Total Calls</div>
+      <div class="kpi-value">${total >= 1000 ? (total/1000).toFixed(1)+'K' : commas(total)}</div>
+      <div class="kpi-sub">${dates.length}-day window</div>
+    </div>
+    <div class="kpi-card c-amber">
+      <div class="kpi-label">Peak Day</div>
+      <div class="kpi-value">${commas(peak)}</div>
+      <div class="kpi-sub">${fmtShort(peakDate)}, ${dayName(peakDate)}</div>
+    </div>
+    <div class="kpi-card c-blue">
+      <div class="kpi-label">Avg / Active Day</div>
+      <div class="kpi-value">${commas(avg)}</div>
+      <div class="kpi-sub">Over ${active} active day${active !== 1 ? 's' : ''}</div>
+    </div>
+    <div class="kpi-card c-green">
+      <div class="kpi-label">WoW Growth</div>
+      <div class="kpi-value">${wow === null ? '—' : (wow > 0 ? '+' : '') + wow + '%'}</div>
+      <div class="kpi-sub">First vs last 7 days</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Active Days</div>
+      <div class="kpi-value" style="color:var(--accent)">${active}</div>
+      <div class="kpi-sub">of ${dates.length} total days</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Customers</div>
+      <div class="kpi-value" style="color:var(--text)">${state.customer === 'all' ? ORG_NAMES.length : '1'}</div>
+      <div class="kpi-sub">${state.customer === 'all' ? 'in alpha cohort' : 'selected'}</div>
+    </div>
+  `;
+}
+
+// ── Main chart ────────────────────────────────────────────────────────────────
+function renderMainChart(dates, values) {
+  destroyChart('mainChart');
+  const labels = dates.map(fmtShort);
+  const maxVal = Math.max(...values);
+  const ctx = document.getElementById('mainChart').getContext('2d');
+  const grad = ctx.createLinearGradient(0, 0, 0, 280);
+  grad.addColorStop(0, 'rgba(124,58,237,0.18)');
+  grad.addColorStop(1, 'rgba(124,58,237,0.00)');
+
+  const customer = state.customer;
+  document.getElementById('mainChartTitle').textContent = customer === 'all' ? 'Daily Call Volume — All Customers' : `Daily Call Volume — ${customer}`;
+  document.getElementById('mainChartSub').textContent = `Total Chloe AI calls per day · ${fmtShort(dates[0])} – ${fmtShort(dates[dates.length-1])}, 2026`;
+
+  charts['mainChart'] = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets: [{
+      label: 'Calls', data: values,
+      borderColor: '#7c3aed', borderWidth: 2,
+      pointRadius: values.map(v => v === maxVal ? 5 : 2),
+      pointBackgroundColor: values.map(v => v === maxVal ? '#7c3aed' : 'rgba(124,58,237,0.5)'),
+      pointBorderColor: values.map(v => v === maxVal ? '#fff' : 'transparent'),
+      pointBorderWidth: values.map(v => v === maxVal ? 2 : 0),
+      backgroundColor: grad, fill: true, tension: 0.35,
+    }]},
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#111827', titleColor: '#f9fafb', bodyColor: '#d1d5db',
+          padding: 10, cornerRadius: 8,
+          callbacks: {
+            title: ctx => `${fmtFull(dates[ctx[0].dataIndex])} · ${dayName(dates[ctx[0].dataIndex])}`,
+            label: ctx => `  ${commas(ctx.parsed.y)} calls`,
+          }
+        }
+      },
+      scales: {
+        x: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { maxTicksLimit: 12, font: { size: 11 }, color: '#9ca3af', maxRotation: 0 }, border: { color: 'rgba(0,0,0,0.06)' } },
+        y: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { size: 11 }, color: '#9ca3af', callback: v => v >= 1000 ? kf(v) : v }, border: { display: false } }
+      }
+    }
+  });
+}
+
+// ── DoD chart ─────────────────────────────────────────────────────────────────
+function renderDoDChart(dates, values) {
+  destroyChart('dodChart');
+  const dodVals = values.map((v, i) => {
+    if (i === 0 || values[i-1] === 0) return null;
+    return Math.round(((v - values[i-1]) / values[i-1]) * 100);
+  }).slice(1);
+  const dodLabels = dates.slice(1).map(fmtShort);
+  const colors = dodVals.map(v => v === null ? 'rgba(0,0,0,0.08)' : v >= 0 ? 'rgba(5,150,105,0.75)' : 'rgba(220,38,38,0.7)');
+  const ctx = document.getElementById('dodChart').getContext('2d');
+  charts['dodChart'] = new Chart(ctx, {
+    type: 'bar',
+    data: { labels: dodLabels, datasets: [{ label: 'DoD %', data: dodVals, backgroundColor: colors, borderRadius: 3, borderSkipped: false }]},
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { backgroundColor: '#111827', titleColor: '#f9fafb', bodyColor: '#d1d5db', padding: 10, cornerRadius: 8, callbacks: { label: ctx => ctx.parsed.y === null ? ' No data' : `  ${ctx.parsed.y > 0 ? '+' : ''}${ctx.parsed.y}%` } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { maxTicksLimit: 10, font: { size: 10 }, color: '#9ca3af', maxRotation: 0 }, border: { color: 'rgba(0,0,0,0.06)' } },
+        y: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { size: 11 }, color: '#9ca3af', callback: v => v + '%' }, border: { display: false } }
+      }
+    }
+  });
+}
+
+// ── Weekly chart ──────────────────────────────────────────────────────────────
+function getWeeks(dates, values) {
+  const map = {};
+  dates.forEach((d, i) => {
+    const dt = parseDate(d);
+    const jan1 = new Date(dt.getFullYear(), 0, 1);
+    const wk = `${dt.getFullYear()}-W${String(Math.ceil(((dt - jan1) / 86400000 + jan1.getDay() + 1) / 7)).padStart(2,'0')}`;
+    if (!map[wk]) map[wk] = { dates: [], values: [] };
+    map[wk].dates.push(d); map[wk].values.push(values[i]);
+  });
+  return Object.keys(map).sort().map(k => map[k]);
+}
+
+function renderWeeklyChart(dates, values) {
+  destroyChart('weeklyChart');
+  const weeks = getWeeks(dates, values);
+  const totals = weeks.map(w => w.values.reduce((a,b)=>a+b,0));
+  const labels = weeks.map((_, i) => `Wk ${i+1}`);
+  const wLabels = weeks.map(w => `${fmtShort(w.dates[0])} – ${fmtShort(w.dates[w.dates.length-1])}`);
+  const ctx = document.getElementById('weeklyChart').getContext('2d');
+  const grad = ctx.createLinearGradient(0, 0, 0, 220);
+  grad.addColorStop(0, 'rgba(37,99,235,0.80)'); grad.addColorStop(1, 'rgba(37,99,235,0.50)');
+  charts['weeklyChart'] = new Chart(ctx, {
+    type: 'bar',
+    data: { labels, datasets: [{ label: 'Total', data: totals, backgroundColor: grad, borderRadius: 5, borderSkipped: false }]},
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { backgroundColor: '#111827', titleColor: '#f9fafb', bodyColor: '#d1d5db', padding: 10, cornerRadius: 8, callbacks: { title: ctx => wLabels[ctx[0].dataIndex], label: ctx => `  ${commas(ctx.parsed.y)} calls` } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#9ca3af' }, border: { color: 'rgba(0,0,0,0.06)' } },
+        y: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { size: 11 }, color: '#9ca3af', callback: v => v >= 1000 ? kf(v) : v }, border: { display: false } }
+      }
+    }
+  });
+}
+
+// ── Signals ───────────────────────────────────────────────────────────────────
+function computeSignals(si, ei) {
+  const signals = [];
+  const orgsToCheck = state.customer === 'all' ? ORG_NAMES : [state.customer];
+
+  orgsToCheck.forEach(org => {
+    const data = ORG_DATA[org];
+    for (let i = si + 1; i <= ei; i++) {
+      const prev = data[i - 1];
+      const curr = data[i];
+      if (prev < 5) continue; // require meaningful prior volume
+      const pct = Math.round(((curr - prev) / prev) * 100);
+      if (Math.abs(pct) < 10) continue;
+      signals.push({ org, date: DATES[i], prev, curr, pct, absPct: Math.abs(pct) });
+    }
+  });
+
+  signals.sort((a, b) => b.absPct - a.absPct);
+  return signals;
+}
+
+function renderSignals(si, ei) {
+  const all = computeSignals(si, ei);
+  const filtered = all.filter(s =>
+    state.signalFilter === 'all' ? true :
+    state.signalFilter === 'spike' ? s.pct > 0 : s.pct < 0
+  );
+
+  // Update tab states
+  document.querySelectorAll('.signal-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.filter === state.signalFilter);
+  });
+
+  const maxAbsPct = filtered.length > 0 ? filtered[0].absPct : 1;
+  document.getElementById('signalsCount').textContent = `${filtered.length} signal${filtered.length !== 1 ? 's' : ''} detected`;
+
+  const list = document.getElementById('signalsList');
+  if (filtered.length === 0) {
+    list.innerHTML = '<div class="signals-empty">No signals match the current filters.</div>';
+    return;
+  }
+
+  list.innerHTML = filtered.slice(0, 150).map((s, idx) => {
+    const isPos = s.pct > 0;
+    const barW = Math.round((s.absPct / Math.min(maxAbsPct, 2000)) * 100);
+    return `<div class="signal-row">
+      <div class="signal-rank">${idx + 1}</div>
+      <div>
+        <div class="signal-customer">${s.org}</div>
+        <div class="signal-date">${fmtShort(s.date)} · ${dayName(s.date)}</div>
+      </div>
+      <div class="signal-flow"><b>${commas(s.prev)}</b> → <b>${commas(s.curr)}</b></div>
+      <div class="signal-pct ${isPos ? 'pos' : 'neg'}">${isPos ? '+' : ''}${s.pct}%</div>
+      <div class="signal-bar-wrap">
+        <div class="signal-bar-bg"><div class="signal-bar-fill ${isPos ? 'pos' : 'neg'}" style="width:${Math.min(100, barW)}%"></div></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Weekly table ──────────────────────────────────────────────────────────────
+function renderWeeklyTable(dates, values) {
+  const weeks = getWeeks(dates, values);
+  const totals = weeks.map(w => w.values.reduce((a,b)=>a+b,0));
+  const maxT = Math.max(...totals);
+  const tbody = document.getElementById('weeklyBody');
+  tbody.innerHTML = weeks.map((w, i) => {
+    const total = totals[i];
+    const prev = i > 0 ? totals[i-1] : null;
+    const wow = prev !== null && prev > 0 ? Math.round(((total - prev) / prev) * 100) : null;
+    const peakIdx = w.values.indexOf(Math.max(...w.values));
+    const peakDate = w.dates[peakIdx]; const peakVal = w.values[peakIdx];
+    const isOverallPeak = peakVal === Math.max(...values);
+    const pct = Math.round((total / maxT) * 100);
+    return `<tr>
+      <td class="td-label">${fmtShort(w.dates[0])} – ${fmtShort(w.dates[w.dates.length-1])}</td>
+      <td class="td-num">${commas(total)}</td>
+      <td class="td-muted">${fmtShort(peakDate)} · ${dayName(peakDate)}${isOverallPeak ? '<span class="peak-chip">Peak</span>' : ''}</td>
+      <td class="td-num">${commas(peakVal)}</td>
+      <td class="${wow === null ? 'td-neutral' : wow >= 0 ? 'td-pos' : 'td-neg'}">${wow === null ? '—' : (wow > 0 ? '+' : '') + wow + '%'}</td>
+      <td><div class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:${pct}%"></div></div></div></td>
+    </tr>`;
+  }).join('');
+}
+
+// ── Daily table ───────────────────────────────────────────────────────────────
+function renderDailyTable(dates, values) {
+  const maxV = Math.max(...values);
+  const tbody = document.getElementById('dailyBody');
+  tbody.innerHTML = dates.map((d, i) => {
+    const v = values[i];
+    const prev = i > 0 ? values[i-1] : null;
+    const chg = prev !== null && prev > 0 ? Math.round(((v - prev) / prev) * 100) : null;
+    const pct = maxV > 0 ? Math.round((v / maxV) * 100) : 0;
+    const isPeak = v === maxV && v > 0;
+    return `<tr>
+      <td class="td-label">${fmtFull(d)}${isPeak ? '<span class="peak-chip">Peak</span>' : ''}</td>
+      <td class="td-muted">${dayName(d)}</td>
+      <td class="td-num">${commas(v)}</td>
+      <td class="${chg === null ? 'td-neutral' : chg >= 0 ? 'td-pos' : 'td-neg'}">${chg === null ? '—' : (chg > 0 ? '+' : '') + chg + '%'}</td>
+      <td><div class="bar-cell"><div class="bar-bg"><div class="bar-fill" style="width:${pct}%"></div></div></div></td>
+    </tr>`;
+  }).join('');
+}
+
+// ── Active tags ───────────────────────────────────────────────────────────────
+function renderTags() {
+  const area = document.getElementById('activeTagsArea');
+  const tags = [];
+  if (state.startDate !== DATES[0] || state.endDate !== DATES[DATES.length-1]) {
+    tags.push(`<span class="active-filter-tag">${fmtShort(state.startDate)} – ${fmtShort(state.endDate)}<span class="remove" onclick="resetDate()">✕</span></span>`);
+  }
+  if (state.customer !== 'all') {
+    tags.push(`<span class="active-filter-tag">${state.customer}<span class="remove" onclick="resetCustomer()">✕</span></span>`);
+  }
+  area.innerHTML = tags.join('');
+  document.getElementById('activeRangeLabel').textContent = `${fmtShort(state.startDate)} – ${fmtShort(state.endDate)}, 2026${state.customer !== 'all' ? ' · ' + state.customer : ''}`;
+}
+
+// ── Main render ───────────────────────────────────────────────────────────────
+function render() {
+  const { dates, values, s, e } = getSlice();
+  renderTags();
+  renderKPIs(dates, values);
+  renderMainChart(dates, values);
+  renderDoDChart(dates, values);
+  renderWeeklyChart(dates, values);
+  renderSignals(s, e);
+  renderWeeklyTable(dates, values);
+  renderDailyTable(dates, values);
+}
+
+// ── Customer dropdown ─────────────────────────────────────────────────────────
+function buildCustMenu() {
+  const menu = document.getElementById('custMenu');
+  const allOpt = `<div class="filter-option ${state.customer === 'all' ? 'selected' : ''}" onclick="selectCustomer('all')"><span class="org-dot"></span>All Customers</div>`;
+  const opts = ORG_NAMES.map(n =>
+    `<div class="filter-option ${state.customer === n ? 'selected' : ''}" onclick="selectCustomer('${n.replace(/'/g,"\\'")}')"><span class="org-dot"></span>${n}</div>`
+  ).join('');
+  menu.innerHTML = allOpt + '<div style="height:1px;background:var(--border);margin:4px 0"></div>' + opts;
+}
+
+function toggleCustMenu() {
+  const btn = document.getElementById('custBtn');
+  const menu = document.getElementById('custMenu');
+  btn.classList.toggle('open');
+  menu.classList.toggle('open');
+  if (menu.classList.contains('open')) buildCustMenu();
+}
+
+function selectCustomer(name) {
+  state.customer = name;
+  document.getElementById('custBtnLabel').textContent = name === 'all' ? 'All Customers' : name;
+  document.getElementById('custBtn').classList.remove('open');
+  document.getElementById('custMenu').classList.remove('open');
+  render();
+}
+
+// ── Date inputs ───────────────────────────────────────────────────────────────
+document.getElementById('filterStart').addEventListener('change', e => {
+  const v = e.target.value;
+  if (DATES.includes(v)) { state.startDate = v; render(); }
+});
+document.getElementById('filterEnd').addEventListener('change', e => {
+  const v = e.target.value;
+  if (DATES.includes(v)) { state.endDate = v; render(); }
+});
+
+function resetDate() {
+  state.startDate = DATES[0]; state.endDate = DATES[DATES.length-1];
+  document.getElementById('filterStart').value = state.startDate;
+  document.getElementById('filterEnd').value = state.endDate;
+  render();
+}
+function resetCustomer() {
+  state.customer = 'all';
+  document.getElementById('custBtnLabel').textContent = 'All Customers';
+  render();
+}
+function resetFilters() { resetDate(); resetCustomer(); }
+
+// ── Signal filter tabs ────────────────────────────────────────────────────────
+function setSignalFilter(f) {
+  state.signalFilter = f;
+  const { s, e } = getSlice();
+  renderSignals(s, e);
+}
+
+// ── Close dropdown on outside click ──────────────────────────────────────────
+document.addEventListener('click', e => {
+  if (!document.getElementById('custWrap').contains(e.target)) {
+    document.getElementById('custBtn').classList.remove('open');
+    document.getElementById('custMenu').classList.remove('open');
+  }
+});
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>
