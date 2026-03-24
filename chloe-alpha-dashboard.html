@@ -807,6 +807,7 @@ const STAGES = {
 
 // @@SYNC:COMPANIES_START
 const COMPANIES = [
+  { company:'Valyou Insurance', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'Lumitra', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'Empress Elite\'s Network', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'Old Soul (Legacy)', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
@@ -1671,7 +1672,7 @@ function renderKPIs() {
 // ── Init ──────────────────────────────────────────────────────────────────────
 const now = new Date();
 document.getElementById('dateLabel').textContent = 'As of ' + now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-document.getElementById('asOfBadge').textContent = 'Last synced Mar 24, 2026 at 7:47 PM UTC'; // @@SYNC:TIMESTAMP
+document.getElementById('asOfBadge').textContent = 'Last synced Mar 24, 2026 at 8:01 PM UTC'; // @@SYNC:TIMESTAMP
 
 // Reorder: Recommendations above Company Directory
 const recsSection    = document.getElementById('recs-section');
