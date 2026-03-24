@@ -101,53 +101,66 @@ def close_get(path, params=None):
     return resp.json()
 
 
+def fetch_pipeline_statuses():
+    """Return all status objects for the hardcoded Chloe pipeline."""
+    data = close_get(f"/pipeline/{PIPELINE_ID}/")
+    statuses = data.get("statuses", [])
+    print(f"  Pipeline has {len(statuses)} statuses")
+    return statuses
+
+
 def fetch_all_opportunities():
-    """Page through every opportunity in the Chloe Implementation Pipeline."""
-    opps, skip = [], 0
-    while True:
-        batch = close_get("/opportunity/", {
-            "pipeline_id": PIPELINE_ID,
-            "_limit":  100,
-            "_skip":   skip,
-            "_fields": (
-                "id,lead_id,lead_name,status_label,status_type,"
-                "user_name,note,close_date,date_won,date_lost"
-            ),
-        })
-        opps.extend(batch.get("data", []))
-        if not batch.get("has_more"):
-            break
-        skip += 100
-        print(f"  ...{len(opps)} opportunities fetched")
-    return opps
+    """Fetch opportunities per status so we stay scoped to the Chloe pipeline.
+
+    The /opportunity/ endpoint does not support filtering by pipeline_id
+    directly — querying by status_id (which is pipeline-scoped) is the
+    correct approach.
+    """
+    statuses = fetch_pipeline_statuses()
+    fields = "id,lead_id,lead_name,status_label,status_type,user_name,note,close_date,date_won,date_lost"
+
+    all_opps = []
+    for status in statuses:
+        skip = 0
+        while True:
+            batch = close_get("/opportunity/", {
+                "status_id": status["id"],
+                "_limit":    100,
+                "_skip":     skip,
+                "_fields":   fields,
+            })
+            all_opps.extend(batch.get("data", []))
+            if not batch.get("has_more"):
+                break
+            skip += 100
+        count = len([o for o in all_opps if o.get("status_label") == status["label"]])
+        print(f"  {status['label']:<25} {count}")
+
+    return all_opps
 
 
 def try_discover_new_partner_leads(known_ids):
     """
     Query Close for leads that have Affiliate Partner Name set but aren't in
-    PARTNER_LEAD_MAP yet.  Fails gracefully if the query syntax is unsupported.
+    PARTNER_LEAD_MAP yet. Capped at one page (100 leads) to avoid runaway loops
+    when the custom field filter syntax isn't supported by the API.
     Returns {lead_id: partner_name}.
     """
     discovered = {}
     try:
-        skip = 0
-        while True:
-            batch = close_get("/lead/", {
-                f"custom.{CF_AFFILIATE_PARTNER_NAME}[has_value]": 1,
-                "_limit": 100,
-                "_skip":  skip,
-                "_fields": f"id,display_name,custom.{CF_AFFILIATE_PARTNER_NAME}",
-            })
-            for lead in batch.get("data", []):
-                lid = lead["id"]
-                if lid not in known_ids:
-                    partner_name = (lead.get(f"custom.{CF_AFFILIATE_PARTNER_NAME}") or "").strip()
-                    if partner_name:
-                        discovered[lid] = partner_name
-                        print(f"  🆕 New partner lead: {lead.get('display_name')} → {partner_name}")
-            if not batch.get("has_more"):
-                break
-            skip += 100
+        batch = close_get("/lead/", {
+            f"custom.{CF_AFFILIATE_PARTNER_NAME}[has_value]": 1,
+            "_limit":  100,
+            "_skip":   0,
+            "_fields": f"id,display_name,custom.{CF_AFFILIATE_PARTNER_NAME}",
+        })
+        for lead in batch.get("data", []):
+            lid = lead["id"]
+            if lid not in known_ids:
+                partner_name = (lead.get(f"custom.{CF_AFFILIATE_PARTNER_NAME}") or "").strip()
+                if partner_name:
+                    discovered[lid] = partner_name
+                    print(f"  New partner lead: {lead.get('display_name')} -> {partner_name}")
     except Exception as exc:
         print(f"  (partner auto-discovery skipped: {exc})")
     return discovered

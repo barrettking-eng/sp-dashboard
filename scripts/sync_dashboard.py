@@ -70,25 +70,41 @@ def find_chloe_pipeline_id():
     )
 
 
+def fetch_pipeline_statuses(pipeline_id):
+    """Return all status objects for the given pipeline."""
+    data = close_get(f'/pipeline/{pipeline_id}/')
+    statuses = data.get('statuses', [])
+    print(f'  Pipeline has {len(statuses)} statuses')
+    return statuses
+
+
 def fetch_all_opportunities(pipeline_id):
-    """Page through all opportunities in the pipeline."""
-    opps, skip = [], 0
-    while True:
-        batch = close_get('/opportunity/', {
-            'pipeline_id': pipeline_id,
-            '_limit':  100,
-            '_skip':   skip,
-            '_fields': (
-                'id,lead_name,status_label,status_type,'
-                'user_name,note,close_date,date_won,date_lost'
-            ),
-        })
-        opps.extend(batch.get('data', []))
-        if not batch.get('has_more'):
-            break
-        skip += 100
-        print(f'  ...{len(opps)} opportunities fetched so far')
-    return opps
+    """Fetch opportunities per status so we stay scoped to the Chloe pipeline.
+
+    The /opportunity/ endpoint does not support filtering by pipeline_id
+    directly — querying by status_id (which is pipeline-scoped) is the
+    correct approach.
+    """
+    statuses = fetch_pipeline_statuses(pipeline_id)
+    fields = 'id,lead_name,status_label,status_type,user_name,note,close_date,date_won,date_lost'
+
+    all_opps = []
+    for status in statuses:
+        skip = 0
+        while True:
+            batch = close_get('/opportunity/', {
+                'status_id': status['id'],
+                '_limit':    100,
+                '_skip':     skip,
+                '_fields':   fields,
+            })
+            all_opps.extend(batch.get('data', []))
+            if not batch.get('has_more'):
+                break
+            skip += 100
+        print(f'  {status["label"]:<25} {len([o for o in all_opps if o.get("status_label") == status["label"]])}')
+
+    return all_opps
 
 
 def fetch_beta_waitlist_count():
