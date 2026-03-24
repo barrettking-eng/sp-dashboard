@@ -183,6 +183,36 @@ def map_opportunity(opp):
     }
 
 
+STAGE_PRIORITY = {
+    'activated':    0,
+    'testing':      1,
+    'betainvite':   2,
+    'qualified':    3,
+    'interested':   4,
+    'targeted':     5,
+    'waitlist':     6,
+    'disqualified': 7,
+    'lost':         8,
+}
+
+
+def deduplicate_companies(companies):
+    """Keep only the most-advanced-stage opportunity per company name.
+
+    Multiple active Chloe pipeline opps for the same lead (e.g. one at
+    Beta Invite and one marked No Longer Interested) produce duplicate rows
+    in the dashboard.  We keep whichever row has the highest-priority stage.
+    """
+    best = {}
+    for c in companies:
+        name = c['company']
+        priority = STAGE_PRIORITY.get(c['stage'], 99)
+        existing_priority = STAGE_PRIORITY.get(best[name]['stage'], 99) if name in best else 999
+        if priority < existing_priority:
+            best[name] = c
+    return list(best.values())
+
+
 def build_companies_js(companies):
     """Render the COMPANIES array as a JavaScript literal."""
     lines = ['const COMPANIES = [']
@@ -251,6 +281,7 @@ def main():
     print('\n[2/4] Fetching opportunities...')
     opps = fetch_all_opportunities(pipeline_id)
     companies = [map_opportunity(o) for o in opps]
+    companies = deduplicate_companies(companies)
     stage_counts = Counter(c['stage'] for c in companies)
     print(f'  Total: {len(companies)} opportunities')
     for stage, count in sorted(stage_counts.items(), key=lambda x: -x[1]):

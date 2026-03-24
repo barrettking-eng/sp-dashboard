@@ -182,6 +182,35 @@ def fetch_beta_waitlist_count():
 
 # ── Data transformation ────────────────────────────────────────────────────────
 
+STAGE_PRIORITY = {
+    "activated":    0,
+    "testing":      1,
+    "betainvite":   2,
+    "qualified":    3,
+    "interested":   4,
+    "targeted":     5,
+    "waitlist":     6,
+    "disqualified": 7,
+    "lost":         8,
+}
+
+
+def deduplicate_companies(companies):
+    """Keep only the most-advanced-stage opportunity per company name.
+
+    Multiple active Chloe pipeline opps for the same lead produce duplicate rows.
+    We keep whichever row has the highest-priority stage.
+    """
+    best = {}
+    for c in companies:
+        name = c["company"]
+        priority = STAGE_PRIORITY.get(c["stage"], 99)
+        existing_priority = STAGE_PRIORITY.get(best[name]["stage"], 99) if name in best else 999
+        if priority < existing_priority:
+            best[name] = c
+    return list(best.values())
+
+
 def _safe(value, max_len=140):
     s = (value or "").strip()
     s = s.replace("\\", "\\\\").replace("'", "\\'").replace("\r", "").replace("\n", " ")
@@ -351,8 +380,9 @@ def main():
     opps = fetch_all_opportunities()
     print(f"  Total: {len(opps)} opportunities")
 
-    # 3. Map
+    # 3. Map + deduplicate
     companies = [map_opportunity(o, partner_map) for o in opps]
+    companies = deduplicate_companies(companies)
     stage_counts   = Counter(c["stage"]  for c in companies)
     partner_counts = Counter(c["stage"]  for c in companies if c["partner"])
     partner_opps   = [c for c in companies if c["partner"]]
