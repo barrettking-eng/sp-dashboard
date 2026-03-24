@@ -149,29 +149,31 @@ def try_discover_new_partner_leads(known_ids):
 def fetch_beta_waitlist_count():
     """Count unique leads that submitted the Chloe Beta Waitlist form.
 
-    Paginates through custom activities of type CHLOE_WAITLIST_ACTIVITY_TYPE_ID
-    and collects unique lead_ids. The /activity/custom/ endpoint does not return
-    total_results, so we must count by paginating. Deduplicates leads that
-    submitted more than once.
+    The /activity/custom/ endpoint ignores the activity_type_id query param
+    server-side, so we paginate through all org custom activities (200/page,
+    capped at 20k) and filter client-side by activity_type_id field.
     """
     try:
-        lead_ids, skip = set(), 0
+        lead_ids, skip, total_seen = set(), 0, 0
         while True:
             batch = close_get("/activity/custom/", {
-                "activity_type_id": CHLOE_WAITLIST_ACTIVITY_TYPE_ID,
-                "_limit":  100,
+                "_limit":  200,
                 "_skip":   skip,
-                "_fields": "id,lead_id",
+                "_fields": "id,lead_id,activity_type_id",
             })
-            for activity in batch.get("data", []):
-                if activity.get("lead_id"):
-                    lead_ids.add(activity["lead_id"])
+            activities = batch.get("data", [])
+            total_seen += len(activities)
+            for a in activities:
+                if (a.get("activity_type_id") == CHLOE_WAITLIST_ACTIVITY_TYPE_ID
+                        and a.get("lead_id")):
+                    lead_ids.add(a["lead_id"])
             if not batch.get("has_more"):
                 break
-            skip += 100
-            if skip >= 10000:
-                print("  Warning: hit 10k activity cap — count may be approximate")
+            skip += 200
+            if skip >= 20000:
+                print(f"  Warning: hit 20k activity cap (scanned {total_seen})")
                 break
+        print(f"  Scanned {total_seen} activities → {len(lead_ids)} Beta Waitlist leads")
         return len(lead_ids)
     except Exception as exc:
         print(f"  Warning: could not fetch Beta Waitlist count — {exc}")
