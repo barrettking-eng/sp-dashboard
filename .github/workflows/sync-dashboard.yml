@@ -1,23 +1,23 @@
-name: Sync Chloe Alpha Dashboard
+name: Sync Chloe Dashboards
 
 # Runs at 8 AM, 12 PM, and 5 PM Eastern Time.
-# GitHub Actions cron uses UTC. EST = UTC-5, EDT = UTC-4.
-# Schedules below target Eastern Standard Time (UTC-5).
-# During Daylight Saving (Mar–Nov) runs will be 1 hour later in local time.
+# GitHub Actions cron uses UTC. EDT (Mar–Nov) = UTC-4, EST (Nov–Mar) = UTC-5.
+# Schedules below target EDT (UTC-4) — the active offset as of this file.
+# If you update this during standard time, shift each hour by +1.
 
 on:
   schedule:
-    - cron: '0 13 * * *'   # 8:00 AM EST  / 9:00 AM EDT
-    - cron: '0 17 * * *'   # 12:00 PM EST / 1:00 PM EDT
-    - cron: '0 22 * * *'   # 5:00 PM EST  / 6:00 PM EDT
-  workflow_dispatch:         # Allow one-click manual runs from the GitHub UI
+    - cron: '0 12 * * 1-5'   # 8:00 AM EDT  (Mon–Fri)
+    - cron: '0 16 * * 1-5'   # 12:00 PM EDT (Mon–Fri)
+    - cron: '0 21 * * 1-5'   # 5:00 PM EDT  (Mon–Fri)
+  workflow_dispatch:           # Allow one-click manual runs from the GitHub UI
 
 jobs:
   sync:
-    name: Pull Close CRM data and redeploy dashboard
+    name: Pull Close CRM data and redeploy dashboards
     runs-on: ubuntu-latest
     permissions:
-      contents: write        # Needed to commit the updated HTML back to main
+      contents: write          # Needed to commit updated HTML files back to main
 
     steps:
       - name: Checkout repository
@@ -31,20 +31,27 @@ jobs:
       - name: Install Python dependencies
         run: pip install requests
 
-      - name: Run sync script
+      # ── Alpha dashboard ─────────────────────────────────────────────────────
+      - name: Sync alpha dashboard
         env:
           CLOSE_API_KEY: ${{ secrets.CLOSE_API_KEY }}
         run: python scripts/sync_dashboard.py
 
-      - name: Commit and push updated dashboard
+      # ── Partner dashboard ───────────────────────────────────────────────────
+      - name: Sync partner dashboard
+        env:
+          CLOSE_API_KEY: ${{ secrets.CLOSE_API_KEY }}
+        run: python scripts/sync_partner_dashboard.py
+
+      # ── Commit both HTML files if anything changed ───────────────────────────
+      - name: Commit and push updated dashboards
         run: |
           git config user.name  "Dashboard Sync Bot"
           git config user.email "noreply@github.com"
-          git add chloe-alpha-dashboard.html
-          # Only commit if the file actually changed
+          git add chloe-alpha-dashboard.html chloe-partner-dashboard.html
           if git diff --staged --quiet; then
             echo "No changes detected — skipping commit."
           else
-            git commit -m "chore: auto-sync dashboard $(date -u '+%Y-%m-%d %H:%M UTC')"
+            git commit -m "chore: auto-sync dashboards $(date -u '+%Y-%m-%d %H:%M UTC')"
             git push
           fi

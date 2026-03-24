@@ -223,10 +223,10 @@
     <p>Partner attribution × Chloe Implementation Pipeline × Beta Program — Live CRM data</p>
   </div>
   <div class="header-right">
-    <span class="badge badge-blue">696 Chloe Opps</span>
-    <span class="badge badge-amber">3 Active Partners</span>
-    <span class="badge badge-green">570 Beta Waitlist</span>
-    <span class="as-of">Updated Mar 24, 2026</span>
+    <span class="badge badge-blue" id="badge-total-opps">696 Chloe Opps</span>
+    <span class="badge badge-amber" id="badge-partner-count">3 Active Partners</span>
+    <span class="badge badge-green" id="badge-beta-waitlist">570 Beta Waitlist</span>
+    <span class="as-of" id="sync-timestamp">Updated Mar 24, 2026</span>
   </div>
 </div>
 
@@ -245,12 +245,12 @@
   <div class="stats-grid">
     <div class="stat-card stat-amber">
       <div class="stat-label">Partner-Attributed Chloe Deals</div>
-      <div class="stat-value">4</div>
+      <div class="stat-value" id="stat-partner-deals">4</div>
       <div class="stat-sub">of 193 advanced-stage opps (2.1%)</div>
     </div>
     <div class="stat-card">
       <div class="stat-label">Active Partners</div>
-      <div class="stat-value" style="color:#64748b">3</div>
+      <div class="stat-value" id="stat-active-partners" style="color:#64748b">3</div>
       <div class="stat-sub">FlowData, Close Accelerate, Arya R.</div>
     </div>
     <div class="stat-card stat-blue">
@@ -265,7 +265,7 @@
     </div>
     <div class="stat-card stat-purple">
       <div class="stat-label">Beta Waitlist Leads</div>
-      <div class="stat-value">570</div>
+      <div class="stat-value" id="stat-beta-waitlist">570</div>
       <div class="stat-sub">Custom activity form submissions</div>
     </div>
     <div class="stat-card stat-red">
@@ -304,6 +304,7 @@
             </div>
           </div>
 
+          <!-- @@SYNC:FUNNEL_START -->
           <!-- Waitlist -->
           <div class="funnel-row">
             <div class="funnel-label">Waitlist <span style="font-size:10px;color:var(--slate-light)">(new inbound)</span></div>
@@ -403,8 +404,9 @@
             <div class="funnel-partner-count" style="font-size:10px;color:var(--slate-light)">—</div>
           </div>
 
+          <!-- @@SYNC:FUNNEL_END -->
           <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);font-size:11px;color:var(--slate-mid);">
-            <strong>Note:</strong> Stage counts estimated from available data. 696 total opportunities split across pipeline stages. Partner-attributed deals (4) appear concentrated in Testing Agent and Qualified stages.
+            <strong>Note:</strong> Stage counts are live from Close CRM. Partner-attributed deals appear concentrated in Testing Agent and Qualified stages.
           </div>
         </div>
       </div>
@@ -744,223 +746,7 @@
             </tr>
           </thead>
           <tbody id="pipeline-tbody">
-            <!-- Partner rows highlighted -->
-            <tr class="partner-row" data-partner="FlowData LLC" data-stage="Testing Agent">
-              <td><span class="t-company">Biz Advance</span></td>
-              <td><span class="t-stage stage-testing">Testing Agent ⚠️</span></td>
-              <td><span class="t-partner">FlowData LLC</span></td>
-              <td class="t-mrr">$7,152</td>
-              <td class="t-csm">Laura Turnbull</td>
-              <td>Mar 13, 2026</td>
-              <td class="t-note">Ambiguity: Close Chloe vs FlowData AI system — Barrett looped in</td>
-            </tr>
-            <tr class="partner-row" data-partner="Close Accelerate" data-stage="Testing Agent">
-              <td><span class="t-company">Kingdom Kapital</span></td>
-              <td><span class="t-stage stage-testing">Testing Agent ⚠️</span></td>
-              <td><span class="t-partner">Close Accelerate</span></td>
-              <td class="t-mrr">$4,155</td>
-              <td class="t-csm">Tina Duong</td>
-              <td>Mar 19, 2026</td>
-              <td class="t-note">Warren on vacation, outcomes not defined, 3/19 meeting declined</td>
-            </tr>
-            <tr data-stage="Testing Agent">
-              <td><span class="t-company">Sisu</span></td>
-              <td><span class="t-stage stage-testing">Testing Agent</span></td>
-              <td>—</td>
-              <td class="t-mrr">—</td>
-              <td class="t-csm">Laura Turnbull</td>
-              <td>Mar 13, 2026</td>
-              <td class="t-note">Live-call Alerts feature increased responsiveness</td>
-            </tr>
-            <tr data-stage="Testing Agent">
-              <td><span class="t-company">GrowthDay</span></td>
-              <td><span class="t-stage stage-testing">Testing Agent</span></td>
-              <td>—</td>
-              <td class="t-mrr">—</td>
-              <td class="t-csm">Kyle Craig</td>
-              <td>Mar 10, 2026</td>
-              <td class="t-note">Also testing Lindy; feedback meeting pending</td>
-            </tr>
-            <tr data-stage="Testing Agent">
-              <td><span class="t-company">Reins</span></td>
-              <td><span class="t-stage stage-testing">Testing Agent</span></td>
-              <td>—</td>
-              <td class="t-mrr">—</td>
-              <td class="t-csm">Teodora Soso</td>
-              <td>Mar 10, 2026</td>
-              <td class="t-note">Quid-pro-quo testing arrangement; follow up Wed</td>
-            </tr>
-            <tr data-stage="Testing Agent">
-              <td><span class="t-company">Blazestack</span></td>
-              <td><span class="t-stage stage-testing">Testing Agent</span></td>
-              <td>—</td>
-              <td class="t-mrr">—</td>
-              <td class="t-csm">Laura Turnbull</td>
-              <td>Mar 13, 2026</td>
-              <td class="t-note">Said will start testing, follow-up meeting TBD</td>
-            </tr>
-            <tr data-stage="Testing Agent">
-              <td><span class="t-company">Debbie Sardone Consulting</span></td>
-              <td><span class="t-stage stage-testing">Testing Agent</span></td>
-              <td>—</td>
-              <td class="t-mrr">—</td>
-              <td class="t-csm">Lauren Weisenthal</td>
-              <td>Mar 10, 2026</td>
-              <td class="t-note">Previously marked Activated — never fully launched; restarting setup</td>
-            </tr>
-            <tr class="partner-row" data-partner="Arya Rashtchian" data-stage="Qualified">
-              <td><span class="t-company">Offerland</span></td>
-              <td><span class="t-stage stage-qualified">Qualified 100%</span></td>
-              <td><span class="t-partner">Arya Rashtchian</span></td>
-              <td class="t-mrr">$541</td>
-              <td class="t-csm">Lauren Weisenthal</td>
-              <td>Mar 13, 2026</td>
-              <td class="t-note">Real estate inbound lead qualification; Canada-only; clear use case</td>
-            </tr>
-            <tr data-stage="Qualified">
-              <td><span class="t-company">Pulse Medical Inc</span></td>
-              <td><span class="t-stage stage-qualified">Qualified</span></td>
-              <td>—</td>
-              <td class="t-mrr">—</td>
-              <td class="t-csm">Laura Turnbull</td>
-              <td>Mar 6, 2026</td>
-              <td class="t-note">Call-over takeover skill shared; meeting next week</td>
-            </tr>
-            <tr class="partner-row" data-partner="FlowData LLC" data-stage="Targeted">
-              <td><span class="t-company">The Lanam Group</span></td>
-              <td><span class="t-stage stage-targeted">Targeted</span></td>
-              <td><span class="t-partner">FlowData LLC</span></td>
-              <td class="t-mrr">$3,129</td>
-              <td class="t-csm">Laura Turnbull</td>
-              <td>Mar 4, 2026</td>
-              <td class="t-note">FlowData-referred; onboarding call 3/4; same script as Biz Advance proposed</td>
-            </tr>
-            <tr data-stage="Activated">
-              <td><span class="t-company">WinIt</span></td>
-              <td><span class="t-stage stage-activated">Activated ✓</span></td>
-              <td>—</td>
-              <td class="t-mrr">—</td>
-              <td class="t-csm">Meghann O'Brien</td>
-              <td>Mar 2, 2026</td>
-              <td class="t-note">Live; exploring opportunity CFs in prompt</td>
-            </tr>
-            <tr data-stage="Activated">
-              <td><span class="t-company">RevPilot</span></td>
-              <td><span class="t-stage stage-activated">Activated ✓</span></td>
-              <td>—</td>
-              <td class="t-mrr">—</td>
-              <td class="t-csm">Teodora Soso</td>
-              <td>Feb 27, 2026</td>
-              <td class="t-note">Calling all buyers 12 min after purchase</td>
-            </tr>
-            <tr data-stage="Activated">
-              <td><span class="t-company">EFX Algo</span></td>
-              <td><span class="t-stage stage-activated">Activated ✓</span></td>
-              <td>—</td>
-              <td class="t-mrr">—</td>
-              <td class="t-csm">Laura Turnbull</td>
-              <td>Mar 13, 2026</td>
-              <td class="t-note">Exploring second Chloe job on recent leads</td>
-            </tr>
-            <tr data-stage="Activated">
-              <td><span class="t-company">Flatiron School</span></td>
-              <td><span class="t-stage stage-activated">Activated ✓</span></td>
-              <td>—</td>
-              <td class="t-mrr">—</td>
-              <td class="t-csm">Lauren Weisenthal</td>
-              <td>Mar 7, 2026</td>
-              <td class="t-note">Testing second use case after successful first deployment</td>
-            </tr>
-            <tr data-stage="Activated">
-              <td><span class="t-company">NFN8 Group</span></td>
-              <td><span class="t-stage stage-activated">Activated ✓</span></td>
-              <td>—</td>
-              <td class="t-mrr">—</td>
-              <td class="t-csm">Tina Duong</td>
-              <td>Feb 26, 2026</td>
-              <td class="t-note">Stale lead re-qualification; accredited investor use case</td>
-            </tr>
-            <tr data-stage="Activated">
-              <td><span class="t-company">Fast Capital Advance</span></td>
-              <td><span class="t-stage stage-activated">Activated ✓</span></td>
-              <td>—</td>
-              <td class="t-mrr">—</td>
-              <td class="t-csm">Tina Duong</td>
-              <td>Feb 26, 2026</td>
-              <td class="t-note">Re-engage stale leads for bank statement submission</td>
-            </tr>
-            <tr data-stage="Activated">
-              <td><span class="t-company">No Flipping Excuses</span></td>
-              <td><span class="t-stage stage-activated">Activated ✓</span></td>
-              <td>—</td>
-              <td class="t-mrr">—</td>
-              <td class="t-csm">Lauren Weisenthal</td>
-              <td>Mar 9, 2026</td>
-              <td class="t-note">100+ calls made; webinar no-show follow-up use case</td>
-            </tr>
-            <tr data-stage="Activated">
-              <td><span class="t-company">Career Evolved</span></td>
-              <td><span class="t-stage stage-activated">Activated ✓</span></td>
-              <td>—</td>
-              <td class="t-mrr">—</td>
-              <td class="t-csm">Teodora Soso</td>
-              <td>Jan 22, 2026</td>
-              <td class="t-note">Awaiting task creation workflow to launch</td>
-            </tr>
-            <tr data-stage="Activated">
-              <td><span class="t-company">Avocado</span></td>
-              <td><span class="t-stage stage-testing">Testing Agent</span></td>
-              <td>—</td>
-              <td class="t-mrr">—</td>
-              <td class="t-csm">Laura Turnbull</td>
-              <td>Mar 23, 2026</td>
-              <td class="t-note">Follow-up 3/27 after first job set up</td>
-            </tr>
-            <tr data-stage="Waitlist">
-              <td><span class="t-company">Stay at Home Bookkeeper</span></td>
-              <td><span class="t-stage stage-waitlist">Waitlist</span></td>
-              <td>—</td>
-              <td class="t-mrr">—</td>
-              <td class="t-csm">Christine Sotelo</td>
-              <td>Mar 24, 2026</td>
-              <td class="t-note">New inbound</td>
-            </tr>
-            <tr data-stage="Waitlist">
-              <td><span class="t-company">🇨🇭 Pro Switzerland CH</span></td>
-              <td><span class="t-stage stage-waitlist">Waitlist</span></td>
-              <td>—</td>
-              <td class="t-mrr">—</td>
-              <td class="t-csm">Christine Sotelo</td>
-              <td>Mar 24, 2026</td>
-              <td class="t-note">2 contacts (Jonas Wiesel, Christoph Schwetz)</td>
-            </tr>
-            <tr data-stage="Waitlist">
-              <td><span class="t-company">SmarterMinds</span></td>
-              <td><span class="t-stage stage-waitlist">Waitlist</span></td>
-              <td>—</td>
-              <td class="t-mrr">—</td>
-              <td class="t-csm">Christine Sotelo</td>
-              <td>Mar 24, 2026</td>
-              <td class="t-note">New inbound</td>
-            </tr>
-            <tr data-stage="Waitlist">
-              <td><span class="t-company">Real Estate Skills, Inc.</span></td>
-              <td><span class="t-stage stage-waitlist">Waitlist</span></td>
-              <td>—</td>
-              <td class="t-mrr">—</td>
-              <td class="t-csm">Christine Sotelo</td>
-              <td>Mar 24, 2026</td>
-              <td class="t-note">Real estate — potential fit with Offerland use case</td>
-            </tr>
-            <tr data-stage="Waitlist">
-              <td><span class="t-company">Roamly</span></td>
-              <td><span class="t-stage stage-waitlist">Waitlist</span></td>
-              <td>—</td>
-              <td class="t-mrr">—</td>
-              <td class="t-csm">Christine Sotelo</td>
-              <td>Mar 23, 2026</td>
-              <td class="t-note">New inbound</td>
-            </tr>
+            <!-- Rows injected by renderTable() on page load -->
           </tbody>
         </table>
       </div>
@@ -1150,6 +936,78 @@
 </div>
 
 <script>
+  // ── Pipeline data — auto-replaced by sync script on each run ─────────────────
+// @@SYNC:COMPANIES_START
+const COMPANIES = [
+  { company:'Biz Advance',       stage:'testing',  rep:'Laura Turnbull',    note:'Ambiguity: Close Chloe vs FlowData AI system — Barrett looped in',              closeAt:'',           partner:'FlowData LLC' },
+  { company:'Kingdom Kapital',   stage:'testing',  rep:'Tina Duong',        note:'Warren on vacation, outcomes not defined, 3/19 meeting declined',               closeAt:'',           partner:'Close Accelerate' },
+  { company:'The Lanam Group',   stage:'targeted', rep:'Laura Turnbull',    note:'FlowData-referred; onboarding call 3/4; same script as Biz Advance proposed',   closeAt:'',           partner:'FlowData LLC' },
+  { company:'Offerland',         stage:'qualified',rep:'Lauren Weisenthal', note:'Real estate inbound lead qualification; Canada-only; clear use case',           closeAt:'',           partner:'Arya Rashtchian' },
+  { company:'Sisu',              stage:'testing',  rep:'Laura Turnbull',    note:'Live-call Alerts feature increased responsiveness',                             closeAt:'',           partner:'' },
+  { company:'GrowthDay',         stage:'testing',  rep:'Kyle Craig',        note:'Also testing Lindy; feedback meeting pending',                                  closeAt:'',           partner:'' },
+  { company:'Reins',             stage:'testing',  rep:'Teodora Soso',      note:'Quid-pro-quo testing arrangement; follow up Wed',                               closeAt:'',           partner:'' },
+  { company:'Blazestack',        stage:'testing',  rep:'Laura Turnbull',    note:'Said will start testing, follow-up meeting TBD',                                closeAt:'',           partner:'' },
+  { company:'Debbie Sardone Consulting', stage:'testing', rep:'Lauren Weisenthal', note:'Previously marked Activated — never fully launched; restarting setup',   closeAt:'',           partner:'' },
+  { company:'Avocado',           stage:'testing',  rep:'Laura Turnbull',    note:'Follow-up 3/27 after first job set up',                                        closeAt:'',           partner:'' },
+  { company:'Pulse Medical Inc', stage:'qualified',rep:'Laura Turnbull',    note:'Call-over takeover skill shared; meeting next week',                            closeAt:'',           partner:'' },
+  { company:'WinIt',             stage:'activated',rep:"Meghann O\'Brien",  note:'Live; exploring opportunity CFs in prompt',                                     closeAt:'2026-02-28', partner:'' },
+  { company:'RevPilot',          stage:'activated',rep:'Teodora Soso',      note:'Calling all buyers 12 min after purchase',                                      closeAt:'2026-01-28', partner:'' },
+  { company:'EFX Algo',          stage:'activated',rep:'Laura Turnbull',    note:'Exploring second Chloe job on recent leads',                                    closeAt:'2026-01-16', partner:'' },
+  { company:'Flatiron School',   stage:'activated',rep:'Lauren Weisenthal', note:'Testing second use case after successful first deployment',                     closeAt:'2026-02-14', partner:'' },
+  { company:'NFN8 Group',        stage:'activated',rep:'Tina Duong',        note:'Stale lead re-qualification; accredited investor use case',                     closeAt:'2026-01-10', partner:'' },
+  { company:'Fast Capital Advance', stage:'activated', rep:'Tina Duong',    note:'Re-engage stale leads for bank statement submission',                           closeAt:'2026-01-10', partner:'' },
+  { company:'No Flipping Excuses',  stage:'activated', rep:'Lauren Weisenthal', note:'100+ calls made; webinar no-show follow-up use case',                      closeAt:'2026-02-20', partner:'' },
+  { company:'Career Evolved',    stage:'activated',rep:'Teodora Soso',      note:'Awaiting task creation workflow to launch',                                     closeAt:'2026-01-20', partner:'' },
+  { company:'Stay at Home Bookkeeper', stage:'waitlist', rep:'Christine Sotelo', note:'New inbound',                                                              closeAt:'',           partner:'' },
+  { company:'SmarterMinds',      stage:'waitlist', rep:'Christine Sotelo',  note:'New inbound',                                                                   closeAt:'',           partner:'' },
+  { company:'Real Estate Skills, Inc.', stage:'waitlist', rep:'Christine Sotelo', note:'Real estate — potential fit with Offerland use case',                    closeAt:'',           partner:'' },
+  { company:'Roamly',            stage:'waitlist', rep:'Christine Sotelo',  note:'New inbound',                                                                   closeAt:'',           partner:'' },
+];
+// @@SYNC:COMPANIES_END
+
+  // ── Stage display config ──────────────────────────────────────────────────────
+  const STAGE_CONFIG = {
+    waitlist:     { label: 'Waitlist',        cls: 'stage-waitlist'  },
+    interested:   { label: 'Interested',      cls: 'stage-waitlist'  },
+    targeted:     { label: 'Targeted',        cls: 'stage-targeted'  },
+    qualified:    { label: 'Qualified',       cls: 'stage-qualified' },
+    betainvite:   { label: 'Beta Invite',     cls: 'stage-qualified' },
+    testing:      { label: 'Testing Agent',   cls: 'stage-testing'   },
+    activated:    { label: 'Activated ✓',     cls: 'stage-activated' },
+    disqualified: { label: 'Lost',            cls: 'stage-waitlist'  },
+  };
+
+  // ── Render pipeline table from COMPANIES data ─────────────────────────────────
+  function renderTable() {
+    const tbody = document.getElementById('pipeline-tbody');
+    tbody.innerHTML = '';
+    const stageOrder = ['testing','qualified','targeted','betainvite','interested','activated','waitlist','disqualified'];
+    const sorted = [...COMPANIES].sort((a, b) => {
+      const ai = stageOrder.indexOf(a.stage), bi = stageOrder.indexOf(b.stage);
+      return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+    });
+    sorted.forEach(row => {
+      const cfg  = STAGE_CONFIG[row.stage] || { label: row.stage, cls: '' };
+      const isPartner = !!row.partner;
+      const isStalled = isPartner && row.stage === 'testing';
+      const stageLabel = cfg.label + (isStalled ? ' ⚠️' : '');
+      const tr = document.createElement('tr');
+      if (isPartner) tr.classList.add('partner-row');
+      tr.setAttribute('data-stage',   row.stage);
+      tr.setAttribute('data-partner', row.partner);
+      tr.innerHTML = `
+        <td><span class="t-company">${row.company}</span></td>
+        <td><span class="t-stage ${cfg.cls}">${stageLabel}</span></td>
+        <td>${isPartner ? `<span class="t-partner">${row.partner}</span>` : '—'}</td>
+        <td class="t-mrr">—</td>
+        <td class="t-csm">${row.rep}</td>
+        <td>${row.closeAt || '—'}</td>
+        <td class="t-note">${row.note}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
   function switchTab(name) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -1158,15 +1016,15 @@
   }
 
   function filterTable() {
-    const search = document.getElementById('pipeline-search').value.toLowerCase();
+    const search      = document.getElementById('pipeline-search').value.toLowerCase();
     const stageFilter = document.getElementById('stage-filter').value.toLowerCase();
-    const rows = document.querySelectorAll('#pipeline-tbody tr');
+    const rows        = document.querySelectorAll('#pipeline-tbody tr');
     rows.forEach(row => {
-      const text = row.textContent.toLowerCase();
-      const stage = (row.getAttribute('data-stage') || '').toLowerCase();
+      const text    = row.textContent.toLowerCase();
+      const stage   = (row.getAttribute('data-stage')   || '').toLowerCase();
       const partner = (row.getAttribute('data-partner') || '').toLowerCase();
       const matchSearch = !search || text.includes(search);
-      let matchStage = true;
+      let   matchStage  = true;
       if (stageFilter === 'partner') {
         matchStage = partner.length > 0;
       } else if (stageFilter) {
@@ -1175,6 +1033,9 @@
       row.style.display = (matchSearch && matchStage) ? '' : 'none';
     });
   }
+
+  // Init
+  renderTable();
 </script>
 
 </body>
