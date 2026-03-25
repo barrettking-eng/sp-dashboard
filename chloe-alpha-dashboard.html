@@ -807,6 +807,8 @@ const STAGES = {
 
 // @@SYNC:COMPANIES_START
 const COMPANIES = [
+  { company:'COACH OF LIFE SUCCESS LLC', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
+  { company:'Zero Gravity Massage', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'Reaktion', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'Remi Health', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'Attractive Media GmbH', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
@@ -885,7 +887,7 @@ const COMPANIES = [
   { company:'ExecLeads', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'SunBridge Advisors, LLC.', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'House of Fitnesss', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
-  { company:'Stay at Home Bookkeeper', stage:'qualified', rep:'Tina Duong', note:'Interested but wants to have a demo call for their users booked before discussing Chloe. I have a demo call for (regular onboarding) on the ', closeAt:'' },
+  { company:'Stay at Home Bookkeeper', stage:'qualified', rep:'Tina Duong', note:'3/24 interested but needs to discuss with their team which job Chloe would be a good fit for', closeAt:'' },
   { company:'🇨🇭 Pro Switzerland CH', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'SmarterMinds', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'Launch 27, LLC', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
@@ -1639,7 +1641,7 @@ function renderKPIs() {
 // ── Init ──────────────────────────────────────────────────────────────────────
 const now = new Date();
 document.getElementById('dateLabel').textContent = 'As of ' + now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-document.getElementById('asOfBadge').textContent = 'Last synced Mar 25, 2026 at 12:17 PM UTC'; // @@SYNC:TIMESTAMP
+document.getElementById('asOfBadge').textContent = 'Last synced Mar 25, 2026 at 1:21 PM UTC'; // @@SYNC:TIMESTAMP
 
 // Reorder: Recommendations above Company Directory
 const recsSection    = document.getElementById('recs-section');
