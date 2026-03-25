@@ -807,6 +807,9 @@ const STAGES = {
 
 // @@SYNC:COMPANIES_START
 const COMPANIES = [
+  { company:'Express Analytics', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
+  { company:'ICM Holdco III Corp', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
+  { company:'Elite Consulting, P.C.', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'Elite Exec', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'Success Circuits', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'Rilla', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
@@ -1361,10 +1364,8 @@ const COMPANIES = [
   { company:'Invictus Property Advisors', stage:'betainvite', rep:'Lauren Weisenthal', note:'3/13/26 - tested Chloe for themselves, checked in for feedback on what they thought.  3/9/26 - Validated use case. They had a million questi', closeAt:'2026-03-20' },
   { company:'Avocado', stage:'testing', rep:'Laura Turnbull', note:'3/23- follow up meeting schedule 3/27 after they\'ve set up first job', closeAt:'2026-04-24' },
   { company:'Vending Media Inc.', stage:'testing', rep:'Kyle Craig', note:'3/23 - Met with Jack who shared qualified use case. His developer will lead the onboarding of Chloe, once I have his contact I will enable C', closeAt:'' },
-  { company:'Eazy Grease', stage:'testing', rep:'Kyle Craig', note:'3/24 - Actively testing agent on small batches of leads, optimizing Chloe after each conversation. Has a few feedback points around AI scree', closeAt:'' },
   { company:'Epiic', stage:'testing', rep:'Kyle Craig', note:'3/25 - met with Andy who had strong use case, lower volume but they may be able to ramp up with multiple jobs. Nadya will be leading configu', closeAt:'' },
   { company:'Merchant Pro Funding', stage:'testing', rep:'Laura Turnbull', note:'3/24- onboarding call scheduled', closeAt:'2026-04-10' },
-  { company:'Radix Financial Group', stage:'testing', rep:'Kyle Craig', note:'3/23 - He is actively testing the agent and has had Chloe call some leads. He was pretty frustrated with the initial experience and felt lik', closeAt:'' },
   { company:'Dating with Gracie', stage:'testing', rep:'Kyle Craig', note:'3/18 - Had discovery call and went straight into onboarding set-up. Strong use case with a lot of volume, committed to moving quickly. We al', closeAt:'' },
   { company:'Muscle Intelligence', stage:'testing', rep:'Laura Turnbull', note:'3/17 - onboarding call', closeAt:'2026-03-27' },
   { company:'Coperniq Inc.', stage:'testing', rep:'Kyle Craig', note:'', closeAt:'' },
@@ -1378,7 +1379,7 @@ const COMPANIES = [
   { company:'Attain', stage:'testing', rep:'Kyle Craig', note:'3/10 - sent follow up to book onboarding meeting  3/4 - Met with Gabriel, first meeting booked from Chloe for Chloe workflow! They are a gre', closeAt:'' },
   { company:'Saw.com', stage:'testing', rep:'Tina Duong', note:'3/11 connected w/Vlad to review scheduling setup, group number selection, outcomes, workflows; he wants to build and test it out before laun', closeAt:'2026-03-30' },
   { company:'OfferHouse LLC', stage:'testing', rep:'Lauren Weisenthal', note:'3/19/26 - checked in again, trying to schedule for next week. I noticed that the first Chloe job we created seems to have disappeared.  3/10', closeAt:'2026-03-06' },
-  { company:'Legacy Trading Academy', stage:'testing', rep:'Forrest Dwyer', note:'', closeAt:'2026-03-11' },
+  { company:'Legacy Trading Academy', stage:'testing', rep:'Kyle Craig', note:'', closeAt:'2026-03-11' },
   { company:'SellSFH', stage:'testing', rep:'Teodora Soso', note:'march11 - slacked Luc about getting Chloe activated', closeAt:'2026-03-13' },
   { company:'Kasa', stage:'testing', rep:'Tina Duong', note:'3/10 - Obed is unresponsive; agent is live but they haven\'t tested it; was interested in setting their secondary org with Chloe but holding', closeAt:'2026-03-13' },
   { company:'CC Internet Immigration Services Inc', stage:'testing', rep:'Tina Duong', note:'3/24 lvm and sent email, potential disqualification at this point  3/4 - LVM for Riley and sent another follow-up email; they have a Chloe w', closeAt:'' },
@@ -1395,7 +1396,6 @@ const COMPANIES = [
   { company:'Sisu', stage:'testing', rep:'Laura Turnbull', note:'3/13- Testing approved prompt, following up on Slack to get them deployed.  With the release of live-call Alerts + Takeovers, they are more ', closeAt:'2026-03-20' },
   { company:'Offerland', stage:'testing', rep:'Lauren Weisenthal', note:'3/13/26 - customer gave more feedback about prompts and we\'ve shown him how to use the new prompt editor in product and asked him to book a', closeAt:'2026-01-28' },
   { company:'ClientMatchmaking.com', stage:'activated', rep:'Tina Duong', note:'3/24 Ben is really excited to try out Chloe, fully activated and calling leads. Good fit for excited customer', closeAt:'2026-03-24' },
-  { company:'Let Growth', stage:'activated', rep:'Lauren Weisenthal', note:'3/11/26 - qualified and began onboarding. Need to follow up on all the other setup steps and have follow up booked for 3/18.  Booked from a ', closeAt:'2026-03-27' },
   { company:'FleetCore Logistics', stage:'activated', rep:'Lauren Weisenthal', note:'3/18/26 - did follow up call, which revealed a challenge with gatekeepers/IVRs. Looking into a solution to this with Bonde.  3/16/26 - Did t', closeAt:'2026-03-20' },
   { company:'Zeta CDL', stage:'activated', rep:'Tina Duong', note:'3/19 agent is live, had one successful call where task was created for Renita to follow-up and the prospect is starting their program on Mon', closeAt:'2026-03-20' },
   { company:'Bklyn commons', stage:'activated', rep:'Teodora Soso', note:'03/10 - Completed Chloe onboarding with Jack — tested voice flows, configured skills, and started building the outbound calling workflow. Fo', closeAt:'2026-03-13' },
@@ -1413,6 +1413,9 @@ const COMPANIES = [
   { company:'Career Evolved', stage:'activated', rep:'Teodora Soso', note:'Next step: he needs outcomes to be set-> and then if qualified a workflow should create a call task for the cold caller to follow up.   They', closeAt:'2026-01-20' },
   { company:'RevPilot', stage:'activated', rep:'Teodora Soso', note:'we are calling all buyers 12 minutes after their purchase comes through', closeAt:'2026-01-28' },
   { company:'WinIt', stage:'activated', rep:'Meghann O\'Brien', note:'2/19 met with Val & Yesly with Matt. Working to get Opp CFs into the prompt so they can test. Are other Opps that have the info as a note so', closeAt:'2026-02-28' },
+  { company:'Eazy Grease', stage:'activated', rep:'Kyle Craig', note:'3/24 - Actively testing agent on small batches of leads, optimizing Chloe after each conversation. Has a few feedback points around AI scree', closeAt:'2026-03-25' },
+  { company:'Radix Financial Group', stage:'activated', rep:'Kyle Craig', note:'3/23 - He is actively testing the agent and has had Chloe call some leads. He was pretty frustrated with the initial experience and felt lik', closeAt:'2026-03-25' },
+  { company:'Let Growth', stage:'activated', rep:'Lauren Weisenthal', note:'3/11/26 - qualified and began onboarding. Need to follow up on all the other setup steps and have follow up booked for 3/18.  Booked from a ', closeAt:'2026-03-27' },
   { company:'Only One Brands Inc', stage:'disqualified', rep:'Lauren Weisenthal', note:'3/18/26 - didn\'t havea great experience with the Chloe 4 Chloe call. I think they mostly booked to see if they can get some help with workf', closeAt:'2026-04-16' },
   { company:'Azulai', stage:'disqualified', rep:'Laura Turnbull', note:'', closeAt:'' },
   { company:'Medusa', stage:'disqualified', rep:'Tina Duong', note:'', closeAt:'' },
@@ -1457,7 +1460,7 @@ const COMPANIES = [
   { company:'JobScore', stage:'disqualified', rep:'Laura Turnbull', note:'don\'t have a funnel of inbound leads', closeAt:'2026-03-11' },
   { company:'Avatar Buddy', stage:'disqualified', rep:'Kyle Craig', note:'3/11 - Met with stephanie who would want to use Chloe for outbound, they don\'t have an inbound lead source so Chloe would not be a good fit', closeAt:'' },
   { company:'Resi Financial', stage:'disqualified', rep:'Kyle Craig', note:'3/11 - After checking with Matt & Marcin, it was determined that their use case wouldn\'t qualify as opted-in leads. They\'re definitely int', closeAt:'' },
-  { company:'Plugzio', stage:'disqualified', rep:'Laura Turnbull', note:'', closeAt:'' },
+  { company:'Plugzio', stage:'disqualified', rep:'Laura Turnbull', note:'lacks bandwidth and data infrastructure for immediate pilot launch', closeAt:'' },
   { company:'OCNBLU', stage:'disqualified', rep:'Success Team', note:'', closeAt:'' },
   { company:'DigitalXResults', stage:'disqualified', rep:'Success Team', note:'', closeAt:'' },
   { company:'Centarus', stage:'disqualified', rep:'Success Team', note:'', closeAt:'' },
@@ -1650,7 +1653,7 @@ function renderKPIs() {
 // ── Init ──────────────────────────────────────────────────────────────────────
 const now = new Date();
 document.getElementById('dateLabel').textContent = 'As of ' + now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-document.getElementById('asOfBadge').textContent = 'Last synced Mar 25, 2026 at 4:13 PM UTC'; // @@SYNC:TIMESTAMP
+document.getElementById('asOfBadge').textContent = 'Last synced Mar 25, 2026 at 5:02 PM UTC'; // @@SYNC:TIMESTAMP
 
 // Reorder: Recommendations above Company Directory
 const recsSection    = document.getElementById('recs-section');
