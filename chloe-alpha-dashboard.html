@@ -807,6 +807,8 @@ const STAGES = {
 
 // @@SYNC:COMPANIES_START
 const COMPANIES = [
+  { company:'Elite Exec', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
+  { company:'Success Circuits', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'Rilla', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'Perk Industries', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'Scarlet & Gold', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
@@ -1648,7 +1650,7 @@ function renderKPIs() {
 // ── Init ──────────────────────────────────────────────────────────────────────
 const now = new Date();
 document.getElementById('dateLabel').textContent = 'As of ' + now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-document.getElementById('asOfBadge').textContent = 'Last synced Mar 25, 2026 at 4:06 PM UTC'; // @@SYNC:TIMESTAMP
+document.getElementById('asOfBadge').textContent = 'Last synced Mar 25, 2026 at 4:13 PM UTC'; // @@SYNC:TIMESTAMP
 
 // Reorder: Recommendations above Company Directory
 const recsSection    = document.getElementById('recs-section');
