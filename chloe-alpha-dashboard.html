@@ -807,7 +807,10 @@ const STAGES = {
 
 // @@SYNC:COMPANIES_START
 const COMPANIES = [
+  { company:'Real Estate Skills, Inc.', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
+  { company:'Simmons Capital Group', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'Juvo Leads', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
+  { company:'Hipcamp', stage:'targeted', rep:'Tina Duong', note:'', closeAt:'' },
   { company:'Cunz IT GmbH', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'Iomico', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'Prime Land Home Buyers', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
@@ -863,7 +866,6 @@ const COMPANIES = [
   { company:'Aerial Solutions', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'Livin', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'One Goal', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
-  { company:'Hipcamp', stage:'targeted', rep:'Tina Duong', note:'', closeAt:'' },
   { company:'Elite Performance Health Group', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'InvestWell Solutions', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'kfzmitdefekt.de', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
@@ -909,7 +911,6 @@ const COMPANIES = [
   { company:'Launch 27, LLC', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'Pro Sales Growth', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'Clearform Creative', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
-  { company:'Real Estate Skills, Inc.', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'Roamly', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'VoterFly', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'-- Florian', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
@@ -1246,6 +1247,7 @@ const COMPANIES = [
   { company:'George Smith Partners', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'Wellsite Navigator', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'Plantec', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
+  { company:'Data Engineer Academy', stage:'targeted', rep:'Tina Duong', note:'', closeAt:'2026-04-10' },
   { company:'The Lanam Group', stage:'targeted', rep:'Laura Turnbull', note:'3/4- spoke with FlowDataAI (their implementation partner) and looped barrett in to understand if they are trying to implement our Chloe, or ', closeAt:'2026-03-20' },
   { company:'Travefy', stage:'targeted', rep:'Success Team', note:'', closeAt:'' },
   { company:'The Rainmaker Family', stage:'targeted', rep:'Tina Duong', note:'', closeAt:'' },
@@ -1659,7 +1661,7 @@ function renderKPIs() {
 // ── Init ──────────────────────────────────────────────────────────────────────
 const now = new Date();
 document.getElementById('dateLabel').textContent = 'As of ' + now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-document.getElementById('asOfBadge').textContent = 'Last synced Mar 26, 2026 at 4:05 PM UTC'; // @@SYNC:TIMESTAMP
+document.getElementById('asOfBadge').textContent = 'Last synced Mar 26, 2026 at 5:02 PM UTC'; // @@SYNC:TIMESTAMP
 
 // Reorder: Recommendations above Company Directory
 const recsSection    = document.getElementById('recs-section');
