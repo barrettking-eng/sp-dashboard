@@ -807,6 +807,9 @@ const STAGES = {
 
 // @@SYNC:COMPANIES_START
 const COMPANIES = [
+  { company:'Hipcamp', stage:'targeted', rep:'Tina Duong', note:'', closeAt:'' },
+  { company:'Lifetime Protection', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
+  { company:'Public News Service', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'Lovepop', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'KBS AQUISITIONS INC', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'DNS Financial', stage:'qualified', rep:'Lauren Weisenthal', note:'2/18 - This is a maybe - he says he\'s got a group of leads in mind that haven\'t engaged in a while that he\'d love to try with Chloe.  CS ', closeAt:'' },
@@ -822,7 +825,6 @@ const COMPANIES = [
   { company:'Real Estate Skills, Inc.', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'Simmons Capital Group', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'Juvo Leads', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
-  { company:'Hipcamp', stage:'targeted', rep:'Tina Duong', note:'', closeAt:'' },
   { company:'Cunz IT GmbH', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'Iomico', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'Prime Land Home Buyers', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
@@ -910,7 +912,6 @@ const COMPANIES = [
   { company:'Rear View Safety', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'Lux Solutions Group Inc', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'DocketBird', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
-  { company:'Remote Scouts', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'Red9', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'ExecLeads', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'SunBridge Advisors, LLC.', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
@@ -1242,6 +1243,7 @@ const COMPANIES = [
   { company:'Pulse Medical Inc', stage:'qualified', rep:'Laura Turnbull', note:'3/6- emailed to inform them of new call takover skill and set up meeting for next week.', closeAt:'2026-04-03' },
   { company:'DripJobs', stage:'betainvite', rep:'Laura Turnbull', note:'3/24- up front with that their implementation would be slow, but want to start testing and thinking of use cases', closeAt:'2026-04-30' },
   { company:'Evergreen Capital', stage:'betainvite', rep:'Christine Sotelo', note:'', closeAt:'' },
+  { company:'Remote Scouts', stage:'betainvite', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'LoanGuys.com', stage:'betainvite', rep:'Tina Duong', note:'3/24 met with Max, tried setting up agent but he was at a hotel and the connection was slow. He\'s pretty tech savvy and has experiencing vi', closeAt:'2026-04-03' },
   { company:'Number Payments', stage:'betainvite', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'Inscope', stage:'betainvite', rep:'Christine Sotelo', note:'', closeAt:'' },
@@ -1691,7 +1693,7 @@ function renderKPIs() {
 // ── Init ──────────────────────────────────────────────────────────────────────
 const now = new Date();
 document.getElementById('dateLabel').textContent = 'As of ' + now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-document.getElementById('asOfBadge').textContent = 'Last synced Mar 27, 2026 at 1:16 PM UTC'; // @@SYNC:TIMESTAMP
+document.getElementById('asOfBadge').textContent = 'Last synced Mar 27, 2026 at 4:06 PM UTC'; // @@SYNC:TIMESTAMP
 
 // Reorder: Recommendations above Company Directory
 const recsSection    = document.getElementById('recs-section');
