@@ -43,12 +43,18 @@ jobs:
           CLOSE_API_KEY: ${{ secrets.CLOSE_API_KEY }}
         run: python scripts/sync_partner_dashboard.py
 
-      # ── Commit both HTML files if anything changed ───────────────────────────
+      # ── SP Partner dashboard ────────────────────────────────────────────────
+      - name: Sync SP partner dashboard
+        env:
+          PARTNERSTACK_API_KEY: ${{ secrets.PARTNERSTACK_API_KEY }}
+        run: python scripts/sync_sp_dashboard.py
+
+      # ── Commit all HTML files if anything changed ─────────────────────────
       - name: Commit and push updated dashboards
         run: |
           git config user.name  "Dashboard Sync Bot"
           git config user.email "noreply@github.com"
-          git add chloe-alpha-dashboard.html chloe-partner-dashboard.html
+          git add chloe-alpha-dashboard.html chloe-partner-dashboard.html sp-dashboard.html
           if git diff --staged --quiet; then
             echo "No changes detected — skipping commit."
           else
