@@ -809,7 +809,7 @@ const STAGES = {
 const COMPANIES = [
   { company:'Lovepop', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'KBS AQUISITIONS INC', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
-  { company:'DNS Financial', stage:'qualified', rep:'Lauren Weisenthal', note:'2/18 - This is a maybe - he says he\'s got a group of leads in mind that haven\'t engaged in a while that he\'d love to try with Chloe.  He ', closeAt:'' },
+  { company:'DNS Financial', stage:'qualified', rep:'Lauren Weisenthal', note:'2/18 - This is a maybe - he says he\'s got a group of leads in mind that haven\'t engaged in a while that he\'d love to try with Chloe.  CS ', closeAt:'' },
   { company:'AgentMethods', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'Pertainium Technologies', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
   { company:'ExecutivesMeet', stage:'waitlist', rep:'Christine Sotelo', note:'', closeAt:'' },
@@ -1227,6 +1227,7 @@ const COMPANIES = [
   { company:'BaseLocal', stage:'targeted', rep:'Success Team', note:'', closeAt:'' },
   { company:'Apptoto', stage:'targeted', rep:'Success Team', note:'', closeAt:'' },
   { company:'Acta Solutions Inc', stage:'targeted', rep:'Success Team', note:'', closeAt:'' },
+  { company:'Minky couture', stage:'waitlist', rep:'Lauren Weisenthal', note:'3/26/26 - expressed interest during the sales process - is in onboarding for regular Close now and we\'ll work on Chloe as part of that proj', closeAt:'2026-03-27' },
   { company:'EverythingCard Outbound Team', stage:'waitlist', rep:'Tina Duong', note:'3/23 met with Joyce (AKA Frances) and Lisa; interested in having it do both inbound and outbound (cold-calling). Wanted to hear live demos o', closeAt:'' },
   { company:'Actuvi', stage:'waitlist', rep:'Kyle Craig', note:'3/25 - Touched base after not hearing back about testing interest. Waiting to see if they still want to test or if they have updated their a', closeAt:'' },
   { company:'Josephine Agency', stage:'betainvite', rep:'Christine Sotelo', note:'', closeAt:'' },
@@ -1690,7 +1691,7 @@ function renderKPIs() {
 // ── Init ──────────────────────────────────────────────────────────────────────
 const now = new Date();
 document.getElementById('dateLabel').textContent = 'As of ' + now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-document.getElementById('asOfBadge').textContent = 'Last synced Mar 27, 2026 at 12:05 PM UTC'; // @@SYNC:TIMESTAMP
+document.getElementById('asOfBadge').textContent = 'Last synced Mar 27, 2026 at 1:16 PM UTC'; // @@SYNC:TIMESTAMP
 
 // Reorder: Recommendations above Company Directory
 const recsSection    = document.getElementById('recs-section');
