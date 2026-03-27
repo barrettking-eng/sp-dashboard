@@ -5,10 +5,11 @@ sync_sp_dashboard.py
 Pulls fresh data from PartnerStack and rewrites sp-dashboard.html in-place.
 Runs on schedule via GitHub Actions.
 
-Required env var:
-  PARTNERSTACK_API_KEY  — your PartnerStack API key (stored as a GitHub secret)
+Required env vars:
+  PARTNERSTACK_PUBLIC_KEY  — PartnerStack public key (Basic Auth username)
+  PARTNERSTACK_SECRET_KEY  — PartnerStack secret key (Basic Auth password)
 
-PartnerStack uses HTTP Basic Auth: API key as the username, empty password.
+PartnerStack API v2 uses HTTP Basic Auth: public key as username, secret key as password.
 """
 
 import json
@@ -22,9 +23,10 @@ import requests
 
 # ── Config ─────────────────────────────────────────────────────────────────────
 
-PS_API_KEY = os.environ.get("PARTNERSTACK_API_KEY", "").strip()
-if not PS_API_KEY:
-    sys.exit("ERROR: PARTNERSTACK_API_KEY environment variable is not set.")
+PS_PUBLIC_KEY = os.environ.get("PARTNERSTACK_PUBLIC_KEY", "").strip()
+PS_SECRET_KEY = os.environ.get("PARTNERSTACK_SECRET_KEY", "").strip()
+if not PS_PUBLIC_KEY or not PS_SECRET_KEY:
+    sys.exit("ERROR: PARTNERSTACK_PUBLIC_KEY and PARTNERSTACK_SECRET_KEY must both be set.")
 
 PS_BASE = "https://api.partnerstack.com/api/v2"
 HTML_FILE = os.path.join(os.path.dirname(__file__), "..", "sp-dashboard.html")
@@ -40,7 +42,7 @@ TIER_1_GROUP_KEY = "tier-1"   # adjust to match your actual PartnerStack group k
 def ps_get(path, params=None):
     resp = requests.get(
         f"{PS_BASE}{path}",
-        auth=(PS_API_KEY, ""),
+        auth=(PS_PUBLIC_KEY, PS_SECRET_KEY),
         params=params or {},
         timeout=30,
     )

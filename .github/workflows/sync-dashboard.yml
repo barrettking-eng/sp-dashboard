@@ -46,7 +46,8 @@ jobs:
       # ── SP Partner dashboard ────────────────────────────────────────────────
       - name: Sync SP partner dashboard
         env:
-          PARTNERSTACK_API_KEY: ${{ secrets.PARTNERSTACK_API_KEY }}
+          PARTNERSTACK_PUBLIC_KEY: ${{ secrets.PARTNERSTACK_PUBLIC_KEY }}
+          PARTNERSTACK_SECRET_KEY: ${{ secrets.PARTNERSTACK_SECRET_KEY }}
         run: python scripts/sync_sp_dashboard.py
 
       # ── Commit all HTML files if anything changed ─────────────────────────
